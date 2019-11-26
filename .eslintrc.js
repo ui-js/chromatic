@@ -1,7 +1,7 @@
 const path = require('path');
 module.exports = {
     root: true,
-    // Use the Typescript parser parser:
+    // Use the Typescript parser:
     parser: '@typescript-eslint/parser',
     extends: [
         // Uses the recommended rules for Typescript
@@ -11,9 +11,10 @@ module.exports = {
         'plugin:prettier/recommended',
     ],
     parserOptions: {
+        "project": "./tsconfig.json",
         // Configure the parser with the tsconfig file in the root project
         // (not the one in the local workspace)
-        tsconfigRootDir: path.resolve(__dirname, './src/'),
+        // tsconfigRootDir: path.resolve(__dirname, './src/'),
         // Allows for the parsing of modern ECMAScript features
         ecmaVersion: 2018,
         // Allows for the use of module imports

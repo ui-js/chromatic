@@ -816,11 +816,8 @@ function writeOutputFile(content: string, outputPath: string): void {
 }
 
 /**
- * @returns If the result of the build process is a single
- * file, its content is returned as a string.
- *
- * Otherwise, the return value is an object literal with each key the
- * name of a file, and its value its content.
+ * @returns A map where the key is a filename and the value is
+ * the content of the file.
  */
 function build(
     paths: string[],
@@ -1070,7 +1067,8 @@ export function chromatic(
         if (gConfig.outputFormat) {
             if (gConfig.verbose) {
                 log(
-                    'Setting the format to ' +
+                    terminal.warning() +
+                        'Setting the format to ' +
                         terminal.string(gConfig.outputFormat) +
                         ' based on the output file extension. ' +
                         `Use ${terminal.option(
@@ -1095,7 +1093,7 @@ export function chromatic(
     mergeObject(gConfig.valueFormatters, options?.valueFormatters);
 
     const result = build(paths, options);
-    if (messages) {
+    if (messages.length > 0) {
         result['stderr'] = messages.join('\n');
     }
     return result;

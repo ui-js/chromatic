@@ -25,8 +25,8 @@ export const terminal = {
     },
     error: (m = ''): string => {
         return gUseColor
-            ? chalk.hex(tcRed)(chalk.bold('🗙   ' + m))
-            : '🗙   ' + m;
+            ? chalk.hex(tcRed)(chalk.bold('✘   ' + m))
+            : '✘   ' + m;
     },
     warning: (m = ''): string => {
         return gUseColor

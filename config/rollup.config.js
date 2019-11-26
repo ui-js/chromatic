@@ -27,7 +27,7 @@ const TYPESCRIPT_OPTIONS = {
 const TERSER_OPTIONS = {
     sourcemap: false,
     compress: {
-        drop_console: true,
+        drop_console: false,
         drop_debugger: true,
         ecma: 8, // Use "5" to support older browsers
         module: true,

@@ -6,20 +6,22 @@
     "configurations": [
 
 
+
+
         {
             "type": "node",
             "request": "launch",
             "name": "Simple",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}\\bin\\chromatic",
+            "program": "${workspaceFolder}/bin/chromatic",
             "args": [
                 "test/tokens/basic-example/tokens.yaml",
-                "--format",
-                "sass",
+                // "--format",
+                // "sass",
                 "--verbose",
                 "--ignore-errors",
                 "-o",
-                "build/tokens.sass"
+                "build/style.html"
             ]
         },
         {
@@ -27,7 +29,7 @@
             "request": "launch",
             "name": "Style Guide",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}\\bin\\chromatic",
+            "program": "${workspaceFolder}/bin/chromatic",
             "args": [
                 "test/tokens/basic-example/tokens.yaml",
                 "--format",
@@ -43,7 +45,7 @@
             "request": "launch",
             "name": "Launch chromatic",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}\\bin\\chromatic",
+            "program": "${workspaceFolder}/bin/chromatic",
             "args": ["test/tokens/aliases.yaml", "--verbose", "--ignore-errors"]
         },
         {
@@ -51,7 +53,7 @@
             "request": "launch",
             "name": "Readme",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}\\bin\\chromatic",
+            "program": "${workspaceFolder}/bin/chromatic",
             "args": ["test/tokens/readme.yaml", "--format='sass'", "--verbose"]
         }
         {
@@ -59,7 +61,7 @@
             "request": "launch",
             "name": "Onboarding",
             "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}\\bin\\chromatic",
+            "program": "${workspaceFolder}/bin/chromatic",
             "args": ["--verbose"]
         }
     ]

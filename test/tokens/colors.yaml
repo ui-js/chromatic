@@ -1,0 +1,78 @@
+tokens:
+    unknown-unit: '12km'
+    rgb-decimal-1: 'rgb(255 160 122 .5)'
+    hex-3: '#fa7'
+    hex-4: '#fa78'
+    hex-6: '#ffa07a'
+    hex-8: '#ffa07a80'
+    hex-6-uppercase: '#FFA07A80'
+    named: 'salmon'
+    named-uppercase: 'Salmon'
+    transparent: 'transparent'
+    current: 'currentcolor'
+    complex: 'darken(lab(54.975%, 36.8, -50.097))'
+    transparent-as-rgb: 'rgb(0,0,0,0)'
+    rgb-decimal: 'rgb(255 160 122 .5)'
+    rgb-percent: 'rgb(99.5% 62.7% 47.8% 50%)'
+    rgb-clamped-alpha: 'rgb(255 160 122 2.5)'
+    rgb-alpha-percent: 'rgb(255 160 122 50%)'
+    rgb-no-alpha: 'rgb(255 160 122)'
+    rgba: 'rgba(255 160 122 50%)'
+    rgb-legacy-syntax: 'rgba(255, 160, 122, 50%)'
+    hsl: 'hsl(17.1deg 100% 73.9% .5)'
+    hsl-decimal-deg: 'hsl(17.1 100% 73.9% .5)'
+    hsl-decimal: 'hsl(17.1 1.0 0.74 .5)'
+    hsl-legacy-syntax: 'hsl(17.1deg, 100%, 73.9%, .5)'
+    hsla: 'hsla(17.1deg 100% 73.9% .5)'
+    hsl-with-grad: 'hsla(19grad 100% 73.9% .5)'
+    hsl-with-rad: 'hsla(0.2985rad 100% 73.9% .5)'
+
+    hwb: 'hwb(17deg 48% 0%)'
+    hsv: 'hsv(259.6deg, 48.9%, 85.9%)' # #9370db
+    hsv-with-unicode-deg: 'hsv(259.6° 48.9% 85.9%)' # #9370db
+    lab: 'lab(54.975%, 36.8, -50.097)'
+    gray: 'gray(50%)'
+    rotate-hue: 'rotateHue(#ffa07a, 45deg)'
+    rotate-hue-single-argument: 'rotateHue(#ffa07a)'
+    complement-1: 'complement(#ffa07a)'
+    complement: 'complement(#d2e1dd)' #e1d2d6
+    mix-white: 'mix(#fff, #d2e1dd, 60%)'
+    mix-black: 'mix(#000, #d2e1dd, 60%)'
+    darken: 'darken(#d2e1dd, 33%)' # reduces lightness by 33%
+    lighten: 'lighten(#d2e1dd, 33%)' # increase lightness by 33%
+    shade: 'shade(#d2e1dd, 33%)' # mix with black
+    tint: 'tint(#d2e1dd, 33%)' # mix with white
+    tint-default: 'tint(#d2e1dd)' # mix wiht white
+    tint-10: 'tint(#d2e1dd, 10%)' # mix wiht white
+    saturate: 'saturate(#8060c0 33%)' # = #d42b2b increase saturation by 1/3 #df2020
+    desaturate: 'desaturate(#8060c0 50%)' # decrease saturation by 1/2
+    saturate-desaturate: 'desaturate(saturate(#8060c0 20%) 20%)'
+    contrast-purple: 'contrast(#fff, #CC21CC, #f00)'
+    contrast-auto: 'contrast(#CC21CC)'
+    string-argument: 'mix(#fff, #d2e1dd, 60%, "hsl")'
+    invalid:
+        missing-arguments: 'rgb(255)'
+        rotate-hue-lowercase: 'rotatehue(#ffa07a, 45deg)'
+        number-plus-angle: '42 + 10deg'
+        number-plus-percent: '42 + 10%'
+        number-plus-color: '42 + #fa7'
+        number-plus-dimen: '42 + 10px'
+        angle-plus-number: '10deg + 5'
+        angle-plus-percent: '10deg + 10%'
+        angle-plus-color: '10deg + #fa7'
+        angle-plus-dimen: '10deg + 10px'
+        percent-plus-number: '10% + 5'
+        percent-plus-angle: '10% + 30deg'
+        percent-plus-color: '10% + #fa7'
+        percent-plus-dimen: '10% + 10px'
+        color-plus-number: '#fa7 + 2'
+        color-plus-angle: '#fa7 + 10deg'
+        color-plus-percent: '#fa7 + 10%'
+        color-plus-color: '#fa7 + #123'
+        color-plus-dimen: '#fa7 + 12px'
+        dimen-plus-number: '12px + 5'
+        dimen-plus-angle: '12px + 10deg'
+        dimen-plus-percent: '12px + 5%'
+        dimen-plus-color: '12px + #f7a'
+        length-rem: '1rem + 0px'
+        length-em: '1em + 0px'

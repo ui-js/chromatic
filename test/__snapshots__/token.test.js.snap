@@ -1,0 +1,161 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`evaluates a file with an array of tokens 1`] = `
+Object {
+  "stderr": "
+🗙   File not found: ./test/tokens/token-arrays.yaml
+
+🗙   No tokens found.
+    Token files should have a \\"tokens\\" property
+▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+}
+`;
+
+exports[`evaluates a file with no tokens 1`] = `
+Object {
+  "stderr": "
+🗙   No tokens found.
+    Token files should have a \\"tokens\\" property
+▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+}
+`;
+
+exports[`evaluates a simple token file 1`] = `
+Object {
+  "stderr": "⚠   Format not specified. Using \\"yaml\\". Use --format to indicate which output format to use.",
+  "tokens.yaml": "
+tokens:
+	primary: \\"#0066ce\\"",
+}
+`;
+
+exports[`evaluates a token file with an invalid token name 1`] = `
+Object {
+  "stderr": "
+🗙   test\\\\tokens\\\\invalid-token-name.yaml
+    Invalid token name \\"<>\\": it must only contain digits, letters, \\"_\\" and \\"-\\"
+
+🗙   No tokens found.
+    Token files should have a \\"tokens\\" property
+▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+}
+`;
+
+exports[`evaluates aliases in token values correctly 1`] = `
+Object {
+  "stderr": "
+🗙   Syntax error in \\"circular-alias: \\"darken({circular-alias})\\"\\" 
+    Circular definition of the \\"circular-alias\\" token
+
+🗙   Syntax error in \\"two-level-circular-alias: \\"{one-level-circular-alias}\\"\\" 
+    Circular definition of the \\"one-level-circular-alias\\" token
+
+🗙   Syntax error in \\"one-level-circular-alias: \\"{two-level-circular-alias}\\"\\" 
+    Circular definition of the \\"one-level-circular-alias\\" token
+
+🗙   Syntax error in \\"invalid.alias-syntax-error: \\"darken({rouge}}\\"\\" 
+    Syntax error in argument list
+
+🗙   Unresolved alias.The \\"{rogue}\\" identifier could not be resolved.. Did you mean \\"rouge\\"?",
+  "tokens.yaml": "
+tokens:
+	rouge: \\"#f00\\"
+	simple-alias: \\"#f00\\"
+	two-level-alias: \\"#f00\\"
+	alias-in-expression: \\"#e60000\\"
+	alias-in-string: \\"3px #f00\\"
+	circular-alias: \\"darken(darken({circular-alias}))\\"
+	two-level-circular-alias: \\"{two-level-circular-alias}\\"
+	one-level-circular-alias: \\"{two-level-circular-alias}\\"
+	invalid.mispelled-alias: \\"darken({rogue})\\"
+	invalid.alias-syntax-error: \\"darken(#f00}\\"",
+}
+`;
+
+exports[`evaluates color tokens correctly 1`] = `
+Object {
+  "stderr": "
+🗙   File not found: ./test/tokens/no-colors.yaml
+
+🗙   No tokens found.
+    Token files should have a \\"tokens\\" property
+▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+}
+`;
+
+exports[`evaluates comments, etc... associated with a token 1`] = `
+Object {
+  "stderr": "",
+  "tokens.yaml": "
+tokens:
+	# Use sparingly
+	primary: \\"#002aff\\"",
+}
+`;
+
+exports[`evaluates expressions in token values correctly 1`] = `
+Object {
+  "stderr": "",
+  "tokens.yaml": "
+tokens:
+	string: \\"boom\\"
+	length: \\"12px\\"
+	product-mul: \\"15\\"
+	product-div: \\"9pt\\"
+	term-add: \\"26px\\"
+	term-sub: \\"38px\\"
+	term-zero: \\"48px\\"
+	term-product: \\"13\\"
+	term-product-2: \\"13\\"
+	unary-minus: \\"-17\\"
+	unary-plus: \\"17\\"
+	string-plus-string-2: \\"42 is the answer\\"
+	number-plus-number: \\"42\\"
+	angle-plus-angle: \\"296.48deg\\"
+	angle-plus-string: \\"10deg slope\\"
+	percent-plus-percent: \\"40%\\"
+	percent-plus-string: \\"10% discount\\"
+	color-plus-string: \\"#fa7 color\\"
+	dimen-plus-dimen: \\"18.67px\\"
+	string-plus-number: \\"answer: 42\\"
+	string-plus-angle: \\"hello 12deg\\"
+	string-plus-percent: \\"hello 10%\\"
+	string-plus-color: \\"hello #f7a\\"
+	string-plus-dimen: \\"hello 12px\\"
+	string-plus-string: \\"hello  world\\"
+	product-angle: \\"20\\"
+	product-percent: \\"0.3\\"
+	product-length: \\"24\\"
+	divide-angle: \\"5deg\\"
+	divide-percent: \\"5.5%\\"
+	divide-length: \\"5px\\"
+	group-percent: \\"33.33%\\"
+	group-length: \\"15px\\"
+	length-cm: \\"37.8px\\"
+	length-mm: \\"3.78px\\"
+	length-Q: \\"0.94px\\"
+	length-in: \\"96px\\"
+	length-in-2: \\"106px\\"
+	length-pc: \\"16px\\"
+	length-pt: \\"1.33px\\"
+	length-pt-2: \\"11.33px\\"
+	length-px: \\"1px\\"
+	group: \\"25\\"
+	length-ratio: \\"6.25\\"
+	color-ratio: \\"0.08235471767793863\\"
+	ws-in-expression: \\"25\\"
+	ws-in-function: \\"#782e4a\\"",
+}
+`;
+
+exports[`evaluates two themes 1`] = `
+Object {
+  "stderr": "",
+  "tokens.yaml": "
+tokens:
+	background-dark: \\"#fff\\"
+	body-dark: \\"#222\\"
+	background-light: \\"#333\\"
+	body-light: \\"#ddd\\"",
+}
+`;

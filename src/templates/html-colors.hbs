@@ -1,0 +1,20 @@
+
+{{#if colors}}
+{{#if group}} <h3>{{ group }}</h3> {{/if}}
+<div class='color-chips'>  
+    {{#each colors}}
+    <div class="color-chip">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch {{cls}}' style='background-color:{{value}}'>
+        <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{name}}</h3>
+        <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{value}}</h4>
+        </div>
+    </div>
+    {{#if comment}}
+    <p class='color-chip-comment'>{{{comment}}}</p>
+    {{/if}}
+    </div>
+    {{/each}}
+</div>
+
+{{/if}}

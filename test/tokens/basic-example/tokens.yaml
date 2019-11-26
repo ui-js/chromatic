@@ -1,0 +1,13 @@
+import:
+    - ./base-colors.yaml
+    - ./dark-theme.yaml
+tokens:
+    scrim: 'gray(30%, 40%)'
+    cta-button-background: '{primary}'
+    page-background: 'gray(98%)'
+    text-color: 'gray(5%)'
+    cta-button-color: 'contrast({primary}, #ddd, #333)'
+    link-color: '{blue}'
+    link-active-color: 'saturate(darken({link-color}, 5%), 15%)'
+    link-down-color: 'darken({link-color}, 10%)'
+    link-hover-color: 'saturate(darken({link-color}, 5%), 10%)'

@@ -1,0 +1,21 @@
+tokens:
+    red: 'hsl(2.2,67.9%,52.4%) '
+    orange: 'hsl(38.8,100%,50%)'
+    yellow: 'hsl(48,100%,50%)'
+    green: 'hsl(85.1,41.1%,35.3%)'
+    blue: 'hsl(208.1,69.6%,45.1%)'
+    purple: 'hsl(279.9,68%,59.6%)'
+
+    primary-hue: '210deg'
+    primary: 'hsl({primary-hue}, 90%, 40%)'
+
+    semantic:
+        success:
+            comment: 'Indicate a completed task.'
+            value: '{green}'
+        warning:
+            comment: 'Indicate a problem that does not prevent a task from being completed.'
+            value: '{orange}'
+        error:
+            comment: 'Indicate an error that prevents a task from being completed.'
+            value: '{red}'

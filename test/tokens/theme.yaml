@@ -1,0 +1,9 @@
+tokens:
+    background:
+        value:
+            dark: '#fff'
+            light: '#333'
+    body:
+        value:
+            dark: '#222'
+            light: '#ddd'

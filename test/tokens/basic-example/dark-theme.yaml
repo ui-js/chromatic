@@ -1,0 +1,6 @@
+theme: 'dark'
+tokens:
+    semantic:
+        error: 'lighten(saturate({semantic.error}, 20%), 8%)'
+    page-background: 'gray(15%)'
+    text-color: 'gray(95%)'

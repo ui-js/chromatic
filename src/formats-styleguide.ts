@@ -36,6 +36,7 @@ function renderFragment(context: RenderFileContext): string {
                     handlebarsContext.colors.push({
                         name: token,
                         def: def.value,
+                        source: color.getSource(),
                         value: color.css(),
                         comment: def.comment ?? '',
                         cls: cls,

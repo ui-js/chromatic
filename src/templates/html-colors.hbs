@@ -10,6 +10,9 @@
         <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{value}}</h4>
         </div>
     </div>
+    {{#if source}}
+    <p class='value-source'>{{source}}</p>
+    {{/if}}
     {{#if comment}}
     <p class='color-chip-comment'>{{{comment}}}</p>
     {{/if}}

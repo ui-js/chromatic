@@ -248,15 +248,29 @@ function roundTo(num: number, precision: number): number {
     );
 }
 
-export interface Value {
-    css: () => string;
-    type: () => ValueType;
-    canonicalScalar: () => number;
+export class Value {
+    private source = '';
+    css(): string {
+        return '';
+    }
+    type(): ValueType {
+        return undefined;
+    }
+    canonicalScalar(): number {
+        return 0;
+    }
+    getSource(): string {
+        return this.source;
+    }
+    setSource(source: string): void {
+        this.source = source;
+    }
 }
 
-class Percentage implements Value {
+class Percentage extends Value {
     value: number; /* [0..100] */
     constructor(from: number) {
+        super();
         this.value = from;
     }
     css(): string {
@@ -270,10 +284,11 @@ class Percentage implements Value {
     }
 }
 
-class Angle implements Value {
+class Angle extends Value {
     value: number;
     unit: AngleUnit;
     constructor(from: number, unit: AngleUnit) {
+        super();
         this.value = from;
         this.unit = unit;
     }
@@ -288,10 +303,11 @@ class Angle implements Value {
     }
 }
 
-class Length implements Value {
+class Length extends Value {
     value: number;
     unit: LengthUnit;
     constructor(from: number, unit: LengthUnit) {
+        super();
         this.value = from;
         this.unit = unit;
     }
@@ -305,10 +321,11 @@ class Length implements Value {
         return asPx(this);
     }
 }
-class Time implements Value {
+class Time extends Value {
     value: number;
     unit: TimeUnit;
     constructor(from: number, unit: TimeUnit) {
+        super();
         this.value = from;
         this.unit = unit;
     }
@@ -323,10 +340,11 @@ class Time implements Value {
     }
 }
 
-class Frequency implements Value {
+class Frequency extends Value {
     value: number;
     unit: FrequencyUnit;
     constructor(from: number, unit: FrequencyUnit) {
+        super();
         this.value = from;
         this.unit = unit;
     }
@@ -341,9 +359,10 @@ class Frequency implements Value {
     }
 }
 
-class Float implements Value {
+class Float extends Value {
     value: number;
     constructor(from: number) {
+        super();
         this.value = from;
     }
     css(): string {
@@ -357,9 +376,10 @@ class Float implements Value {
     }
 }
 
-export class StringValue implements Value {
+export class StringValue extends Value {
     value: string;
     constructor(from: string) {
+        super();
         this.value = from;
     }
     css(quoteLiteral = ''): string {
@@ -373,7 +393,7 @@ export class StringValue implements Value {
     }
 }
 
-export class Color implements Value {
+export class Color extends Value {
     r?: number; /* [0..255] */
     g?: number; /* [0..255] */
     b?: number; /* [0..255] */
@@ -382,6 +402,7 @@ export class Color implements Value {
     s?: number;
     a: number; /* [0..1] */
     constructor(from: object | string) {
+        super();
         if (typeof from === 'string') {
             if (from.toLowerCase() === 'transparent') {
                 [this.r, this.g, this.b, this.a] = [0, 0, 0, 0];
@@ -479,32 +500,57 @@ export class Color implements Value {
     }
 }
 
-function isFloat(arg): arg is Float {
+function isFloat(arg: Value): arg is Float {
     return arg instanceof Float;
 }
 
-function isPercentage(arg): arg is Percentage {
+function isPercentage(arg: Value): arg is Percentage {
     return arg instanceof Percentage;
 }
 
-function isLength(arg): arg is Length {
+function isLength(arg: Value): arg is Length {
     return arg instanceof Length;
 }
 
-function isString(arg): arg is StringValue {
+function isString(arg: Value): arg is StringValue {
     return arg instanceof StringValue;
 }
 
-function isAngle(arg): arg is Angle {
+function isAngle(arg: Value): arg is Angle {
     return arg instanceof Angle;
 }
 
-function isTime(arg): arg is Time {
+function isTime(arg: Value): arg is Time {
     return arg instanceof Time;
 }
 
-function isFrequency(arg): arg is Frequency {
+function isFrequency(arg: Value): arg is Frequency {
     return arg instanceof Frequency;
+}
+
+export function makeValueFrom(from: {
+    type: () => ValueType;
+    [key: string]: any;
+}): Value {
+    switch (from.type()) {
+        case 'color':
+            return new Color(from);
+        case 'frequency':
+            return new Frequency(from.value, from.unit);
+        case 'time':
+            return new Time(from.value, from.unit);
+        case 'angle':
+            return new Angle(from.value, from.unit);
+        case 'string':
+            return new StringValue(from.value);
+        case 'length':
+            return new Length(from.value, from.unit);
+        case 'percentage':
+            return new Percentage(from.value);
+        case 'float':
+            return new Float(from.value);
+    }
+    return undefined;
 }
 
 /**
@@ -925,11 +971,6 @@ function validateArguments(fn: string, args: any[]): void {
             );
         }
     }
-    if (args.every(x => typeof x.type === 'function')) {
-        console.log('looks legit');
-    } else {
-        console.error('seems fishy');
-    }
 }
 
 class Stream {
@@ -1012,9 +1053,15 @@ class Stream {
         if (!result && this.match('{')) {
             const identifier = this.match(/^([a-zA-Z0-9\._-]+)/);
             if (identifier) {
-                result =
-                    this.options?.aliasResolver(identifier) ||
-                    new StringValue('{' + identifier + '}');
+                result = this.options?.aliasResolver(identifier);
+                if (result) {
+                    // Clone the result of the alias, since we'll need to change
+                    // the source
+                    result = makeValueFrom(result);
+                    result.setSource('{' + identifier + '}');
+                } else {
+                    result = new StringValue('{' + identifier + '}');
+                }
             }
             this.match('}');
         }
@@ -1347,10 +1394,10 @@ class Stream {
 }
 
 export function parseValue(
-    value: string,
+    expression: string,
     options: ValueParserOptions = {}
 ): Value {
-    const stream = new Stream(value, options);
+    const stream = new Stream(expression, options);
     const result = stream.parseExpression();
     stream.skipWhiteSpace();
     if (!stream.isEOF()) {
@@ -1360,5 +1407,6 @@ export function parseValue(
         // be interpreted as a string, not as "3px".
         return undefined;
     }
+    result.setSource(expression);
     return result;
 }

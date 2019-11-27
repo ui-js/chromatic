@@ -51,6 +51,10 @@ tokens:
     contrast-auto: 'contrast(#CC21CC)'
     string-argument: 'mix(#fff, #d2e1dd, 60%, "hsl")'
     invalid:
+        argument-alias: 'tint({hex-6}, {named})'
+        argument: 'tint(#f00, #0f0)'
+        not-enough-arguments: 'min(56)'
+        too-many-arguments: 'min(56, 42, 33)'
         missing-arguments: 'rgb(255)'
         rotate-hue-lowercase: 'rotatehue(#ffa07a, 45deg)'
         number-plus-angle: '42 + 10deg'

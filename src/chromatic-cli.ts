@@ -3,6 +3,21 @@ import { terminal } from './terminal';
 
 const chokidar = require('chokidar');
 
+function logResult(result: { [file: string]: string }): void {
+    console.log(
+        Object.keys(result)
+            .map(
+                x =>
+                    (x === 'stderr' ? terminal.error() : terminal.success()) +
+                    '>>>> ' +
+                    terminal.path(x) +
+                    '\n' +
+                    result[x]
+            )
+            .join('\n')
+    );
+}
+
 const argv = require('yargs')
     .usage('Usage: $0 file(s) [options]')
     .example(
@@ -74,40 +89,46 @@ const argv = require('yargs')
     )
     .strict(true).argv;
 
-if (argv._.length < 1) {
-    console.error(
-        terminal.error() +
-            `Expected at least one path to a directory or token file. Use ${terminal.option(
-                '--help'
-            )} for available options.`
-    );
-    process.exit(1);
-}
-if (argv.watch) {
-    chokidar.watch(argv._).on('all', (_event: any, _path: string) => {
-        chromatic(argv._, { ...argv, ...{ watching: true } });
-        console.log(
-            terminal.time() +
-                ` ${terminal.dim(
-                    argv.$0
-                )}: Waiting for changes... ${terminal.dim(
-                    'Press Ctrl-C to exit.'
-                )}`
-        );
+if (typeof process.stdin.isTTY !== 'undefined' && !process.stdin.isTTY) {
+    // The command was piped, e.g.
+    // `echo "foo" | chromatic`
+    process.stdin.setEncoding('utf-8');
+    let input = '';
+    process.stdin.on('readable', function() {
+        let chunk: string;
+        while ((chunk = process.stdin.read())) {
+            input += chunk;
+        }
+    });
+
+    process.stdin.on('end', function() {
+        logResult(chromatic(input, argv));
     });
 } else {
-    const result = chromatic(argv._, argv);
+    // The command was not piped
+    if (argv._.length < 1) {
+        console.error(
+            terminal.error() +
+                `Expected at least one path to a directory or token file. Use ${terminal.option(
+                    '--help'
+                )} for available options.`
+        );
+        process.exit(1);
+    }
 
-    console.log(
-        Object.keys(result)
-            .map(
-                x =>
-                    (x === 'stderr' ? terminal.error() : terminal.success()) +
-                    '>>>> ' +
-                    terminal.path(x) +
-                    '\n' +
-                    result[x]
-            )
-            .join('\n')
-    );
+    if (argv.watch) {
+        chokidar.watch(argv._).on('all', (_event: any, _path: string) => {
+            chromatic(argv._, { ...argv, ...{ watching: true } });
+            console.log(
+                terminal.time() +
+                    ` ${terminal.dim(
+                        argv.$0
+                    )}: Waiting for changes... ${terminal.dim(
+                        'Press Ctrl-C to exit.'
+                    )}`
+            );
+        });
+    } else {
+        logResult(chromatic(argv._, argv));
+    }
 }

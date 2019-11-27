@@ -3,9 +3,9 @@
 exports[`evaluates a file with an array of tokens 1`] = `
 Object {
   "stderr": "
-🗙   File not found: ./test/tokens/token-arrays.yaml
+✘   File not found: ./test/tokens/token-arrays.yaml
 
-🗙   No tokens found.
+✘   No tokens found.
     Token files should have a \\"tokens\\" property
 ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
@@ -14,7 +14,7 @@ Object {
 exports[`evaluates a file with no tokens 1`] = `
 Object {
   "stderr": "
-🗙   No tokens found.
+✘   No tokens found.
     Token files should have a \\"tokens\\" property
 ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
@@ -32,10 +32,10 @@ tokens:
 exports[`evaluates a token file with an invalid token name 1`] = `
 Object {
   "stderr": "
-🗙   test\\\\tokens\\\\invalid-token-name.yaml
+✘   test\\\\tokens\\\\invalid-token-name.yaml
     Invalid token name \\"<>\\": it must only contain digits, letters, \\"_\\" and \\"-\\"
 
-🗙   No tokens found.
+✘   No tokens found.
     Token files should have a \\"tokens\\" property
 ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
@@ -44,19 +44,22 @@ Object {
 exports[`evaluates aliases in token values correctly 1`] = `
 Object {
   "stderr": "
-🗙   Syntax error in \\"circular-alias: \\"darken({circular-alias})\\"\\" 
+✘   Syntax error in \\"circular-alias: \\"darken({circular-alias})\\"\\" 
     Circular definition of the \\"circular-alias\\" token
 
-🗙   Syntax error in \\"two-level-circular-alias: \\"{one-level-circular-alias}\\"\\" 
+✘   Syntax error in \\"two-level-circular-alias: \\"{one-level-circular-alias}\\"\\" 
     Circular definition of the \\"one-level-circular-alias\\" token
 
-🗙   Syntax error in \\"one-level-circular-alias: \\"{two-level-circular-alias}\\"\\" 
+✘   Syntax error in \\"one-level-circular-alias: \\"{two-level-circular-alias}\\"\\" 
     Circular definition of the \\"one-level-circular-alias\\" token
 
-🗙   Syntax error in \\"invalid.alias-syntax-error: \\"darken({rouge}}\\"\\" 
+✘   Syntax error in \\"invalid.mispelled-alias: \\"darken({rogue})\\"\\" 
+    Expected argument 1 of \`darken\` to be \`color\`.
+
+✘   Syntax error in \\"invalid.alias-syntax-error: \\"darken({rouge}}\\"\\" 
     Syntax error in argument list
 
-🗙   Unresolved alias.The \\"{rogue}\\" identifier could not be resolved.. Did you mean \\"rouge\\"?",
+✘   Unresolved alias.The \\"{rogue}\\" identifier could not be resolved.. Did you mean \\"rouge\\"?",
   "tokens.yaml": "
 tokens:
 	rouge: \\"#f00\\"
@@ -75,9 +78,9 @@ tokens:
 exports[`evaluates color tokens correctly 1`] = `
 Object {
   "stderr": "
-🗙   File not found: ./test/tokens/no-colors.yaml
+✘   File not found: ./test/tokens/no-colors.yaml
 
-🗙   No tokens found.
+✘   No tokens found.
     Token files should have a \\"tokens\\" property
 ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
@@ -85,7 +88,6 @@ Object {
 
 exports[`evaluates comments, etc... associated with a token 1`] = `
 Object {
-  "stderr": "",
   "tokens.yaml": "
 tokens:
 	# Use sparingly
@@ -95,7 +97,6 @@ tokens:
 
 exports[`evaluates expressions in token values correctly 1`] = `
 Object {
-  "stderr": "",
   "tokens.yaml": "
 tokens:
 	string: \\"boom\\"
@@ -150,7 +151,6 @@ tokens:
 
 exports[`evaluates two themes 1`] = `
 Object {
-  "stderr": "",
   "tokens.yaml": "
 tokens:
 	background-dark: \\"#fff\\"

@@ -639,10 +639,10 @@ const blackColor = new Color('#000');
 
 // Definition of the functions that can be used in the expression
 // of token values.
-let functions: {
+let FUNCTIONS: {
     [key: string]: (...args: Value[]) => Value;
 } = {};
-functions = {
+FUNCTIONS = {
     /** The calc() function is a no-op, but it's there for compatibility with CSS */
     calc: (x: Value): Value => x,
     /** r, g, b: a value as a number in [0...255] or as a percentage. a: a number in [0...1] or a percentage */
@@ -847,17 +847,90 @@ functions = {
 
         return darkContrast > lightContrast ? darkColor : lightColor;
     },
-    rgba: (r, g, b, a): Value => functions.rgb(r, g, b, a),
-    hsla: (h, s, l, a): Value => functions.hsl(h, s, l, a),
+    rgba: (r, g, b, a): Value => FUNCTIONS.rgb(r, g, b, a),
+    hsla: (h, s, l, a): Value => FUNCTIONS.hsl(h, s, l, a),
     tint: (c: Value, w: Value): Color =>
-        functions.mix(whiteColor, c, w ?? new Float(0.1)) as Color,
+        FUNCTIONS.mix(whiteColor, c, w ?? new Float(0.1)) as Color,
     shade: (c: Value, w: Value): Color =>
-        functions.mix(blackColor, c, w ?? new Float(0.1)) as Color,
+        FUNCTIONS.mix(blackColor, c, w ?? new Float(0.1)) as Color,
 };
 
 /* Functions that take a "color" argument list */
 /* Which includes either space or comma as a separator, and "/" for alpha */
 const colorFunctions = ['rgb', 'rgba', 'hsl', 'hsla', 'hwb', 'grey', 'lab'];
+
+const FUNCTION_ARGUMENTS = {
+    calc: 'any',
+    rgb:
+        'float|percentage, float|percentage, float|percentage,float|percentage|none',
+    rgba:
+        'float|percentage, float|percentage, float|percentage,float|percentage|none',
+    hsl:
+        'float|angle, float|percentage, float|percentage, float|percentage|none',
+    hsla:
+        'float|angle, float|percentage, float|percentage, float|percentage|none',
+    hsv:
+        'float|angle, float|percentage, float|percentage, float|percentage|none',
+    hwb:
+        'float|angle, float|percentage, float|percentage, float|percentage|none',
+    // lab: 'float|percentage, float, float, float|percentage|none',
+    gray: 'float|percentage, float|percentage|none',
+    min: 'any, any',
+    max: 'any, any',
+    clamp: 'any, any, any',
+    mix: 'color, color, float|percentage|none, string|none',
+    saturate: 'color, float|percentage|none',
+    desaturate: 'color, float|percentage|none',
+    lighten: 'color, float|percentage|none',
+    darken: 'color, float|percentage|none',
+    rotateHue: 'color, angle|float|none',
+    complement: 'color',
+    contrast: 'color, color|none, color|none',
+
+    tint: 'color, float|percentage|none',
+    shade: 'color, float|percentage|none',
+};
+
+function validateArguments(fn: string, args: any[]): void {
+    const expectedArguments = FUNCTION_ARGUMENTS[fn]
+        ?.split(',')
+        .map(x => x.trim());
+    if (expectedArguments) {
+        expectedArguments.forEach((x: string, i: number) => {
+            const types = x.split('|').map(x => x.trim());
+
+            if (!types.includes('none') && !args[i]) {
+                throw new Error(
+                    `Missing argument ${i +
+                        1} of \`${fn}\`. Expected \`${types.join(', ')}\`.`
+                );
+            }
+
+            if (
+                args[i] &&
+                !types.includes('any') &&
+                !types.includes(args[i]?.type())
+            ) {
+                throw new Error(
+                    `Expected argument ${i +
+                        1} of \`${fn}\` to be \`${types.join(', ')}\`.`
+                );
+            }
+        });
+        if (args.length > expectedArguments.length) {
+            throw new Error(
+                `Too many arguments for \`${fn}(${expectedArguments.join(
+                    ', '
+                )})\`.`
+            );
+        }
+    }
+    if (args.every(x => typeof x.type === 'function')) {
+        console.log('looks legit');
+    } else {
+        console.error('seems fishy');
+    }
+}
 
 class Stream {
     /**
@@ -994,34 +1067,40 @@ class Stream {
         if (!this.match('(')) return undefined;
 
         let arg = this.parseExpression();
-        if (!arg) return undefined;
-        result.push(arg);
+        if (arg) {
+            result.push(arg);
 
-        if (!this.match(/^(\s*,?|\s+)/)) return undefined;
+            if (!this.match(/^(\s*,?|\s+)/)) {
+                this.match(')');
+                return result;
+            }
 
-        arg = this.parseExpression();
-        if (!arg) return undefined;
-        result.push(arg);
+            arg = this.parseExpression();
+            if (arg) {
+                result.push(arg);
 
-        if (!this.match(/^(\s*,?|\s+)/)) return undefined;
+                if (!this.match(/^(\s*,?|\s+)/)) {
+                    this.match(')');
+                    return result;
+                }
 
-        arg = this.parseExpression();
-        if (!arg) return undefined;
-        result.push(arg);
+                arg = this.parseExpression();
+                if (arg) {
+                    result.push(arg);
 
-        // Last argument (opacity) can be separated with a "slash"
-        if (!this.match(/^(\s*,?|\s+|\s*\/)/)) {
-            this.match(')');
-            return result;
+                    // Last argument (opacity) can be separated with a "slash"
+                    if (!this.match(/^(\s*,?|\s+|\s*\/)/)) {
+                        this.match(')');
+                        return result;
+                    }
+
+                    arg = this.parseExpression();
+                    if (arg) {
+                        result.push(arg);
+                    }
+                }
+            }
         }
-
-        arg = this.parseExpression();
-        if (!arg) {
-            this.match(')');
-            return result;
-        }
-
-        result.push(arg);
 
         this.match(')');
 
@@ -1053,11 +1132,11 @@ class Stream {
         const saveIndex = this.index;
         const fn = this.match(/^([a-zA-Z\-]+)/);
         if (fn) {
-            if (!functions[fn]) {
+            if (!FUNCTIONS[fn]) {
                 if (this.lookAhead(1) === '(') {
                     throw new Error(
                         `Unknown function "${fn}"` +
-                            getSuggestion(fn, functions)
+                            getSuggestion(fn, FUNCTIONS)
                     );
                 }
             } else {
@@ -1065,7 +1144,8 @@ class Stream {
                     ? this.parseColorArguments()
                     : this.parseArguments();
                 if (args) {
-                    return functions[fn](...args);
+                    validateArguments(fn, args);
+                    return FUNCTIONS[fn](...args);
                 } else {
                     throw new Error(
                         `Syntax error when calling function "${fn}"`

@@ -33,7 +33,10 @@ export const GenericFormats: { formats: { [key: string]: Format } } = {
                     !context.definition.comment
                         ? ''
                         : '# ' + context.definition.comment + '\n\t'
-                }${context.propertyName}: "${context.propertyValue}"`,
+                }${context.propertyName}: "${context.propertyValue.replace(
+                    /"/g,
+                    '\\"'
+                )}"`,
         },
 
         json: {

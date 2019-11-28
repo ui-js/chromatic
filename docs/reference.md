@@ -82,6 +82,53 @@ The file can include the following keys:
 -   ratio
 -   icon
 
+### Expressive Design Tokens
+
+The value of a token is defined by an expression. The expression can include
+math operators, aliases refering to other tokens and functions
+
+| Type   | Arguments                                                                                           | Description          |
+| ------ | --------------------------------------------------------------------------------------------------- | -------------------- |
+| rgb()  | (red: number, green: number, blue: number, alpha?: number])                                         | Return a color value |
+| rgba() | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for rgb()    |
+| hsl()  | (hue: angle, saturation: percentage \| number, lightness: percentage \| lightness, alpha?: number]) | Return a color value |
+| hsla() | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for hsl()    |
+
+Token value expressions can refer to other tokens. A token does not have to be declared separately to be used as an "alias", and it does not have to be declared before being used. A token alias is indicated by enclosing the token name in '{' and '}'.
+
+```yaml
+tokens:
+    primary: '#0066ce'
+    cta-button-background: '{primary}'
+```
+
+Color scale variants of a color can also be referenced without having to explicitly define the variants in advance:
+
+```yaml
+tokens:
+    primary: '#0066ce'
+    cta-button-active-background: '{primary-200}'
+```
+
+This is equivalent to :
+
+```yaml
+tokens:
+    primary: '#0066ce'
+    cta-button-active-background: 'scale({primary})[2]'
+```
+
+or:
+
+```yaml
+tokens:
+    primary: '#0066ce'
+    primary-200: 'scale({primary})[2]'
+    cta-button-active-background: '{primary-200}'
+```
+
+It is of course possible to override the default value if desired.
+
 ### Category
 
 Each token can be associated with a "category".

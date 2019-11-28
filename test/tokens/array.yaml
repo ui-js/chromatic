@@ -1,0 +1,15 @@
+tokens:
+    array: '[blue, white, red]'
+    array-literal: '[yellow, magenta, cyan][1]'
+    array-index: '{array}[0]'
+    array-index-expression: '{array}[ 24 / 12 - 1 ]'
+    primary: '#0066ce'
+    auto-scaling: '{primary-200}'
+    manual-scaling: 'scale({primary})[2]'
+    invalid:
+        unterminated-array-index: '{array}[1+2'
+        array-index-multiple-arguments: '{array}[2, 4 ]'
+        array-index-length: '{array}[2px]'
+        array-index-string: '{array}["0"]'
+        index-of-float: '12[2]'
+        index-of-string: '"hello"[2]'

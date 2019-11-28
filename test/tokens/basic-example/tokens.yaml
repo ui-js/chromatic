@@ -11,3 +11,5 @@ tokens:
     link-active-color: 'saturate(darken({link-color}, 5%), 15%)'
     link-down-color: 'darken({link-color}, 10%)'
     link-hover-color: 'saturate(darken({link-color}, 5%), 10%)'
+    warm-grey: mix(gray(50%), red, 6%)
+    cool-grey: mix(gray(50%), green, 6%)

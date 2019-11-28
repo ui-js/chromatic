@@ -9,6 +9,17 @@ tokens:
     primary-hue: '210deg'
     primary: 'hsl({primary-hue}, 90%, 40%)'
 
+    volcano: '#FFEB3B'
+    volcano-100: 'scale({volcano})[1]'
+    volcano-200: 'scale({volcano})[2]'
+    volcano-300: 'scale({volcano})[3]'
+    volcano-400: 'scale({volcano})[4]'
+    volcano-500: 'scale({volcano})[5]'
+    volcano-600: 'scale({volcano})[6]'
+    volcano-700: 'scale({volcano})[7]'
+    volcano-800: 'scale({volcano})[8]'
+    volcano-900: 'scale({volcano})[9]'
+
     semantic:
         success:
             comment: 'Indicate a completed task.'

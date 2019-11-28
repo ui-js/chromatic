@@ -11,7 +11,7 @@
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
             "args": [
-                "test/tokens/colors.yaml",
+                "test/tokens/array.yaml",
                 "--format",
                 "yaml",
                 "--verbose",

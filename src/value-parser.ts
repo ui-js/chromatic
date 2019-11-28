@@ -1,4 +1,5 @@
 const colorName = require('color-name');
+const chroma = require('chroma-js');
 
 import { getSuggestion } from './utils';
 
@@ -14,7 +15,8 @@ export type ValueType =
     | 'color'
     | 'length'
     | 'time'
-    | 'frequency';
+    | 'frequency'
+    | 'array';
 
 export interface ValueParserOptions {
     'base-font-size'?: number;
@@ -422,6 +424,9 @@ export class Color extends Value {
                 Object.assign(this, rgbToHsl(this.r, this.g, this.b));
             } else if (typeof this.h === 'number') {
                 // HSL data
+                this.h = (this.h + 360) % 360;
+                this.s = Math.max(0, Math.min(1.0, this.s));
+                this.l = Math.max(0, Math.min(1.0, this.l));
                 Object.assign(this, hslToRgb(this.h, this.s, this.l));
             } else {
                 throw new Error('Expected a color');
@@ -433,6 +438,9 @@ export class Color extends Value {
     }
     type(): ValueType {
         return 'color';
+    }
+    opaque(): Color {
+        return new Color({ r: this.r, g: this.g, b: this.b });
     }
     luma(): number {
         // Source: https://www.w3.org/TR/WCAG20/#relativeluminancedef
@@ -500,6 +508,23 @@ export class Color extends Value {
     }
 }
 
+class ArrayValue extends Value {
+    value: Value[];
+    constructor(from: Value[]) {
+        super();
+        this.value = from.map(x => makeValueFrom(x));
+    }
+    get(index: number): Value {
+        return this.value[index];
+    }
+    type(): ValueType {
+        return 'array';
+    }
+    css(): string {
+        return '"[' + this.value.map(x => x.css()).join(', ') + ']"';
+    }
+}
+
 function isFloat(arg: Value): arg is Float {
     return arg instanceof Float;
 }
@@ -549,6 +574,10 @@ export function makeValueFrom(from: {
             return new Percentage(from.value);
         case 'float':
             return new Float(from.value);
+        case 'array':
+            return new ArrayValue(from.value.map(makeValueFrom));
+        default:
+            console.log('Unknown value type');
     }
     return undefined;
 }
@@ -579,6 +608,15 @@ function asDecimalByte(value: Value): number {
         return Math.round(value.value);
     }
     throw new Error('Expected a number or percentage');
+}
+
+function asInteger(value: Value, defaultValue?: number): number {
+    if (isFloat(value)) {
+        return Math.round(value.value);
+    }
+    if (typeof defaultValue === 'undefined')
+        throw new Error('Expected an integer.');
+    return defaultValue;
 }
 
 function asDecimalRatio(value: Value, defaultValue?: number | null): number {
@@ -683,6 +721,72 @@ function compareValue(a: Value, b: Value): number {
 const whiteColor = new Color('#fff');
 const blackColor = new Color('#000');
 
+export function scaleColor(
+    arg1: Value,
+    arg2?: Value,
+    arg3?: Value,
+    arg4?: Value
+): ArrayValue {
+    // For an analysis of various ramps, see https://uxplanet.org/designing-systematic-colors-b5d2605b15c
+    let c1 = new Color('#fff');
+    let c2: Color;
+    let c3 = new Color('#000');
+    let n = 10;
+    if (arg3?.type() === 'color') {
+        c1 = asColor(arg1);
+        c2 = asColor(arg2);
+        c3 = asColor(arg3);
+        n = asInteger(arg4, 10);
+    } else if (arg2?.type() === 'color') {
+        c1 = asColor(arg1);
+        c2 = asColor(arg2);
+        c3 = asColor(arg2);
+        n = asInteger(arg3, 10);
+    } else if (arg1.type() === 'color') {
+        c2 = asColor(arg1);
+        c3 = new Color({
+            h: c2.h >= 60 && c2.h <= 240 ? c2.h + 30 : c2.h - 30,
+            s: c2.s,
+            l: 0.35,
+        });
+        n = asInteger(arg2, 10);
+        const mode = new StringValue('rgb');
+        return new ArrayValue([
+            FUNCTIONS.mix(c1, c2, new Float(0.12), mode),
+            FUNCTIONS.mix(c1, c2, new Float(0.3), mode),
+            FUNCTIONS.mix(c1, c2, new Float(0.5), mode),
+            FUNCTIONS.mix(c1, c2, new Float(0.7), mode),
+            FUNCTIONS.mix(c1, c2, new Float(0.85), mode),
+            c2,
+            FUNCTIONS.mix(c3, c2, new Float(0.85), mode),
+            FUNCTIONS.mix(c3, c2, new Float(0.7), mode),
+            FUNCTIONS.mix(c3, c2, new Float(0.5), mode),
+            FUNCTIONS.mix(c3, c2, new Float(0.2), mode),
+            // FUNCTIONS.darken(c2, new Float(0.06), mode),
+            // FUNCTIONS.darken(c2, new Float(0.12), mode),
+            // FUNCTIONS.darken(c2, new Float(0.18), mode),
+            // FUNCTIONS.darken(c2, new Float(0.24), mode),
+        ]);
+    }
+
+    if (!c1 || !c2 || !c3) return undefined;
+
+    const colors = chroma
+        .scale(
+            // chroma.bezier([
+            //     c1.opaque().hex(),
+            //     c2.opaque().hex(),
+            //     c3.opaque().hex(),
+            // ])
+            [c1.opaque().hex(), c2.opaque().hex(), c3.opaque().hex()]
+        )
+        .mode('lab')
+        .correctLightness()
+        .colors(n + 1);
+
+    return new ArrayValue(colors.map(x => new Color(x)));
+}
+
 // Definition of the functions that can be used in the expression
 // of token values.
 let FUNCTIONS: {
@@ -759,7 +863,7 @@ FUNCTIONS = {
     },
     mix: (c1: Value, c2: Value, weight: Value, model?: Value): Color => {
         // @todo: support additional color models. See color-convert npm module.
-        const modelName = asString(model, 'rgb').toLowerCase();
+        const modelName = asString(model, 'hsl').toLowerCase();
         const color1 = asColor(c1);
         if (!color1) return undefined;
         const color2 = asColor(c2);
@@ -773,16 +877,16 @@ FUNCTIONS = {
             ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
         if (modelName === 'rgb') {
             return new Color({
-                r: color2.r + (color1.r - color2.r) * w,
-                g: color2.g + (color1.g - color2.g) * w,
-                b: color2.b + (color1.b - color2.b) * w,
+                r: color1.r + (color2.r - color1.r) * w,
+                g: color1.g + (color2.g - color1.g) * w,
+                b: color1.b + (color2.b - color1.b) * w,
                 a: alpha,
             });
         } else if (modelName === 'hsl') {
             return new Color({
-                h: color2.h + (color1.h - color2.h) * w,
-                s: color2.s + (color1.s - color2.s) * w,
-                l: color2.l + (color1.l - color2.l) * w,
+                h: color1.h + (color2.h - color1.h) * w,
+                s: color1.s + (color2.s - color1.s) * w,
+                l: color1.l + (color2.l - color1.l) * w,
                 a: alpha,
             });
         }
@@ -899,6 +1003,9 @@ FUNCTIONS = {
         FUNCTIONS.mix(whiteColor, c, w ?? new Float(0.1)) as Color,
     shade: (c: Value, w: Value): Color =>
         FUNCTIONS.mix(blackColor, c, w ?? new Float(0.1)) as Color,
+    scale: (arg1: Value, arg2: Value, arg3: Value, arg4: Value): ArrayValue => {
+        return scaleColor(arg1, arg2, arg3, arg4);
+    },
 };
 
 /* Functions that take a "color" argument list */
@@ -1041,6 +1148,23 @@ class Stream {
         return new Float(num);
     }
 
+    parseIndex(v: Value): Value {
+        let result = v;
+        if (this.match('[')) {
+            if (v.type() !== 'array') {
+                throw new Error(`Unexpected '['`);
+            } else {
+                const index = asInteger(this.parseExpression());
+                result = (v as ArrayValue).get(index);
+                this.skipWhiteSpace();
+                if (!this.match(']')) {
+                    throw new Error("Expected ']'");
+                }
+            }
+        }
+        return result;
+    }
+
     parseLiteral(): Value {
         let result: Value;
         const saveIndex = this.index;
@@ -1050,27 +1174,30 @@ class Stream {
             result = this.parseUnit(parseFloat(num));
         }
 
-        if (!result && this.match('{')) {
-            const identifier = this.match(/^([a-zA-Z0-9\._-]+)/);
-            if (identifier) {
-                result = this.options?.aliasResolver(identifier);
-                if (result) {
-                    // Clone the result of the alias, since we'll need to change
-                    // the source
-                    result = makeValueFrom(result);
-                    result.setSource('{' + identifier + '}');
-                } else {
-                    result = new StringValue('{' + identifier + '}');
+        if (!result && this.match('[')) {
+            // It's an array litteral
+            const array = [];
+            while (this.lookAhead(1) !== ']' && !this.isEOF()) {
+                const element = this.parseExpression();
+                if (!element) {
+                    throw new Error(`Syntax error in array element`);
                 }
+                array.push(element);
+                this.match(/^(\s*,?|\s+)/);
             }
-            this.match('}');
+
+            if (this.isEOF()) {
+                throw new Error("Expected ']'");
+            }
+            this.match(']');
+            return new ArrayValue(array);
         }
 
         if (!result && this.match('"')) {
             // It's a string
             let s = '';
-            while (this.s[this.index] !== '"' && !this.isEOF()) {
-                if (this.s[this.index] === '\\') {
+            while (this.lookAhead(1) !== '"' && !this.isEOF()) {
+                if (this.lookAhead(1) === '\\') {
                     // Escape character
                     s += this.s[this.index + 1];
                     this.index += 2;
@@ -1085,6 +1212,37 @@ class Stream {
             }
             this.match('"');
             return new StringValue(s);
+        }
+
+        if (!result && this.match('{')) {
+            // It's an alias
+            const identifier = this.match(/^([a-zA-Z0-9\._-]+)/);
+            if (identifier) {
+                result = this.options?.aliasResolver(identifier);
+                if (!result) {
+                    // If that didn't work, try an implicit color scale...
+                    const m = identifier.match(/^(.+)-([0-9]+)$/);
+                    if (m) {
+                        const color = asColor(
+                            this.options?.aliasResolver(m[1])
+                        );
+                        if (color) {
+                            const index = Math.round(parseInt(m[2]) / 100);
+
+                            result = scaleColor(color)?.get(index);
+                        }
+                    }
+                }
+                if (result) {
+                    // Clone the result of the alias, since we'll need to change
+                    // the source
+                    result = makeValueFrom(result);
+                    result.setSource('{' + identifier + '}');
+                } else {
+                    result = new StringValue('{' + identifier + '}');
+                }
+            }
+            this.match('}');
         }
 
         if (!result) {
@@ -1206,9 +1364,10 @@ class Stream {
     }
 
     parseProduct(): Value {
-        const lhs =
-            this.parseCall() || this.parseGroup() || this.parseLiteral();
+        let lhs = this.parseCall() || this.parseGroup() || this.parseLiteral();
         if (!lhs) return lhs;
+
+        lhs = this.parseIndex(lhs);
 
         const saveIndex = this.index;
 

@@ -59,7 +59,7 @@ Object {
 ✘   Syntax error in \\"invalid.alias-syntax-error: \\"darken({rouge}}\\"\\" 
     Syntax error in argument list
 
-✘   Unresolved alias.The \\"{rogue}\\" identifier could not be resolved.. Did you mean \\"rouge\\"?",
+✘   Unresolved alias. Cannot find name \\"{rogue}\\". Did you mean \\"rouge\\"?",
   "tokens.yaml": "
 tokens:
 	rouge: \\"#f00\\"
@@ -72,6 +72,44 @@ tokens:
 	one-level-circular-alias: \\"{two-level-circular-alias}\\"
 	invalid.mispelled-alias: \\"darken({rogue})\\"
 	invalid.alias-syntax-error: \\"darken(#f00}\\"",
+}
+`;
+
+exports[`evaluates arrays 1`] = `
+Object {
+  "stderr": "
+✘   Syntax error in \\"invalid.unterminated-array-index: \\"{array}[1+2\\"\\" 
+    Expected ']'
+
+✘   Syntax error in \\"invalid.array-index-multiple-arguments: \\"{array}[2, 4 ]\\"\\" 
+    Expected ']'
+
+✘   Syntax error in \\"invalid.array-index-length: \\"{array}[2px]\\"\\" 
+    Expected an integer.
+
+✘   Syntax error in \\"invalid.array-index-string: \\"{array}[\\"0\\"]\\"\\" 
+    Expected an integer.
+
+✘   Syntax error in \\"invalid.index-of-float: \\"12[2]\\"\\" 
+    Unexpected '['
+
+✘   Syntax error in \\"invalid.index-of-string: \\"\\"hello\\"[2]\\"\\" 
+    Unexpected '['",
+  "tokens.yaml": "
+tokens:
+	array: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"\\"
+	array-literal: \\"#f0f\\"
+	array-index: \\"#00f\\"
+	array-index-expression: \\"#fff\\"
+	primary: \\"#0066ce\\"
+	auto-scaling: \\"#80b3e7\\"
+	manual-scaling: \\"#80b3e7\\"
+	invalid.unterminated-array-index: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[1+2\\"
+	invalid.array-index-multiple-arguments: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[2, 4 ]\\"
+	invalid.array-index-length: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[2px]\\"
+	invalid.array-index-string: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[\\\\\\"0\\\\\\"]\\"
+	invalid.index-of-float: \\"12[2]\\"
+	invalid.index-of-string: \\"\\\\\\"hello\\\\\\"[2]\\"",
 }
 `;
 
@@ -145,7 +183,7 @@ tokens:
 	length-ratio: \\"6.25\\"
 	color-ratio: \\"0.08235471767793863\\"
 	ws-in-expression: \\"25\\"
-	ws-in-function: \\"#782e4a\\"",
+	ws-in-function: \\"#dc1c89\\"",
 }
 `;
 

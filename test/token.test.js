@@ -18,6 +18,7 @@ const testFiles = {
     aliases: 'evaluates aliases in token values correctly',
     metadata: 'evaluates comments, etc... associated with a token',
     theme: 'evaluates two themes',
+    array: 'evaluates arrays',
 };
 
 Object.keys(testFiles).forEach(x => {

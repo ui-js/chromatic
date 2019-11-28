@@ -676,13 +676,12 @@ function renderFile(format: Format, context: RenderFileContext): string {
             if (formattedTokenValues.has(alias)) {
                 return formattedTokenValues.get(alias);
             }
-            const m =
-                terminal.error('Unresolved alias.') +
-                `The ${terminal.string(
-                    match
-                )} identifier could not be resolved.` +
+
+            const msg =
+                terminal.error('Unresolved alias. ') +
+                `Cannot find name ${terminal.string(match)}` +
                 getSuggestion(alias, formattedTokenValues);
-            error(m);
+            error(msg);
             return match;
         });
 

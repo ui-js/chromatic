@@ -60,12 +60,14 @@
     "scripts": {
         "build": "bash ./scripts/build.sh dev",
         "build:prod": "bash ./scripts/build.sh production",
-        "clean": "",
+        "chromatic": "node ./bin/chromatic",
+        "clean": "bash ./scripts/clean.sh",
+        "coverage": "bash ./scripts/test.sh coverage",
         "deploy": "",
         "lint": "prettier --config .config/prettierrc.yaml--ignore-path ./.prettierignore --write \"**/*.{ts,js,css,md,yml,json}\" \"!vendor/**\"",
         "stage": "bash scripts/stage.sh",
         "start": "bash scripts/server.sh",
-        "test": "jest",
+        "test": "bash ./scripts/test.sh",
         "watch": "rollup --config ./config/rollup.config.js --watch"
     },
     "prettier": "@cortex-js/prettier-config",
@@ -88,6 +90,10 @@
         "roots": [
             "<rootDir>/test",
             "<rootDir>/bin"
-        ]
+        ],
+        "coverageReporters": [
+            "lcov"
+        ],
+        "coverageDirectory": "./coverage"
     }
 }

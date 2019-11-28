@@ -19,6 +19,15 @@ export const terminal = {
     useColor: (flag: boolean): void => {
         gUseColor = flag;
     },
+    autoFormat: (m: string): string => {
+        return m
+            .replace(/("(.*)")/g, x => {
+                return terminal.string(x.slice(1, -1));
+            })
+            .replace(/(`(.*)`)/g, x => {
+                return terminal.keyword(x);
+            });
+    },
     success: (m = ''): string => {
         chalk.green('✔︎   ' + m);
         return gUseColor ? chalk.bold.green('✔︎   ' + m) : '✔︎   ' + m;
@@ -36,7 +45,7 @@ export const terminal = {
     path: (m = ''): string => {
         return gUseColor ? chalk.hex(tcBlue).italic(m) : m;
     },
-    option: (m = ''): string => {
+    keyword: (m = ''): string => {
         return gUseColor ? chalk.hex(tcOrange)(m) : m;
     },
     string: (m = ''): string => {

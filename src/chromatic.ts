@@ -14,6 +14,7 @@ const yaml = require('yaml');
 const json5 = require('json5');
 const resolveFrom = require('resolve-from');
 
+import { throwError, ErrorCode } from './errors';
 import { getSuggestion } from './utils';
 import { DefaultFormatters } from './default-formatters';
 import {
@@ -161,8 +162,13 @@ let gRecursiveEvaluationStack: string[];
 /* Paths of the processed files (used to detect and prevent circular references) */
 let gProcessedFiles: string[];
 
-function error(m: string): void {
-    gConfig.console?.error('\n' + m);
+function error(m: string | string[]): void {
+    if (typeof m === 'string') m = [m];
+
+    // If there are any carriage returns, break them up in separate array elements
+    const msg = '\n' + [].concat(...m.map(x => x.split('\n'))).join('\n    ');
+
+    gConfig.console?.error(terminal.autoFormat(msg));
 
     if (!gWatching && !gIgnoreErrors) {
         process.exit(1);
@@ -245,7 +251,7 @@ function evaluateTokenExpression(
 ): Value {
     if (!expression) return undefined;
     if (gRecursiveEvaluationStack.includes(qualifiedToken)) {
-        throw new Error(`Circular definition of the "${qualifiedToken}" token`);
+        throwError(ErrorCode.CircularDefinition, qualifiedToken);
     }
 
     gRecursiveEvaluationStack.push(qualifiedToken);
@@ -300,29 +306,18 @@ function processTokenGroup(
     tokens: object
 ): void {
     if (Array.isArray(tokens)) {
-        throw new Error(
-            `The ${terminal.string(
-                'tokens'
-            )} property is an array. It should be a key/value map of tokens.${terminal.link(
-                'tokens-as-array'
-            )}`
+        throwError(
+            ErrorCode.UnexpectedTokensArray,
+            terminal.link('tokens-as-array')
         );
     }
     Object.keys(tokens).forEach(token => {
         const qualifiedToken = (tokenPath ? tokenPath + '.' : '') + token;
         if (!/^[a-zA-Z0-9_-]+$/.test(token)) {
-            throw new Error(
-                'Invalid token name "' +
-                    qualifiedToken +
-                    '": it must only contain digits, letters, "_" and "-"'
-            );
+            throwError(ErrorCode.InvalidTokenName, qualifiedToken);
         }
         if (!tokens[token]) {
-            throw new Error(
-                `The ${terminal.string(
-                    token
-                )} token is null. If using a YAML file, make sure RGB hex values are within quotes.`
-            );
+            throwError(ErrorCode.InvalidTokenValue, token);
         }
         try {
             const normalizedToken = normalizeToken(
@@ -344,12 +339,10 @@ function processTokenGroup(
                         gTokenDefinitions.get(qualifiedToken).type !==
                             normalizedToken.type
                     ) {
-                        throw new Error(
-                            'Inconsistent token type: "' +
-                                normalizedToken.type +
-                                '" (was "' +
-                                gTokenDefinitions.get(qualifiedToken).type +
-                                '")'
+                        throwError(
+                            ErrorCode.InconsistentTokenType,
+                            normalizedToken.type,
+                            gTokenDefinitions.get(qualifiedToken).type
                         );
                     }
 
@@ -361,7 +354,7 @@ function processTokenGroup(
             }
         } catch (err) {
             throw new Error(
-                `  ${qualifiedToken}: "${tokens[token]}"\n    ${err.message}`
+                `${qualifiedToken}: "${tokens[token]}"\n${err.message}`
             );
         }
     });
@@ -421,19 +414,19 @@ function processPath(f: string): void {
                     resolvedPath = resolveFrom(path.parse(f).dir, x);
                     processPath(resolvedPath);
                 } catch (err) {
-                    errors.push('option ' + terminal.string(`import: ${x}`));
+                    errors.push(`option "import: ${x}"`);
                     if (err.code === 'MODULE_NOT_FOUND') {
                         errors.push(
                             'Module not found.' +
                                 (x.slice(0, 2) === './'
                                     ? ''
-                                    : `\n    To import as a file, use a relative path: "./${x}"`)
+                                    : `\nTo import as a file, use a relative path: "./${x}"`)
                         );
                     } else if (err.code === 'ENOENT') {
                         errors.push(
                             '→ ' +
                                 terminal.path(resolvedPath) +
-                                '\n    File not found.'
+                                '\nFile not found.'
                         );
                     } else {
                         errors.push(err.message);
@@ -471,11 +464,7 @@ function processPath(f: string): void {
     if (tokenFile?.tokens) {
         try {
             if (typeof tokenFile.tokens !== 'object') {
-                throw new Error(
-                    `The ${terminal.string(
-                        'tokens'
-                    )} property should be a key/value map of tokens.`
-                );
+                throwError(ErrorCode.UnexpectedTokensType);
             } else {
                 processTokenGroup(tokenFile, '', tokenFile.tokens);
             }
@@ -491,12 +480,10 @@ function processPath(f: string): void {
         log(terminal.success() + '← ' + terminal.path(path.relative('', f)));
     }
     if (errors.length > 0) {
-        error(
-            terminal.error() +
-                terminal.path(path.relative('', f)) +
-                '\n    ' +
-                errors.join('\n    ')
-        );
+        error([
+            terminal.error() + terminal.path(path.relative('', f)),
+            ...errors,
+        ]);
     }
 }
 
@@ -510,15 +497,14 @@ function formatTokenValues(
         try {
             result.set(token, valueFormatter(gTokenValues.get(token)));
         } catch (err) {
-            error(
+            error([
                 terminal.error(
-                    `Error formatting ${terminal.string(
-                        gTokenValues.get(token).css()
-                    )} for the ${terminal.string(token)} token`
-                ) +
-                    '\n    ' +
-                    err.message
-            );
+                    `Error formatting "${gTokenValues
+                        .get(token)
+                        .css()}" for the "${token}" token`
+                ),
+                err.message,
+            ]);
         }
     });
     return result;
@@ -544,14 +530,11 @@ function areThemesValid(): boolean {
     });
 
     if (gThemes.length === 0 || gTokenDefinitions.size === 0) {
-        error(
-            terminal.error('No tokens found.') +
-                '\n    ' +
-                `Token files should have a ${terminal.string(
-                    'tokens'
-                )} property` +
-                terminal.link('../guide')
-        );
+        error([
+            terminal.error('No tokens found.'),
+            `Token files should have a "${'tokens'}" property`,
+            terminal.link('../guide'),
+        ]);
         return false;
     }
 
@@ -576,9 +559,10 @@ function setFormat(formatName: string): Format {
     };
 
     if (!gConfig.formats[formatName]) {
-        throw new Error(
-            `Unknown format "${formatName}"` +
-                getSuggestion(formatName, gConfig.formats)
+        throwError(
+            ErrorCode.UnknownFormat,
+            formatName,
+            getSuggestion(formatName, gConfig.formats)
         );
     }
 
@@ -589,9 +573,10 @@ function setFormat(formatName: string): Format {
             mergeObject(result, gConfig.formats[baseFormat]);
             mergeObject(result, gConfig.formats[formatName]);
         } else {
-            throw new Error(
-                `Unknown format "${baseFormat}" in \`${formatName}.extends\`` +
-                    getSuggestion(baseFormat, gConfig.formats)
+            throwError(
+                ErrorCode.UnknownFormat,
+                formatName,
+                getSuggestion(formatName, gConfig.formats)
             );
         }
     } else {
@@ -601,12 +586,10 @@ function setFormat(formatName: string): Format {
     // Normalize shorthand format for valueFormatters and nameFormatters
     if (typeof result.valueFormatter === 'string') {
         if (!gConfig.valueFormatters[result.valueFormatter]) {
-            throw new Error(
-                `Unknown value formatter "${result.valueFormatter}"` +
-                    getSuggestion(
-                        result.valueFormatter,
-                        gConfig.valueFormatters
-                    )
+            throwError(
+                ErrorCode.UnknownValueFormatter,
+                result.valueFormatter,
+                getSuggestion(result.valueFormatter, gConfig.valueFormatters)
             );
         }
     } else if (typeof result.valueFormatter !== 'function') {
@@ -615,9 +598,10 @@ function setFormat(formatName: string): Format {
 
     if (typeof result.nameFormatter === 'string') {
         if (!gConfig.nameFormatters[result.nameFormatter]) {
-            throw new Error(
-                `Unknown name formatter "${result.nameFormatter}"` +
-                    getSuggestion(result.nameFormatter, gConfig.nameFormatters)
+            throwError(
+                ErrorCode.UnknownNameFormatter,
+                result.nameFormatter,
+                getSuggestion(result.nameFormatter, gConfig.nameFormatters)
             );
         }
     } else if (typeof result.nameFormatter !== 'function') {
@@ -679,7 +663,7 @@ function renderFile(format: Format, context: RenderFileContext): string {
 
             const msg =
                 terminal.error('Unresolved alias. ') +
-                `Cannot find name ${terminal.string(match)}` +
+                `Cannot find name "${match}"` +
                 getSuggestion(alias, formattedTokenValues);
             error(msg);
             return match;
@@ -868,13 +852,11 @@ function build(
                     // );
                 }
             } catch (err) {
-                error(
+                error([
                     terminal.error('Syntax error') +
-                        ` in ${terminal.string(
-                            token + ': "' + def.value[theme]
-                        ) + '"'} \n    ` +
-                        terminal.dim(err.message)
-                );
+                        ` in "${token + ": '" + def.value[theme]}\'"`,
+                    err.message,
+                ]);
                 value = new StringValue(def.value[theme]);
             }
             gTokenValues.set(qualifiedToken, value);
@@ -884,11 +866,7 @@ function build(
             if (def.type && actualType != def.type) {
                 log(
                     terminal.warning('Warning:') +
-                        ` Type mismatch. Expected ${terminal.string(
-                            def.type
-                        )} but got ${terminal.string(
-                            actualType
-                        )} for ${terminal.string(qualifiedToken)} token`
+                        ` Type mismatch. Expected \`${def.type}\` but got \`${actualType}\` for "${qualifiedToken}" token`
                 );
             }
 
@@ -924,12 +902,11 @@ function build(
                     let themesMessage = '';
                     if (gThemes.length !== 1 || gThemes[0] !== '_') {
                         if (gThemes.length === 1) {
-                            themesMessage =
-                                'for theme ' + terminal.string(gThemes[0]);
+                            themesMessage = `for theme "${gThemes[0]}"`;
                         } else {
                             themesMessage =
                                 'for themes ' +
-                                gThemes.map(x => terminal.string(x)).join(', ');
+                                gThemes.map(x => '"' + x + '"').join(', ');
                         }
                     }
                     log(
@@ -1048,17 +1025,13 @@ export function chromatic(
                 if (gConfig.formats[fileExt.slice(1)]) {
                     gConfig.outputFormat = fileExt.slice(1);
                 } else if (matchingExtensions.length > 1) {
-                    error(
-                        terminal.error(
-                            'Ambiguous format. ' +
-                                `Use ${terminal.option(
-                                    '--format'
-                                )} to indicate which output format to use.`
-                        ) +
-                            '\n    Did you mean ' +
-                            terminal.string(matchingExtensions.join(', ')) +
-                            '?'
-                    );
+                    error([
+                        terminal.error('Ambiguous format. ') +
+                            `Use ${terminal.keyword(
+                                '--format'
+                            )} to indicate which output format to use.`,
+                        `Did you mean \`${matchingExtensions.join(', ')}\`?`,
+                    ]);
                 }
             }
         }
@@ -1067,20 +1040,16 @@ export function chromatic(
             if (gConfig.verbose) {
                 log(
                     terminal.warning() +
-                        'Setting the format to ' +
-                        terminal.string(gConfig.outputFormat) +
-                        ' based on the output file extension. ' +
-                        `Use ${terminal.option(
-                            '--format'
-                        )} to indicate which output format to use.`
+                        `Setting the format to "gConfig.outputFormat" based on the output file extension. ` +
+                        'Use `--format` to indicate which output format to use.'
                 );
             }
         } else {
             gConfig.outputFormat = 'yaml';
             log(
                 terminal.warning('Format not specified.') +
-                    ` Using "${terminal.option('yaml')}". ` +
-                    `Use ${terminal.option(
+                    ` Using "${terminal.keyword('yaml')}". ` +
+                    `Use ${terminal.keyword(
                         '--format'
                     )} to indicate which output format to use.`
             );

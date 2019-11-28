@@ -1,6 +1,13 @@
 const colorName = require('color-name');
 const chroma = require('chroma-js');
 
+import {
+    throwError,
+    throwErrorWithContext,
+    ErrorCode,
+    SyntaxError,
+} from './errors';
+import { terminal } from './terminal';
 import { getSuggestion } from './utils';
 
 // @todo: multi-units for relative lengths
@@ -411,7 +418,7 @@ export class Color extends Value {
                 [this.h, this.s, this.l] = [0, 0, 0];
             } else {
                 const rgb = parseHex(from) || parseColorName(from);
-                if (!rgb) throw new Error('Expected a color');
+                console.assert(rgb);
                 Object.assign(this, rgb);
                 Object.assign(this, rgbToHsl(this.r, this.g, this.b));
             }
@@ -422,14 +429,13 @@ export class Color extends Value {
             if (typeof this.r === 'number') {
                 // RGB data
                 Object.assign(this, rgbToHsl(this.r, this.g, this.b));
-            } else if (typeof this.h === 'number') {
+            } else {
                 // HSL data
+                console.assert(typeof this.h === 'number');
                 this.h = (this.h + 360) % 360;
                 this.s = Math.max(0, Math.min(1.0, this.s));
                 this.l = Math.max(0, Math.min(1.0, this.l));
                 Object.assign(this, hslToRgb(this.h, this.s, this.l));
-            } else {
-                throw new Error('Expected a color');
             }
         }
         if (typeof this.a !== 'number') {
@@ -529,6 +535,13 @@ function isFloat(arg: Value): arg is Float {
     return arg instanceof Float;
 }
 
+function assertFloat(arg: Value): asserts arg is Float {
+    console.assert(arg instanceof Float);
+}
+function assertFloatOrPercentage(arg: Value): asserts arg is Float {
+    console.assert(arg instanceof Float || arg instanceof Percentage);
+}
+
 function isPercentage(arg: Value): arg is Percentage {
     return arg instanceof Percentage;
 }
@@ -577,7 +590,7 @@ export function makeValueFrom(from: {
         case 'array':
             return new ArrayValue(from.value.map(makeValueFrom));
         default:
-            console.log('Unknown value type');
+            console.error('Unknown value type');
     }
     return undefined;
 }
@@ -604,18 +617,15 @@ function asDecimalByte(value: Value): number {
     if (isPercentage(value)) {
         return Math.round((255 * value.value) / 100);
     }
-    if (isFloat(value)) {
-        return Math.round(value.value);
-    }
-    throw new Error('Expected a number or percentage');
+    assertFloat(value);
+    return Math.round(value.value);
 }
 
 function asInteger(value: Value, defaultValue?: number): number {
     if (isFloat(value)) {
         return Math.round(value.value);
     }
-    if (typeof defaultValue === 'undefined')
-        throw new Error('Expected an integer.');
+    if (typeof defaultValue === 'undefined') assertFloat(value);
     return defaultValue;
 }
 
@@ -626,8 +636,7 @@ function asDecimalRatio(value: Value, defaultValue?: number | null): number {
         return value.value;
     }
 
-    if (typeof defaultValue === 'undefined')
-        throw new Error('Expected a number or percentage.');
+    if (typeof defaultValue === 'undefined') assertFloatOrPercentage(value);
     return defaultValue;
 }
 
@@ -644,19 +653,15 @@ function asDegree(value: Value): number {
         } else if (value.unit === 'turn') {
             return value.value * 360.0;
         }
-        throw new Error(`Unknown unit "${value.unit}"`);
-    } else if (isFloat(value)) {
+        throwError(ErrorCode.UnknownUnit, value.unit);
+    } else {
+        assertFloat(value);
         // Degree is the canonical unit for angles
         return value.value;
     }
-    throw new Error('Expected an angle.');
 }
 
-function asPx(
-    value: Value,
-    defaultValue?: number,
-    options?: ValueParserOptions
-): number {
+function asPx(value: Value, options?: ValueParserOptions): number {
     // See https://drafts.csswg.org/css-values-3/#lengths
     if (isLength(value)) {
         if (value.unit === 'px') {
@@ -681,33 +686,25 @@ function asPx(
                     `Relative unit "${value.unit}" cannot be evaluated. Use an absolute unit (px, pt, etc...)`
                 );
             } else {
-                throw new Error(`Unknown unit "${value.unit}"`);
+                this.error(ErrorCode.UnknownUnit, value.unit);
             }
         }
-    } else if (isFloat(value)) {
-        // Px is the canonical unit for dimensions
-        return value.value;
     }
-    if (typeof defaultValue === 'undefined') {
-        throw new Error('Expected a length.');
-    }
-    return defaultValue;
+    assertFloat(value);
+    // Px is the canonical unit for dimensions
+    return value.value;
 }
 
 function asPercent(value: Value): number {
     if (isPercentage(value)) {
         return value.value / 100;
     }
-    if (isFloat(value)) {
-        return value.value;
-    }
-    throw new Error('Expected a percentage or a float.');
+    assertFloat(value);
+    return value.value;
 }
 
-function asString(value: Value, defaultValue?: string): string {
+function asString(value: Value, defaultValue: string): string {
     if (!isString(value)) {
-        if (typeof defaultValue === 'undefined')
-            throw new Error('Expected a string.');
         return defaultValue;
     }
     return value.value;
@@ -975,8 +972,6 @@ FUNCTIONS = {
         const darkColor = asColor(dark) || blackColor;
         const lightColor = asColor(light) || whiteColor;
 
-        if (!baseColor) throw new Error('"contrast()" requires a color');
-
         let darkContrast, lightContrast;
 
         // Calculate contrast ratios for each color
@@ -1053,9 +1048,11 @@ function validateArguments(fn: string, args: any[]): void {
             const types = x.split('|').map(x => x.trim());
 
             if (!types.includes('none') && !args[i]) {
-                throw new Error(
-                    `Missing argument ${i +
-                        1} of \`${fn}\`. Expected \`${types.join(', ')}\`.`
+                throw new SyntaxError(
+                    ErrorCode.MissingArgument,
+                    String(i + 1),
+                    fn,
+                    types.join(', ')
                 );
             }
 
@@ -1064,17 +1061,19 @@ function validateArguments(fn: string, args: any[]): void {
                 !types.includes('any') &&
                 !types.includes(args[i]?.type())
             ) {
-                throw new Error(
-                    `Expected argument ${i +
-                        1} of \`${fn}\` to be \`${types.join(', ')}\`.`
+                throw new SyntaxError(
+                    ErrorCode.ExpectedArgument,
+                    String(i + 1),
+                    fn,
+                    types.join(', ')
                 );
             }
         });
         if (args.length > expectedArguments.length) {
-            throw new Error(
-                `Too many arguments for \`${fn}(${expectedArguments.join(
-                    ', '
-                )})\`.`
+            throw new SyntaxError(
+                ErrorCode.TooManyArguments,
+                fn,
+                expectedArguments.join(', ')
             );
         }
     }
@@ -1122,6 +1121,16 @@ class Stream {
         return undefined;
     }
 
+    error(code: ErrorCode, ...args: string[]): void {
+        const prefix = this.s.slice(0, this.index).match(/^(.*)/)?.[1] ?? '';
+        const suffix = this.s.slice(this.index).match(/(.*)$/)?.[1] ?? '';
+        throwErrorWithContext(
+            [prefix + terminal.dim(suffix), ' '.repeat(prefix.length) + '⇧'],
+            code,
+            ...args
+        );
+    }
+
     parseUnit(num: number): Value {
         // Check if a number (or group) is followed (immediately) by a unit
         if (this.match('%')) {
@@ -1152,13 +1161,14 @@ class Stream {
         let result = v;
         if (this.match('[')) {
             if (v.type() !== 'array') {
-                throw new Error(`Unexpected '['`);
+                this.error(ErrorCode.UnexpectedOpenBracket);
             } else {
-                const index = asInteger(this.parseExpression());
+                const index = asInteger(this.parseExpression(), NaN);
+                if (isNaN(index)) this.error(ErrorCode.ExpectedIntegerIndex);
                 result = (v as ArrayValue).get(index);
                 this.skipWhiteSpace();
                 if (!this.match(']')) {
-                    throw new Error("Expected ']'");
+                    this.error(ErrorCode.ExpectedCloseBracket);
                 }
             }
         }
@@ -1180,14 +1190,14 @@ class Stream {
             while (this.lookAhead(1) !== ']' && !this.isEOF()) {
                 const element = this.parseExpression();
                 if (!element) {
-                    throw new Error(`Syntax error in array element`);
+                    this.error(ErrorCode.SyntaxError);
                 }
                 array.push(element);
                 this.match(/^(\s*,?|\s+)/);
             }
 
             if (this.isEOF()) {
-                throw new Error("Expected ']'");
+                this.error(ErrorCode.ExpectedCloseBracket);
             }
             this.match(']');
             return new ArrayValue(array);
@@ -1208,7 +1218,7 @@ class Stream {
             }
 
             if (this.isEOF()) {
-                throw new Error("Expected '\"'");
+                this.error(ErrorCode.ExpectedQuote);
             }
             this.match('"');
             return new StringValue(s);
@@ -1320,13 +1330,13 @@ class Stream {
         while (this.lookAhead(1) !== ')' && !this.isEOF()) {
             const argument = this.parseExpression();
             if (!argument) {
-                throw new Error(`Syntax error in argument list`);
+                this.error(ErrorCode.SyntaxError);
             }
             result.push(argument);
             this.match(/^(\s*,?|\s+)/);
         }
         if (this.isEOF()) {
-            throw new Error('Missing closing ")"');
+            this.error(ErrorCode.ExpectedCloseParen);
         }
         this.match(')');
 
@@ -1339,9 +1349,10 @@ class Stream {
         if (fn) {
             if (!FUNCTIONS[fn]) {
                 if (this.lookAhead(1) === '(') {
-                    throw new Error(
-                        `Unknown function "${fn}"` +
-                            getSuggestion(fn, FUNCTIONS)
+                    this.error(
+                        ErrorCode.UnknownFunction,
+                        fn,
+                        getSuggestion(fn, FUNCTIONS)
                     );
                 }
             } else {
@@ -1349,12 +1360,18 @@ class Stream {
                     ? this.parseColorArguments()
                     : this.parseArguments();
                 if (args) {
-                    validateArguments(fn, args);
+                    try {
+                        validateArguments(fn, args);
+                    } catch (err) {
+                        if (err.code) {
+                            this.error(err.code, ...err.args);
+                        } else {
+                            this.error(err.message);
+                        }
+                    }
                     return FUNCTIONS[fn](...args);
                 } else {
-                    throw new Error(
-                        `Syntax error when calling function "${fn}"`
-                    );
+                    this.error(ErrorCode.SyntaxError);
                 }
             }
         }
@@ -1381,7 +1398,7 @@ class Stream {
             this.skipWhiteSpace();
             const rhs = this.parseProduct();
 
-            if (!rhs) throw new Error(`Expected right operand after "${op}"`);
+            if (!rhs) this.error(ErrorCode.ExpectedOperand);
             // Type combination rules (for * AND /)
             // ---
             // num * num            -> num
@@ -1439,7 +1456,7 @@ class Stream {
                         : lhs.canonicalScalar() / rhs.canonicalScalar()
                 );
             }
-            throw new Error('Unexpected operand type');
+            this.error(ErrorCode.InvalidOperand);
         }
 
         return lhs;
@@ -1466,7 +1483,7 @@ class Stream {
             // Other combinations are invalid.
             const rhs = this.parseProduct();
 
-            if (!rhs) throw new Error(`Expected right operand`);
+            if (!rhs) this.error(ErrorCode.ExpectedOperand);
 
             if (!lhs) {
                 // Unary operator
@@ -1482,10 +1499,7 @@ class Stream {
                 if (isLength(rhs)) {
                     return new Length(op(0, rhs.value), rhs.unit);
                 }
-
-                throw new Error(
-                    `Operator cannot be applied to "${rhs.type()}"`
-                );
+                this.error(ErrorCode.InvalidUnaryOperand);
             } else {
                 // Binary operator
                 if (isString(lhs) || isString(rhs)) {
@@ -1510,16 +1524,11 @@ class Stream {
                         return new Length(op(lhs.value, rhs.value), lhs.unit);
                     }
                     return new Length(
-                        op(
-                            asPx(lhs, undefined, this.options),
-                            asPx(rhs, undefined, this.options)
-                        ),
+                        op(asPx(lhs, this.options), asPx(rhs, this.options)),
                         'px'
                     );
                 }
-                throw new Error(
-                    `Operator cannot be applied to "${lhs.type()}" and "${rhs.type()}"`
-                );
+                this.error(ErrorCode.InvalidOperand);
             }
         }
 
@@ -1532,7 +1541,7 @@ class Stream {
             result = this.parseExpression();
             this.skipWhiteSpace();
             if (!this.match(')')) {
-                throw new Error('Expected ")"');
+                this.error(ErrorCode.ExpectedCloseParen);
             }
         }
 

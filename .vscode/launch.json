@@ -7,18 +7,21 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Simple",
+            "name": "Basic",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
             "args": [
-                "test/tokens/array.yaml",
+                "test/tokens/errors.yaml",
                 "--format",
                 "yaml",
                 "--verbose",
                 "--ignore-errors"
                 // "-o",
                 // "build/style.html"
-            ]
+            ],
+            "env": {
+                // "TEST": "true"
+            }
         },
         {
             "type": "node",
@@ -39,10 +42,10 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch chromatic",
+            "name": "Test",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
-            "args": ["test/tokens/aliases.yaml", "--verbose", "--ignore-errors"]
+            "args": ["test/tokens/angle.yaml", "--verbose", "--ignore-errors"]
         },
         {
             "type": "node",

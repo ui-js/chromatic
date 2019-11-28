@@ -1,0 +1,14 @@
+tokens:
+    canonical: '45deg'
+    rad: '0.785398rad'
+    grad: '50grad'
+    turn: '(1/4)turn'
+    add: '40deg + 5deg'
+    add-with-unit-conversion: '45deg + 50grad'
+    substract: '90deg - 50grad'
+    divide-by-number: '90deg / 2'
+    divide: '90deg / 45deg'
+    invalid:
+        add: '3deg + #fff'
+        multiply: '3deg * 5rad'
+        multiply-by-number: '3deg * 5'

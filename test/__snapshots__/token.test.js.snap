@@ -7,7 +7,8 @@ Object {
 
 ✘   No tokens found.
     Token files should have a \\"tokens\\" property
-▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+    
+    ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
 `;
 
@@ -16,7 +17,8 @@ Object {
   "stderr": "
 ✘   No tokens found.
     Token files should have a \\"tokens\\" property
-▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+    
+    ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
 `;
 
@@ -33,31 +35,32 @@ exports[`evaluates a token file with an invalid token name 1`] = `
 Object {
   "stderr": "
 ✘   test\\\\tokens\\\\invalid-token-name.yaml
-    Invalid token name \\"<>\\": it must only contain digits, letters, \\"_\\" and \\"-\\"
+    [ERR] InvalidTokenName
 
 ✘   No tokens found.
     Token files should have a \\"tokens\\" property
-▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+    
+    ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
 `;
 
 exports[`evaluates aliases in token values correctly 1`] = `
 Object {
   "stderr": "
-✘   Syntax error in \\"circular-alias: \\"darken({circular-alias})\\"\\" 
-    Circular definition of the \\"circular-alias\\" token
+✘   Syntax error in \\"circular-alias: 'darken({circular-alias})'\\"
+    [ERR] CircularDefinition
 
-✘   Syntax error in \\"two-level-circular-alias: \\"{one-level-circular-alias}\\"\\" 
-    Circular definition of the \\"one-level-circular-alias\\" token
+✘   Syntax error in \\"two-level-circular-alias: '{one-level-circular-alias}'\\"
+    [ERR] CircularDefinition
 
-✘   Syntax error in \\"one-level-circular-alias: \\"{two-level-circular-alias}\\"\\" 
-    Circular definition of the \\"one-level-circular-alias\\" token
+✘   Syntax error in \\"one-level-circular-alias: '{two-level-circular-alias}'\\"
+    [ERR] CircularDefinition
 
-✘   Syntax error in \\"invalid.mispelled-alias: \\"darken({rogue})\\"\\" 
-    Expected argument 1 of \`darken\` to be \`color\`.
+✘   Syntax error in \\"invalid.mispelled-alias: 'darken({rogue})'\\"
+    [ERR] ExpectedArgument
 
-✘   Syntax error in \\"invalid.alias-syntax-error: \\"darken({rouge}}\\"\\" 
-    Syntax error in argument list
+✘   Syntax error in \\"invalid.alias-syntax-error: 'darken({rouge}}'\\"
+    [ERR] SyntaxError
 
 ✘   Unresolved alias. Cannot find name \\"{rogue}\\". Did you mean \\"rouge\\"?",
   "tokens.yaml": "
@@ -75,26 +78,48 @@ tokens:
 }
 `;
 
+exports[`evaluates angles correctly 1`] = `
+Object {
+  "stderr": "
+✘   Syntax error in \\"invalid.add: '3deg + #fff'\\"
+    [ERR] InvalidOperand",
+  "tokens.yaml": "
+tokens:
+	canonical: \\"45deg\\"
+	rad: \\"0.79rad\\"
+	grad: \\"50grad\\"
+	turn: \\"0.25turn\\"
+	add: \\"45deg\\"
+	add-with-unit-conversion: \\"90deg\\"
+	substract: \\"45deg\\"
+	divide-by-number: \\"45deg\\"
+	divide: \\"2\\"
+	invalid.add: \\"3deg + #fff\\"
+	invalid.multiply: \\"859.4366926962348\\"
+	invalid.multiply-by-number: \\"15deg\\"",
+}
+`;
+
 exports[`evaluates arrays 1`] = `
 Object {
   "stderr": "
-✘   Syntax error in \\"invalid.unterminated-array-index: \\"{array}[1+2\\"\\" 
-    Expected ']'
+✘   Syntax error in \\"invalid.unterminated-array-index: '{array}[1+2'\\"
+    [ERR] ExpectedCloseBracket
 
-✘   Syntax error in \\"invalid.array-index-multiple-arguments: \\"{array}[2, 4 ]\\"\\" 
-    Expected ']'
+✘   Syntax error in \\"invalid.array-index-multiple-arguments: '{array}[2, 4 ]'\\"
+    [ERR] ExpectedCloseBracket
 
-✘   Syntax error in \\"invalid.array-index-length: \\"{array}[2px]\\"\\" 
-    Expected an integer.
+✘   Syntax error in \\"invalid.array-index-length: '{array}[2px]'\\"
+    [ERR] ExpectedIntegerIndex
 
-✘   Syntax error in \\"invalid.array-index-string: \\"{array}[\\"0\\"]\\"\\" 
-    Expected an integer.
+✘   Syntax error in \\"invalid.array-index-string: '{array}[\\"0\\"]'\\"
+    [ERR] ExpectedIntegerIndex
 
-✘   Syntax error in \\"invalid.index-of-float: \\"12[2]\\"\\" 
-    Unexpected '['
+✘   Syntax error in \\"invalid.index-of-float: '12[2]'\\"
+    [ERR] UnexpectedOpenBracket
 
-✘   Syntax error in \\"invalid.index-of-string: \\"\\"hello\\"[2]\\"\\" 
-    Unexpected '['",
+✘   Syntax error in \\"invalid.index-of-string: '\\"hello\\"[2]'\\"
+    [ERR] UnexpectedOpenBracket",
   "tokens.yaml": "
 tokens:
 	array: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"\\"
@@ -120,7 +145,8 @@ Object {
 
 ✘   No tokens found.
     Token files should have a \\"tokens\\" property
-▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
+    
+    ▷   https://github.com/arnog/chromatic/docs/errors/../guide.md",
 }
 `;
 
@@ -135,9 +161,18 @@ tokens:
 
 exports[`evaluates expressions in token values correctly 1`] = `
 Object {
+  "stderr": "
+✘   Syntax error in \\"invalid.missing-right-operand: '3 + (5 +'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"invalid.missing-close-paren: '3 + (5 + 2'\\"
+    [ERR] ExpectedCloseParen
+
+✘   Syntax error in \\"invalid.string-unary-neg: '-\\"hello\\"'\\"
+    [ERR] InvalidUnaryOperand",
   "tokens.yaml": "
 tokens:
-	string: \\"boom\\"
+	string: \\"#aN\\"
 	length: \\"12px\\"
 	product-mul: \\"15\\"
 	product-div: \\"9pt\\"
@@ -183,7 +218,10 @@ tokens:
 	length-ratio: \\"6.25\\"
 	color-ratio: \\"0.08235471767793863\\"
 	ws-in-expression: \\"25\\"
-	ws-in-function: \\"#dc1c89\\"",
+	ws-in-function: \\"#dc1c89\\"
+	invalid.missing-right-operand: \\"3 + (5 +\\"
+	invalid.missing-close-paren: \\"3 + (5 + 2\\"
+	invalid.string-unary-neg: \\"-\\\\\\"hello\\\\\\"\\"",
 }
 `;
 
@@ -195,5 +233,600 @@ tokens:
 	body-dark: \\"#222\\"
 	background-light: \\"#333\\"
 	body-light: \\"#ddd\\"",
+}
+`;
+
+exports[`generates a JSON file 1`] = `
+Object {
+  "tokens.json": "{
+	\\"red\\": \\"#d83933\\",
+	\\"orange\\": \\"#ffa500\\",
+	\\"yellow\\": \\"#fc0\\",
+	\\"green\\": \\"#607f35\\",
+	\\"blue\\": \\"#2378c3\\",
+	\\"purple\\": \\"#af52de\\",
+	\\"primary-hue\\": \\"210deg\\",
+	\\"primary\\": \\"#0a66c2\\",
+	\\"volcano\\": \\"#ffeb3b\\",
+	\\"volcano-100\\": \\"#fff9c4\\",
+	\\"volcano-200\\": \\"#fff59d\\",
+	\\"volcano-300\\": \\"#fff176\\",
+	\\"volcano-400\\": \\"#ffee58\\",
+	\\"volcano-500\\": \\"#ffeb3b\\",
+	\\"volcano-600\\": \\"#f4d232\\",
+	\\"volcano-700\\": \\"#e8ba29\\",
+	\\"volcano-800\\": \\"#d9991e\\",
+	\\"volcano-900\\": \\"#c2680c\\",
+	\\"semantic.success\\": \\"#607f35\\",
+	\\"semantic.warning\\": \\"#ffa500\\",
+	\\"semantic.error\\": \\"#d83933\\",
+	\\"page-background\\": \\"#f9f9f9\\",
+	\\"text-color\\": \\"#111\\",
+	\\"scrim\\": \\"rgb(71, 71, 71, 40%)\\",
+	\\"cta-button-background\\": \\"#0a66c2\\",
+	\\"cta-button-color\\": \\"#ddd\\",
+	\\"link-color\\": \\"#2378c3\\",
+	\\"link-active-color\\": \\"#1c72be\\",
+	\\"link-down-color\\": \\"#206caf\\",
+	\\"link-hover-color\\": \\"#1e72bc\\",
+	\\"warm-grey\\": \\"#7f7070\\",
+	\\"cool-grey\\": \\"#7b6e6d\\",
+	\\"semantic.error-dark\\": \\"#e2423c\\",
+	\\"page-background-dark\\": \\"#262626\\",
+	\\"text-color-dark\\": \\"#f1f1f1\\"
+}",
+}
+`;
+
+exports[`generates a Sass stylesheet 1`] = `
+Object {
+  "tokens.scss": ":root {
+	--semantic-error: #d83933;
+	--page-background: #f9f9f9;
+	--text-color: #111;
+}
+body[data-theme=\\"dark\\"] {
+	--semantic-error: #e2423c;
+	--page-background: #262626;
+	--text-color: #f1f1f1;
+}
+$red: #d83933 !default;
+$orange: #ffa500 !default;
+$yellow: #fc0 !default;
+$green: #607f35 !default;
+$blue: #2378c3 !default;
+$purple: #af52de !default;
+$primary-hue: 210deg !default;
+$primary: #0a66c2 !default;
+$volcano: #ffeb3b !default;
+$volcano-100: #fff9c4 !default;
+$volcano-200: #fff59d !default;
+$volcano-300: #fff176 !default;
+$volcano-400: #ffee58 !default;
+$volcano-500: #ffeb3b !default;
+$volcano-600: #f4d232 !default;
+$volcano-700: #e8ba29 !default;
+$volcano-800: #d9991e !default;
+$volcano-900: #c2680c !default;
+// Indicate a completed task.
+$semantic-success: #607f35 !default;
+// Indicate a problem that does not prevent a task from being completed.
+$semantic-warning: #ffa500 !default;
+$scrim: rgb(71, 71, 71, 40%) !default;
+$cta-button-background: #0a66c2 !default;
+$cta-button-color: #ddd !default;
+$link-color: #2378c3 !default;
+$link-active-color: #1c72be !default;
+$link-down-color: #206caf !default;
+$link-hover-color: #1e72bc !default;
+$warm-grey: #7f7070 !default;
+$cool-grey: #7b6e6d !default;",
+}
+`;
+
+exports[`generates a style guide 1`] = `
+Object {
+  "tokens.html": "<!doctype html>
+<html class=\\"no-js\\" lang=\\"\\">
+<head>
+  <meta charset=\\"utf-8\\">
+  <title></title>
+  <meta name=\\"description\\" content=\\"\\">
+  <meta name=\\"viewport\\" content=\\"width=device-width, initial-scale=1\\">
+
+  <link rel=\\"manifest\\" href=\\"site.webmanifest\\">
+  <link rel=\\"apple-touch-icon\\" href=\\"icon.png\\">
+
+
+  <meta name=\\"theme-color\\" content=\\"#fafafa\\">
+  <style>
+    body {
+      font-family: -apple-system,BlinkMacSystemFont,\\"Segoe UI\\",Roboto,Oxygen-Sans,Ubuntu,Cantarell,\\"Helvetica Neue\\",sans-serif;
+      --monospace-font: \\"Source Code\\", \\"Plex\\", \\"Fira Code\\", Consolas, \\"Andale Mono WT\\", \\"Andale Mono\\", \\"Lucida Console\\", \\"Lucida Sans Typewriter\\", \\"DejaVu Sans Mono\\", \\"Bitstream Vera Sans Mono\\", \\"Liberation Mono\\", \\"Nimbus Mono L\\", Monaco, \\"Courier New\\", Courier, monospace;
+    }
+    .color-chips {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .color-chip {
+      position: relative;
+      width: 200px;
+      margin: 20px;
+    }
+    .color-chip-swatch {
+      border-radius: 8px;
+      padding: 8px;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      color: #fff
+    }
+    .color-chip-swatch h3,  .color-chip-swatch h4 {
+      padding: 0;
+      margin: 0;
+      margin-left: -8px;
+      margin-right: -8px;
+      padding-left: 16px;
+      padding-bottom: 4px;
+      overflow-wrap: break-word;
+    }
+    .color-chip-swatch h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .color-chip-swatch h4 {
+      font-size: 1rem;
+      font-weight: normal;
+      margin-bottom: 1.2rem;
+      font-family: var(--monospace-font);
+    }
+    .color-chip-swatch.frame {
+      border: 1px solid #ddd
+    }
+    .color-chip-swatch.light {
+      color: #333;
+    }
+    .color-chip p {
+      margin: 0;
+      padding-top: .5rem;
+      font-size: .86rem;
+      line-height: 1.2;
+      color: #777;
+    }
+    .color-chip-swatch-container {
+      position: relative;
+      width: 100%;
+      min-height: 100px;
+
+      border-radius: 8px;
+
+      background-image: linear-gradient(45deg, #777 25%, transparent 25%), linear-gradient(-45deg, #777 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #777 75%), linear-gradient(-45deg, transparent 75%, #777 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+    .value-source {
+      font-weight: bold;
+      font-family: var(--monospace-font);
+      overflow-wrap: break-word;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Colors</h2>
+ <h3>Base</h3> 
+<div class='color-chips'>  
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#d83933'>
+        <h3 >red</h3>
+        <h4 >#d83933</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl(2.2,67.9%,52.4%) </p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#ffa500'>
+        <h3 >orange</h3>
+        <h4 >#ffa500</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl(38.8,100%,50%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#fc0'>
+        <h3 >yellow</h3>
+        <h4 >#fc0</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl(48,100%,50%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#607f35'>
+        <h3 >green</h3>
+        <h4 >#607f35</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl(85.1,41.1%,35.3%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#2378c3'>
+        <h3 >blue</h3>
+        <h4 >#2378c3</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl(208.1,69.6%,45.1%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#af52de'>
+        <h3 >purple</h3>
+        <h4 >#af52de</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl(279.9,68%,59.6%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#0a66c2'>
+        <h3 >primary</h3>
+        <h4 >#0a66c2</h4>
+        </div>
+    </div>
+    <p class='value-source'>hsl({primary-hue}, 90%, 40%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#ffeb3b'>
+        <h3 >volcano</h3>
+        <h4 >#ffeb3b</h4>
+        </div>
+    </div>
+    <p class='value-source'>#FFEB3B</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#fff9c4'>
+        <h3 >volcano-100</h3>
+        <h4 >#fff9c4</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[1]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#fff59d'>
+        <h3 >volcano-200</h3>
+        <h4 >#fff59d</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[2]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#fff176'>
+        <h3 >volcano-300</h3>
+        <h4 >#fff176</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[3]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#ffee58'>
+        <h3 >volcano-400</h3>
+        <h4 >#ffee58</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[4]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#ffeb3b'>
+        <h3 >volcano-500</h3>
+        <h4 >#ffeb3b</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[5]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#f4d232'>
+        <h3 >volcano-600</h3>
+        <h4 >#f4d232</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[6]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#e8ba29'>
+        <h3 >volcano-700</h3>
+        <h4 >#e8ba29</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[7]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#d9991e'>
+        <h3 >volcano-800</h3>
+        <h4 >#d9991e</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[8]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#c2680c'>
+        <h3 >volcano-900</h3>
+        <h4 >#c2680c</h4>
+        </div>
+    </div>
+    <p class='value-source'>scale({volcano})[9]</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#607f35'>
+        <h3 >semantic.success</h3>
+        <h4 >#607f35</h4>
+        </div>
+    </div>
+    <p class='value-source'>{green}</p>
+    <p class='color-chip-comment'>Indicate a completed task.</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#ffa500'>
+        <h3 >semantic.warning</h3>
+        <h4 >#ffa500</h4>
+        </div>
+    </div>
+    <p class='value-source'>{orange}</p>
+    <p class='color-chip-comment'>Indicate a problem that does not prevent a task from being completed.</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#d83933'>
+        <h3 >semantic.error</h3>
+        <h4 >#d83933</h4>
+        </div>
+    </div>
+    <p class='value-source'>{red}</p>
+    <p class='color-chip-comment'>Indicate an error that prevents a task from being completed.</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#f9f9f9'>
+        <h3 >page-background</h3>
+        <h4 >#f9f9f9</h4>
+        </div>
+    </div>
+    <p class='value-source'>gray(98%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#111'>
+        <h3 >text-color</h3>
+        <h4 >#111</h4>
+        </div>
+    </div>
+    <p class='value-source'>gray(5%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:rgb(71, 71, 71, 40%)'>
+        <h3 style='background:#474747'>scrim</h3>
+        <h4 style='background:#474747'>rgb(71, 71, 71, 40%)</h4>
+        </div>
+    </div>
+    <p class='value-source'>gray(30%, 40%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#0a66c2'>
+        <h3 >cta-button-background</h3>
+        <h4 >#0a66c2</h4>
+        </div>
+    </div>
+    <p class='value-source'>{primary}</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#ddd'>
+        <h3 >cta-button-color</h3>
+        <h4 >#ddd</h4>
+        </div>
+    </div>
+    <p class='value-source'>contrast({primary}, #ddd, #333)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#2378c3'>
+        <h3 >link-color</h3>
+        <h4 >#2378c3</h4>
+        </div>
+    </div>
+    <p class='value-source'>{blue}</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#1c72be'>
+        <h3 >link-active-color</h3>
+        <h4 >#1c72be</h4>
+        </div>
+    </div>
+    <p class='value-source'>saturate(darken({link-color}, 5%), 15%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#206caf'>
+        <h3 >link-down-color</h3>
+        <h4 >#206caf</h4>
+        </div>
+    </div>
+    <p class='value-source'>darken({link-color}, 10%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#1e72bc'>
+        <h3 >link-hover-color</h3>
+        <h4 >#1e72bc</h4>
+        </div>
+    </div>
+    <p class='value-source'>saturate(darken({link-color}, 5%), 10%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#7f7070'>
+        <h3 >warm-grey</h3>
+        <h4 >#7f7070</h4>
+        </div>
+    </div>
+    <p class='value-source'>mix(gray(50%), red, 6%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#7b6e6d'>
+        <h3 >cool-grey</h3>
+        <h4 >#7b6e6d</h4>
+        </div>
+    </div>
+    <p class='value-source'>mix(gray(50%), green, 6%)</p>
+    </div>
+</div>
+
+
+ <h3>dark</h3> 
+<div class='color-chips'>  
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#e2423c'>
+        <h3 >semantic.error</h3>
+        <h4 >#e2423c</h4>
+        </div>
+    </div>
+    <p class='value-source'>lighten(saturate({semantic.error}, 20%), 8%)</p>
+    <p class='color-chip-comment'>Indicate an error that prevents a task from being completed.</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch ' style='background-color:#262626'>
+        <h3 >page-background</h3>
+        <h4 >#262626</h4>
+        </div>
+    </div>
+    <p class='value-source'>gray(15%)</p>
+    </div>
+    <div class=\\"color-chip\\">
+    <div class='color-chip-swatch-container'>
+        <div class='color-chip-swatch light' style='background-color:#f1f1f1'>
+        <h3 >text-color</h3>
+        <h4 >#f1f1f1</h4>
+        </div>
+    </div>
+    <p class='value-source'>gray(95%)</p>
+    </div>
+</div>
+
+
+
+  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+  <script>
+    window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;
+    ga('create', 'UA-XXXXX-Y', 'auto'); ga('set','transport','beacon'); ga('send', 'pageview')
+  </script>
+  <script src=\\"https://www.google-analytics.com/analytics.js\\" async></script>
+</body>
+
+</html>
+",
+}
+`;
+
+exports[`handles syntax errors 1`] = `
+Object {
+  "stderr": "
+✘   Syntax error in \\"circular-token: '{circular-token}'\\"
+    [ERR] CircularDefinition
+
+✘   Syntax error in \\"expect-color: 'contrast(12px)'\\"
+    [ERR] ExpectedArgument
+
+✘   Syntax error in \\"missing-argument: 'min(12)'\\"
+    [ERR] MissingArgument
+
+✘   Syntax error in \\"too-many-arguments: 'min(3, 4, 5)'\\"
+    [ERR] TooManyArguments
+
+✘   Syntax error in \\"unexpected-open-bracket: '12px[0]'\\"
+    [ERR] UnexpectedOpenBracket
+
+✘   Syntax error in \\"unclosed-array-index: '{array}[0'\\"
+    [ERR] ExpectedCloseBracket
+
+✘   Syntax error in \\"unclosed-array-literal: '[3, 5, 7'\\"
+    [ERR] ExpectedCloseBracket
+
+✘   Syntax error in \\"array-syntax-error: '[3;5]'\\"
+    [ERR] SyntaxError
+
+✘   Syntax error in \\"string-index: '{array}[\\"0\\"]'\\"
+    [ERR] ExpectedIntegerIndex
+
+✘   Syntax error in \\"unclosed-string: '\\"hello'\\"
+    [ERR] ExpectedQuote
+
+✘   Syntax error in \\"unknown-function: 'foo(12)'\\"
+    [ERR] UnknownFunction
+
+✘   Syntax error in \\"arg-list-syntax-error: 'min(12;14)'\\"
+    [ERR] SyntaxError
+
+✘   Syntax error in \\"expected-operand-term: '12+'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"expected-operand-prod: '12*'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"invalid-operand-prod: '(#fff/2)+15px'\\"
+    [ERR] InvalidOperand
+
+✘   Syntax error in \\"invalid-unary-operand: '-#fff'\\"
+    [ERR] InvalidUnaryOperand
+
+✘   Syntax error in \\"unterminated-group: '(1+5'\\"
+    [ERR] ExpectedCloseParen",
+  "tokens.yaml": "
+tokens:
+	array: \\"\\\\\\"[3, 5, 7, 13]\\\\\\"\\"
+	circular-token: \\"{circular-token}\\"
+	expect-color: \\"contrast(12px)\\"
+	unknown-unit: \\"12km\\"
+	missing-argument: \\"min(12)\\"
+	unexpected-argument: \\"#ff0\\"
+	too-many-arguments: \\"min(3, 4, 5)\\"
+	unexpected-open-bracket: \\"12px[0]\\"
+	unclosed-array-index: \\"\\\\\\"[3, 5, 7, 13]\\\\\\"[0\\"
+	unclosed-array-literal: \\"[3, 5, 7\\"
+	array-syntax-error: \\"[3;5]\\"
+	string-index: \\"\\\\\\"[3, 5, 7, 13]\\\\\\"[\\\\\\"0\\\\\\"]\\"
+	unclosed-string: \\"\\\\\\"hello\\"
+	unknown-function: \\"foo(12)\\"
+	arg-list-syntax-error: \\"min(12;14)\\"
+	expected-operand-term: \\"12+\\"
+	expected-operand-prod: \\"12*\\"
+	invalid-operand-prod: \\"(#fff/2)+15px\\"
+	invalid-unary-operand: \\"-#fff\\"
+	invalid-operand-term: \\"10%hello\\"
+	unterminated-group: \\"(1+5\\"
+	inconsistent-token-dark: \\"#ff0\\"
+	inconsistent-token-light: \\"2px\\"",
 }
 `;

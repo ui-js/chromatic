@@ -1,0 +1,26 @@
+tokens:
+    array: '[3, 5, 7, 13]'
+    circular-token: '{circular-token}'
+    inconsistent-token:
+        value:
+            dark: '#ff0'
+            light: 2px
+    expect-color: 'contrast(12px)'
+    unknown-unit: '12km'
+    missing-argument: 'min(12)'
+    unexpected-argument: 'min(#ff0, #f0f)'
+    too-many-arguments: 'min(3, 4, 5)'
+    unexpected-open-bracket: '12px[0]'
+    unclosed-array-index: '{array}[0'
+    unclosed-array-literal: '[3, 5, 7'
+    array-syntax-error: '[3;5]'
+    string-index: '{array}["0"]'
+    unclosed-string: '"hello'
+    unknown-function: 'foo(12)'
+    arg-list-syntax-error: 'min(12;14)'
+    expected-operand-term: '12+'
+    expected-operand-prod: '12*'
+    invalid-operand-prod: '(#fff/2)+15px'
+    invalid-unary-operand: '-#fff'
+    invalid-operand-term: '10%+"hello"'
+    unterminated-group: '(1+5'

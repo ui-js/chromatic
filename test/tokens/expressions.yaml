@@ -46,3 +46,7 @@ tokens:
     color-ratio: '#333 / #aaa'
     ws-in-expression: '  5   *   (  2  +  3   )   '
     ws-in-function: '  mix  (#f45  ,  #324 ,  34%  ) '
+    invalid:
+        missing-right-operand: '3 + (5 +'
+        missing-close-paren: '3 + (5 + 2'
+        string-unary-neg: '-"hello"'

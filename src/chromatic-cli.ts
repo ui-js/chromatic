@@ -109,7 +109,7 @@ if (typeof process.stdin.isTTY !== 'undefined' && !process.stdin.isTTY) {
     if (argv._.length < 1) {
         console.error(
             terminal.error() +
-                `Expected at least one path to a directory or token file. Use ${terminal.option(
+                `Expected at least one path to a directory or token file. Use ${terminal.keyword(
                     '--help'
                 )} for available options.`
         );

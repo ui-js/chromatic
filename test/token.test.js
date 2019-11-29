@@ -12,15 +12,16 @@ function c(s, options = {}) {
 const testFiles = {
     simple: 'evaluates a simple token file',
     'no-tokens': 'evaluates a file with no tokens',
-    'token-arrays': 'evaluates a file with an array of tokens',
+    'token-array': 'evaluates a file with an array of tokens',
     'invalid-token-name': 'evaluates a token file with an invalid token name',
     expressions: 'evaluates expressions in token values correctly',
     angle: 'evaluates angles correctly',
-    'no-colors': 'evaluates color tokens correctly',
+    colors: 'evaluates color tokens correctly',
     aliases: 'evaluates aliases in token values correctly',
     metadata: 'evaluates comments, etc... associated with a token',
     theme: 'evaluates two themes',
     array: 'evaluates arrays',
+    length: 'evaluates lengths',
     errors: 'handles syntax errors',
 };
 

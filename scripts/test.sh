@@ -14,8 +14,7 @@ export TEST="true"
 
 if [ "$VARIANT" = "coverage" ]; then
     npx jest --coverage
-elif [ "$VARIANT" = "update" ]; then
-    echo "updating"
+elif [ "$VARIANT" = "snapshot" ]; then
     npx jest -u
 else
     npx jest

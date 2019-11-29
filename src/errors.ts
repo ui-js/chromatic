@@ -8,6 +8,7 @@ export enum ErrorCode {
     ExpectedCloseParen,
     ExpectedQuote,
 
+    UnknownToken,
     UnknownUnit,
 
     UnknownFunction,
@@ -40,6 +41,8 @@ const ERRORS = {
     [ErrorCode.ExpectedOpenParen]: 'Expected `(`',
     [ErrorCode.ExpectedCloseParen]: 'Expected `)`',
     [ErrorCode.ExpectedQuote]: 'Expected `"`',
+
+    [ErrorCode.UnknownToken]: 'Unknown token `%1`%2',
 
     [ErrorCode.UnknownUnit]: 'Unknown unit `%1`',
 

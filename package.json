@@ -65,6 +65,7 @@
         "coverage": "bash ./scripts/test.sh coverage",
         "deploy": "",
         "lint": "prettier --config .config/prettierrc.yaml--ignore-path ./.prettierignore --write \"**/*.{ts,js,css,md,yml,json}\" \"!vendor/**\"",
+        "snapshot": "bash ./scripts/test.sh snapshot",
         "stage": "bash scripts/stage.sh",
         "start": "bash scripts/server.sh",
         "test": "bash ./scripts/test.sh",

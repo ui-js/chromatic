@@ -1,12 +1,12 @@
 tokens:
     rouge: 'red'
-    simple-alias: '{rouge}'
-    two-level-alias: '{simple-alias}'
-    alias-in-expression: 'darken({rouge})'
-    alias-in-string: '3px {rouge}'
-    circular-alias: 'darken({circular-alias})'
-    two-level-circular-alias: '{one-level-circular-alias}'
-    one-level-circular-alias: '{two-level-circular-alias}'
+    simple-alias__red: '{rouge}'
+    two-level-alias__red: '{simple-alias__red}'
+    alias-in-expression__e60000: 'darken({rouge})'
+    alias-in-string__3px_f00: '3px {rouge}'
     invalid:
+        circular-alias: 'darken({invalid.circular-alias})'
+        two-level-circular-alias: '{invalid.one-level-circular-alias}'
+        one-level-circular-alias: '{invalid.two-level-circular-alias}'
         mispelled-alias: 'darken({rogue})'
         alias-syntax-error: 'darken({rouge}}' # has a closing "}" instead of the expected ")"

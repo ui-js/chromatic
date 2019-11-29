@@ -11,7 +11,7 @@
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
             "args": [
-                "test/tokens/errors.yaml",
+                "test/tokens/length.yaml",
                 "--format",
                 "yaml",
                 "--verbose",

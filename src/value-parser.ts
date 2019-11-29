@@ -10,7 +10,6 @@ import {
 import { terminal } from './terminal';
 import { getSuggestion } from './utils';
 
-// @todo: multi-units for relative lengths
 // @todo: convert frequency and time (1/s -> Hz)
 // @todo: have a base-font-size property in the tokenfile as well (under global: )
 
@@ -26,8 +25,27 @@ export type ValueType =
     | 'array';
 
 export interface ValueParserOptions {
-    'base-font-size'?: number;
-    aliasResolver?: (name: string) => Value;
+    /**
+     * Those are relative units that can't be evaluated statically, as they
+     * depend on the rendering environment (the size of the base font of the
+     * document, the metrics of the current font, the dimension of the view port.
+     * However, it is possible to provide values for those to valueParser,
+     * in which case they will get evaluated.
+     */
+    baseUnits?: {
+        rem?: number;
+        em?: number;
+        ex?: number;
+        ch?: number;
+        vh?: number;
+        vw?: number;
+    };
+    /** When an alias (identifier in {}) is encountered, this function
+     * is called to resolve it.
+     * Return either the resolved value, or a string which is a suggestion
+     * for the best matching identifier.
+     */
+    aliasResolver?: (identifier: string) => Value | string;
 }
 
 type LengthUnit =
@@ -312,22 +330,109 @@ class Angle extends Value {
     }
 }
 
+interface MultiLength {
+    // Absolute canonical length
+    px?: number;
+
+    // Relative lengths
+    em?: number;
+    ex?: number;
+    ch?: number;
+    rem?: number;
+    vw?: number;
+    vh?: number;
+    vmin?: number;
+    vmax?: number;
+}
+
 class Length extends Value {
-    value: number;
+    value: number | MultiLength;
     unit: LengthUnit;
-    constructor(from: number, unit: LengthUnit) {
+    constructor(from: number | MultiLength, unit?: LengthUnit) {
         super();
-        this.value = from;
-        this.unit = unit;
+        if (typeof from === 'number') {
+            this.value = from;
+            if (from === 0) {
+                this.unit = 'px';
+            } else {
+                this.unit = unit;
+            }
+        } else if (typeof unit === 'undefined') {
+            const nonZeroKeys: LengthUnit[] = Object.keys(from).filter(
+                x => typeof from[x] === 'number' && from[x] !== 0
+            ) as LengthUnit[];
+            if (nonZeroKeys.length === 0) {
+                // Everything's zero, return the canonical zero length: 0px
+                this.value = 0;
+                this.unit = 'px';
+            } else if (nonZeroKeys.length === 1) {
+                // A single non-zero unit? Return that unit.
+                this.value = from[nonZeroKeys[0]];
+                this.unit = nonZeroKeys[0];
+            } else {
+                this.value = from;
+                this.unit = 'multi';
+            }
+        } else {
+            // Force promotion to multi
+            this.value = from;
+            this.unit = 'multi';
+            console.assert(unit === 'multi');
+        }
     }
     css(): string {
-        return roundTo(this.value, 2) + this.unit;
+        if (typeof this.value === 'number') {
+            // If it's a number, display "0" and "NaN" without units
+            return this.value === 0 || isNaN(this.value)
+                ? Number(this.value).toString()
+                : roundTo(this.value, 2) + this.unit;
+        }
+
+        // It's a multi-unit length.
+
+        const result: MultiLength = {};
+        let units = Object.keys(this.value);
+
+        if (units.length > 1) {
+            // It's a multi-unit length, with multiple units
+            // Attempt to simplify it
+            let pxSum = 0;
+            units.forEach(x => {
+                const inPx = asPx(this.value[x], x as LengthUnit);
+                if (!isNaN(inPx)) {
+                    pxSum += inPx;
+                } else if (x !== 'px') {
+                    result[x] = this.value[x];
+                }
+            });
+            if (pxSum !== 0) {
+                result['px'] = pxSum;
+            }
+        } else {
+            result[units[0]] = this.value[units[0]];
+        }
+
+        units = Object.keys(result);
+        if (units.length === 1) {
+            if (units[0] === 'px' && result['px'] === 0) {
+                return '0';
+            }
+            return roundTo(result[units[0]], 2) + units[0];
+        }
+
+        return (
+            'calc(' +
+            units.map(x => Number(result[x]).toString() + x).join(' + ') +
+            ')'
+        );
     }
     type(): ValueType {
         return 'length';
     }
     canonicalScalar(): number {
-        return asPx(this);
+        return this.unit === 'multi'
+            ? NaN
+            : asPx(this.value as number, this.unit);
     }
 }
 class Time extends Value {
@@ -418,7 +523,7 @@ export class Color extends Value {
                 [this.h, this.s, this.l] = [0, 0, 0];
             } else {
                 const rgb = parseHex(from) || parseColorName(from);
-                console.assert(rgb);
+                if (!rgb) throw new Error();
                 Object.assign(this, rgb);
                 Object.assign(this, rgbToHsl(this.r, this.g, this.b));
             }
@@ -538,8 +643,17 @@ function isFloat(arg: Value): arg is Float {
 function assertFloat(arg: Value): asserts arg is Float {
     console.assert(arg instanceof Float);
 }
+
 function assertFloatOrPercentage(arg: Value): asserts arg is Float {
     console.assert(arg instanceof Float || arg instanceof Percentage);
+}
+
+function assertLength(arg: Value): asserts arg is Length {
+    console.assert(arg instanceof Length);
+}
+
+function isColor(arg: Value): arg is Percentage {
+    return arg instanceof Color;
 }
 
 function isPercentage(arg: Value): arg is Percentage {
@@ -564,6 +678,10 @@ function isTime(arg: Value): arg is Time {
 
 function isFrequency(arg: Value): arg is Frequency {
     return arg instanceof Frequency;
+}
+
+function isZero(arg: Value): arg is Float {
+    return arg instanceof Float && arg.value === 0;
 }
 
 export function makeValueFrom(from: {
@@ -661,38 +779,53 @@ function asDegree(value: Value): number {
     }
 }
 
-function asPx(value: Value, options?: ValueParserOptions): number {
+function asPx(
+    value: number | MultiLength,
+    unit: LengthUnit,
+    options?: ValueParserOptions
+): number {
     // See https://drafts.csswg.org/css-values-3/#lengths
-    if (isLength(value)) {
-        if (value.unit === 'px') {
-            return value.value;
-        } else if (value.unit === 'cm') {
-            return (value.value * 96.0) / 2.54;
-        } else if (value.unit === 'mm') {
-            return (value.value * 96.0) / 25.4;
-        } else if (value.unit === 'Q') {
-            return (value.value * 96.0) / 2.54 / 40.0;
-        } else if (value.unit === 'in') {
-            return value.value * 96.0;
-        } else if (value.unit === 'pc') {
-            return value.value * 16.0;
-        } else if (value.unit === 'pt') {
-            return (value.value * 96.0) / 72.0;
-        } else if (value.unit === 'rem' && options['base-font-size']) {
-            return value.value * options['base-font-size'];
-        } else {
-            if (/^(rem|em|ex|ch|vw|vh|vmin|vmax)/.test(value.unit)) {
-                throw new Error(
-                    `Relative unit "${value.unit}" cannot be evaluated. Use an absolute unit (px, pt, etc...)`
-                );
-            } else {
-                this.error(ErrorCode.UnknownUnit, value.unit);
-            }
-        }
+    if (typeof value !== 'number') {
+        console.assert(unit === 'multi');
+        let pxSum = value['px'] ?? 0;
+        Object.keys(value).forEach(x => {
+            const inPx = asPx(this.value[x], x as LengthUnit, options);
+            if (isNaN(inPx)) return NaN;
+            pxSum += pxSum;
+        });
+        return pxSum;
     }
-    assertFloat(value);
-    // Px is the canonical unit for dimensions
-    return value.value;
+    if (unit === 'px') {
+        return value;
+    } else if (unit === 'cm') {
+        return (value * 96.0) / 2.54;
+    } else if (unit === 'mm') {
+        return (value * 96.0) / 25.4;
+    } else if (unit === 'Q') {
+        return (value * 96.0) / 2.54 / 40.0;
+    } else if (unit === 'in') {
+        return value * 96.0;
+    } else if (unit === 'pc') {
+        return value * 16.0;
+    } else if (unit === 'pt') {
+        return (value * 96.0) / 72.0;
+    }
+    let base: number;
+    if (unit === 'vmin') {
+        base = Math.min(
+            options?.baseUnits?.vh ?? NaN,
+            options?.baseUnits?.vw ?? NaN
+        );
+    } else if (unit === 'vmax') {
+        base = Math.max(
+            options?.baseUnits?.vh ?? NaN,
+            options?.baseUnits?.vw ?? NaN
+        );
+    } else {
+        base = options?.baseUnits?.[unit] ?? NaN;
+    }
+
+    return base * value;
 }
 
 function asPercent(value: Value): number {
@@ -713,6 +846,18 @@ function asString(value: Value, defaultValue: string): string {
 function compareValue(a: Value, b: Value): number {
     // @todo: compare strings (asCanonicalString())
     return b.canonicalScalar() - a.canonicalScalar();
+}
+
+function promoteToMulti(value: Length | Float): Length {
+    if (isFloat(value)) {
+        return new Length({ px: value.value }, 'multi');
+    }
+    if (value.unit === 'multi') return value;
+
+    const newValue: MultiLength = {};
+    newValue[value.unit] = value.value;
+
+    return new Length(newValue, 'multi');
 }
 
 const whiteColor = new Color('#fff');
@@ -1131,6 +1276,86 @@ class Stream {
         );
     }
 
+    /** Apply an arithmetic operation when at least one of the operands is a Length
+     *
+     */
+    applyOpToLength(
+        op: string,
+        lhs: Length | Float,
+        rhs: Length | Float
+    ): Value {
+        if (isFloat(lhs) && op === '/') this.error(ErrorCode.InvalidOperand);
+        if (!isFloat(lhs) && !isFloat(rhs) && op === '*')
+            this.error(ErrorCode.InvalidOperand);
+
+        const opFn = {
+            '+': (a: any, b: any): any => a + b,
+            '-': (a: any, b: any): any => a - b,
+            '*': (a: any, b: any): any => a * b,
+            '/': (a: any, b: any): any => a / b,
+        }[op];
+
+        if (isFloat(lhs)) {
+            assertLength(rhs);
+            if (rhs.unit === 'multi') {
+                const multiLength = {};
+                Object.keys(rhs.value as MultiLength).forEach(unit => {
+                    multiLength[unit] = opFn(lhs.value, rhs.value[unit]);
+                });
+                return new Length(multiLength);
+            }
+            return new Length(opFn(lhs.value, rhs.value), rhs.unit);
+        }
+        if (isFloat(rhs)) {
+            if (typeof lhs.value === 'number') {
+                return new Length(opFn(lhs.value, rhs.value), lhs.unit);
+            }
+            const multiLength = {};
+            Object.keys(lhs.value as MultiLength).forEach(unit => {
+                multiLength[unit] = opFn(lhs.value[unit], rhs.value);
+            });
+            return new Length(multiLength);
+        }
+        // We've dealt with the case where one of the two operand is a float.
+        // Now, both operands are Length
+        if (op === '/') {
+            if (lhs.unit === 'multi' || rhs.unit === 'multi') {
+                this.error(ErrorCode.InvalidOperand);
+            }
+
+            if (lhs.unit === rhs.unit) {
+                // If the units are the same, we can calculate the result
+                // even if the units are relative (em, vh, etc...)
+                return new Float((lhs.value as number) / (rhs.value as number));
+            } else {
+                // The units are not the same. Attempt to conver them to a scalar
+                return new Float(lhs.canonicalScalar() / rhs.canonicalScalar());
+            }
+        }
+        // Normalize them both to multi-units
+        const lhsMulti = promoteToMulti(lhs);
+        const rhsMulti = promoteToMulti(rhs);
+
+        // Apply the operation on the union of both operands
+        const multiLength = {};
+        [
+            ...Object.keys(lhsMulti.value as MultiLength),
+            ...Object.keys(rhsMulti.value as MultiLength),
+        ].forEach(unit => {
+            if (typeof rhsMulti.value[unit] === 'undefined') {
+                multiLength[unit] = lhsMulti.value[unit];
+            } else if (typeof lhsMulti.value[unit] === 'undefined') {
+                multiLength[unit] = rhsMulti.value[unit];
+            } else {
+                multiLength[unit] = opFn(
+                    lhsMulti.value[unit],
+                    rhsMulti.value[unit]
+                );
+            }
+        });
+        return new Length(multiLength);
+    }
+
     parseUnit(num: number): Value {
         // Check if a number (or group) is followed (immediately) by a unit
         if (this.match('%')) {
@@ -1150,9 +1375,13 @@ class Stream {
         if (unit) {
             return new Time(num, unit as TimeUnit);
         }
-        unit = this.match(/^(kHz|Hz)/);
+        unit = this.match(/^(khz|hz|kHz|Hz)/);
         if (unit) {
-            return new Frequency(num, unit as FrequencyUnit);
+            return new Frequency(num, unit.toLowerCase() as FrequencyUnit);
+        }
+        unit = this.match(/^([a-zA-Z]+)/);
+        if (unit) {
+            this.error(ErrorCode.UnknownUnit, unit);
         }
         return new Float(num);
     }
@@ -1178,6 +1407,31 @@ class Stream {
     parseLiteral(): Value {
         let result: Value;
         const saveIndex = this.index;
+        const op = this.match(/^\s*([+\-])\s*/);
+        if (op) {
+            const operand = this.parseLiteral();
+            if (op === '-') {
+                // Unary operator
+                if (isPercentage(operand)) {
+                    return new Percentage(-100 * asPercent(operand));
+                }
+                if (isFloat(operand)) {
+                    return new Float(-operand.value);
+                }
+                if (isAngle(operand)) {
+                    return new Angle(-operand.value, operand.unit);
+                }
+                if (isLength(operand)) {
+                    return this.applyOpToLength(
+                        '-',
+                        new Length(0, 'px'),
+                        operand
+                    );
+                }
+                this.error(ErrorCode.InvalidUnaryOperand);
+            }
+            return operand;
+        }
 
         const num = this.match(/^([0-9]*\.[0-9]+|\.?[0-9]+)/);
         if (num) {
@@ -1228,28 +1482,31 @@ class Stream {
             // It's an alias
             const identifier = this.match(/^([a-zA-Z0-9\._-]+)/);
             if (identifier) {
-                result = this.options?.aliasResolver(identifier);
-                if (!result) {
+                let alias = this.options?.aliasResolver(identifier);
+                if (typeof alias === 'string') {
                     // If that didn't work, try an implicit color scale...
-                    const m = identifier.match(/^(.+)-([0-9]+)$/);
+                    // e.g. "red-200"
+                    const m = identifier.match(/^(.+)-([0-9]{2,3})$/);
                     if (m) {
-                        const color = asColor(
-                            this.options?.aliasResolver(m[1])
-                        );
-                        if (color) {
+                        const color = this.options?.aliasResolver(m[1]);
+                        if (typeof color !== 'string' && isColor(color)) {
                             const index = Math.round(parseInt(m[2]) / 100);
 
-                            result = scaleColor(color)?.get(index);
-                        }
+                            alias = scaleColor(color)?.get(index);
+                        } else if (typeof color === 'string') {
+                            this.error(ErrorCode.UnknownToken, m[1], color);
+                        } else this.error(ErrorCode.InvalidOperand);
                     }
                 }
+                if (typeof alias === 'string') {
+                    this.error(ErrorCode.UnknownToken, identifier, alias);
+                }
+                result = alias as Value;
                 if (result) {
                     // Clone the result of the alias, since we'll need to change
                     // the source
                     result = makeValueFrom(result);
                     result.setSource('{' + identifier + '}');
-                } else {
-                    result = new StringValue('{' + identifier + '}');
                 }
             }
             this.match('}');
@@ -1380,23 +1637,26 @@ class Stream {
         return undefined;
     }
 
-    parseProduct(): Value {
-        let lhs = this.parseCall() || this.parseGroup() || this.parseLiteral();
-        if (!lhs) return lhs;
+    parseTerminal(): Value {
+        const result =
+            this.parseCall() || this.parseGroup() || this.parseLiteral();
 
-        lhs = this.parseIndex(lhs);
+        if (!result) return result;
 
-        const saveIndex = this.index;
+        return this.parseIndex(result);
+    }
 
-        this.skipWhiteSpace();
+    parseFactor(): Value {
+        let lhs = this.parseTerminal();
 
-        const op = this.match(/^([*|/])/);
-        if (!op) {
-            this.index = saveIndex;
-        } else {
+        let op = this.match(/^\s*([*|/])\s*/);
+        while (op) {
+            const opFn = {
+                '*': (a: any, b: any): any => a * b,
+                '/': (a: any, b: any): any => a / b,
+            }[op];
             // Multiplication or division
-            this.skipWhiteSpace();
-            const rhs = this.parseProduct();
+            const rhs = this.parseTerminal();
 
             if (!rhs) this.error(ErrorCode.ExpectedOperand);
             // Type combination rules (for * AND /)
@@ -1409,67 +1669,53 @@ class Stream {
             // values of the same type is valid (and yields a unitless number)
             if (isFloat(rhs)) {
                 if (isFloat(lhs)) {
-                    return new Float(
-                        op === '*'
-                            ? lhs.value * rhs.value
-                            : lhs.value / rhs.value
-                    );
+                    lhs = new Float(opFn(lhs.value, rhs.value));
                 } else if (isPercentage(lhs)) {
-                    return new Percentage(
-                        (op === '*'
-                            ? asPercent(lhs) * rhs.value
-                            : asPercent(lhs) / rhs.value) * 100
-                    );
+                    lhs = new Percentage(opFn(lhs.value, rhs.value));
                 } else if (isLength(lhs)) {
-                    return new Length(
-                        op === '*'
-                            ? lhs.value * rhs.value
-                            : lhs.value / rhs.value,
-                        lhs.unit
-                    );
+                    lhs = this.applyOpToLength(op, lhs, rhs);
                 } else if (isAngle(lhs)) {
-                    return new Angle(
-                        op === '*'
-                            ? lhs.value * rhs.value
-                            : lhs.value / rhs.value,
-                        lhs.unit
-                    );
+                    lhs = new Angle(opFn(lhs.value, rhs.value), lhs.unit);
                 } else if (isFrequency(lhs)) {
-                    return new Frequency(
-                        op === '*'
-                            ? lhs.value * rhs.value
-                            : lhs.value / rhs.value,
-                        lhs.unit
-                    );
+                    lhs = new Frequency(opFn(lhs.value, rhs.value), lhs.unit);
                 } else if (isTime(lhs)) {
-                    return new Time(
-                        op === '*'
-                            ? lhs.value * rhs.value
-                            : lhs.value / rhs.value,
-                        lhs.unit
-                    );
+                    lhs = new Time(opFn(lhs.value, rhs.value), lhs.unit);
                 }
+            } else if ((isFloat(lhs) || isLength(lhs)) && isLength(rhs)) {
+                return this.applyOpToLength(op, lhs, rhs);
+            } else if (isFloat(lhs)) {
+                if (isPercentage(rhs)) {
+                    lhs = new Percentage(opFn(lhs.value, rhs.value));
+                } else if (isLength(rhs)) {
+                    lhs = this.applyOpToLength(op, lhs, rhs);
+                } else if (isAngle(rhs)) {
+                    lhs = new Angle(opFn(lhs.value, rhs.value), rhs.unit);
+                } else if (isFrequency(rhs)) {
+                    lhs = new Frequency(opFn(lhs.value, rhs.value), rhs.unit);
+                } else if (isTime(rhs)) {
+                    lhs = new Time(opFn(lhs.value, rhs.value), rhs.unit);
+                }
+            } else if (op === '/' && lhs.type() === rhs.type()) {
+                lhs = new Float(lhs.canonicalScalar() / rhs.canonicalScalar());
             } else {
-                return new Float(
-                    op === '*'
-                        ? lhs.canonicalScalar() * rhs.canonicalScalar()
-                        : lhs.canonicalScalar() / rhs.canonicalScalar()
-                );
+                this.error(ErrorCode.InvalidOperand);
             }
-            this.error(ErrorCode.InvalidOperand);
+            op = this.match(/^\s*([*|/])\s*/);
         }
 
         return lhs;
     }
 
     parseTerm(): Value {
-        const lhs = this.parseProduct();
+        let lhs = this.parseFactor();
 
-        const op = {
-            '+': (a: string, b: string): string => a + b,
-            '-': (a: number, b: number): number => a - b,
-        }[this.match(/^\s*([+\-])\s*/)];
-        if (op) {
+        let op = this.match(/^\s*([+\-])\s*/);
+
+        while (op) {
+            const opFn = {
+                '+': (a: any, b: any): any => a + b,
+                '-': (a: any, b: any): any => a - b,
+            }[op];
             // Type combination rules (for + AND -)
             // ---
             // string + any             -> string
@@ -1481,55 +1727,67 @@ class Stream {
             // angle + angle            -> angle
             // length + length          -> length
             // Other combinations are invalid.
-            const rhs = this.parseProduct();
+            const rhs = this.parseFactor();
 
             if (!rhs) this.error(ErrorCode.ExpectedOperand);
 
-            if (!lhs) {
-                // Unary operator
-                if (isPercentage(rhs)) {
-                    return new Percentage(100 * op(0, asPercent(rhs)));
+            if (isString(lhs) || isString(rhs)) {
+                if (op === '-') this.error(ErrorCode.InvalidOperand);
+                lhs = new StringValue(opFn(lhs.css(), rhs.css()));
+            } else if (isFloat(lhs) && isFloat(rhs)) {
+                lhs = new Float(opFn(lhs.value, rhs.value));
+            } else if (
+                (isZero(lhs) || isPercentage(lhs)) &&
+                (isZero(rhs) || isPercentage(rhs))
+            ) {
+                lhs = new Percentage(
+                    100 * opFn(asPercent(lhs), asPercent(rhs))
+                );
+            } else if (isZero(lhs) && isTime(rhs)) {
+                lhs = new Time(opFn(0, rhs.value), rhs.unit);
+            } else if (isTime(lhs) && isZero(rhs)) {
+                lhs = new Time(lhs.value, lhs.unit);
+            } else if (isTime(lhs) && isTime(rhs)) {
+                if (lhs.unit === rhs.unit) {
+                    lhs = new Time(opFn(lhs.value, rhs.value), lhs.unit);
+                } else {
+                    lhs = new Time(
+                        opFn(lhs.canonicalScalar(), rhs.canonicalScalar()),
+                        's'
+                    );
                 }
-                if (isFloat(rhs)) {
-                    return new Float(op(0, rhs.value));
+            } else if (isZero(lhs) && isFrequency(rhs)) {
+                lhs = new Frequency(opFn(0, rhs.value), rhs.unit);
+            } else if (isFrequency(lhs) && isZero(rhs)) {
+                lhs = new Frequency(lhs.value, lhs.unit);
+            } else if (isFrequency(lhs) && isFrequency(rhs)) {
+                if (lhs.unit === rhs.unit) {
+                    lhs = new Frequency(opFn(lhs.value, rhs.value), lhs.unit);
+                } else {
+                    lhs = new Frequency(
+                        opFn(lhs.canonicalScalar(), rhs.canonicalScalar()),
+                        'hz'
+                    );
                 }
-                if (isAngle(rhs)) {
-                    return new Angle(op(0, rhs.value), rhs.unit);
+            } else if (isZero(lhs) && isAngle(rhs)) {
+                lhs = new Angle(opFn(0, rhs.value), rhs.unit);
+            } else if (isAngle(lhs) && isZero(rhs)) {
+                lhs = new Angle(lhs.value, lhs.unit);
+            } else if (isAngle(lhs) && isAngle(rhs)) {
+                if (lhs.unit === rhs.unit) {
+                    lhs = new Angle(opFn(lhs.value, rhs.value), lhs.unit);
+                } else {
+                    lhs = new Angle(opFn(asDegree(lhs), asDegree(rhs)), 'deg');
                 }
-                if (isLength(rhs)) {
-                    return new Length(op(0, rhs.value), rhs.unit);
-                }
-                this.error(ErrorCode.InvalidUnaryOperand);
+            } else if (
+                (isZero(lhs) || isLength(lhs)) &&
+                (isZero(rhs) || isLength(rhs))
+            ) {
+                lhs = this.applyOpToLength(op, lhs, rhs);
             } else {
-                // Binary operator
-                if (isString(lhs) || isString(rhs)) {
-                    return new StringValue(op(lhs.css(), rhs.css()));
-                }
-                if (isPercentage(lhs) && isPercentage(rhs)) {
-                    return new Percentage(
-                        100 * op(asPercent(lhs), asPercent(rhs))
-                    );
-                }
-                if (isFloat(lhs) && isFloat(rhs)) {
-                    return new Float(op(lhs.value, rhs.value));
-                }
-                if (isAngle(lhs) && isAngle(rhs)) {
-                    if (lhs.unit === rhs.unit) {
-                        return new Angle(op(lhs.value, rhs.value), lhs.unit);
-                    }
-                    return new Angle(op(asDegree(lhs), asDegree(rhs)), 'deg');
-                }
-                if (isLength(lhs) && isLength(rhs)) {
-                    if (lhs.unit === rhs.unit) {
-                        return new Length(op(lhs.value, rhs.value), lhs.unit);
-                    }
-                    return new Length(
-                        op(asPx(lhs, this.options), asPx(rhs, this.options)),
-                        'px'
-                    );
-                }
                 this.error(ErrorCode.InvalidOperand);
             }
+            op = this.match(/^\s*([+\-])\s*/);
         }
 
         return lhs;

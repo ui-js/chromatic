@@ -1,11 +1,11 @@
 tokens:
-    array: '[blue, white, red]'
-    array-literal: '[yellow, magenta, cyan][1]'
-    array-index: '{array}[0]'
-    array-index-expression: '{array}[ 24 / 12 - 1 ]'
     primary: '#0066ce'
-    auto-scaling: '{primary-200}'
-    manual-scaling: 'scale({primary})[2]'
+    auto-scaling__80b3e7: '{primary-200}'
+    array: '[blue, white, red]'
+    array-literal__f0f: '[yellow, magenta, cyan][1]'
+    array-index__00f: '{array}[0]'
+    array-index-expression_fff: '{array}[ 24 / 12 - 1 ]'
+    manual-scaling__80b3e7: 'scale({primary})[2]'
     invalid:
         unterminated-array-index: '{array}[1+2'
         array-index-multiple-arguments: '{array}[2, 4 ]'

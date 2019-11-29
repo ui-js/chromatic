@@ -258,7 +258,7 @@ function evaluateTokenExpression(
 
     const result = parseValue(expression, {
         ...gConfig,
-        aliasResolver: (identifier): Value => {
+        aliasResolver: (identifier): Value | string => {
             // If we have already evaluated this token, return its value
             if (gTokenValues.has(identifier))
                 return gTokenValues.get(identifier);
@@ -285,7 +285,7 @@ function evaluateTokenExpression(
                     );
                 }
             }
-            return aliasValue;
+            return aliasValue ?? getSuggestion(identifier, gTokenDefinitions);
         },
     });
     gRecursiveEvaluationStack.pop();
@@ -477,11 +477,20 @@ function processPath(f: string): void {
     // 4. Display any accumulated errors
     //
     if (gConfig.verbose && errors.length === 0) {
-        log(terminal.success() + '← ' + terminal.path(path.relative('', f)));
+        log(
+            terminal.success() +
+                '← ' +
+                terminal.path(
+                    process.env.TEST ? path.basename(f) : path.relative('', f)
+                )
+        );
     }
     if (errors.length > 0) {
         error([
-            terminal.error() + terminal.path(path.relative('', f)),
+            terminal.error() +
+                terminal.path(
+                    process.env.TEST ? path.basename(f) : path.relative('', f)
+                ),
             ...errors,
         ]);
     }
@@ -663,7 +672,7 @@ function renderFile(format: Format, context: RenderFileContext): string {
 
             const msg =
                 terminal.error('Unresolved alias. ') +
-                `Cannot find name "${match}"` +
+                `Cannot find token "${match}"` +
                 getSuggestion(alias, formattedTokenValues);
             error(msg);
             return match;

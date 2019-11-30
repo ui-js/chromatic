@@ -11,13 +11,13 @@
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
             "args": [
-                "test/tokens/length.yaml",
-                "--format",
-                "yaml",
-                "--verbose",
-                "--ignore-errors"
-                // "-o",
-                // "build/style.html"
+                "./chromatic-example/tokens.yaml",
+                // "--format",
+                // "yaml",
+                // "--verbose",
+                // "--ignore-errors"
+                "-o",
+                "build/style.html"
             ],
             "env": {
                 // "TEST": "true"

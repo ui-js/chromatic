@@ -1484,7 +1484,7 @@ class Stream {
 
         if (!result && this.match('{')) {
             // It's an alias
-            const identifier = this.match(/^([a-zA-Z0-9\._-]+)/);
+            const identifier = this.match(/^([a-zA-Z_-][a-zA-Z0-9\._-]*)/);
             if (identifier) {
                 let alias = this.options?.aliasResolver(identifier);
                 if (typeof alias === 'string') {

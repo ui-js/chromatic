@@ -51,6 +51,16 @@ Chromatic can also generate a style guide as a HTML file.
 $ npm install -g @arnog/chromatic
 ```
 
+To create a directory with an example:
+
+```shell
+$ chromatic example ./test
+$ chromatic ./test -o tokens.scss
+$ chromatic ./test -o tokens.html
+```
+
+Or writing your own token file:
+
 ```yaml
 # tokens.yaml
 tokens:
@@ -89,7 +99,7 @@ tokens:
 $ chromatic tokens.yaml -o tokens.scss
 ```
 
-```scss
+```css
 :root {
     --background: #f1f1f1;
     --body-color: #333;

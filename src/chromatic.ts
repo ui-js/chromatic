@@ -313,7 +313,7 @@ function processTokenGroup(
     }
     Object.keys(tokens).forEach(token => {
         const qualifiedToken = (tokenPath ? tokenPath + '.' : '') + token;
-        if (!/^[a-zA-Z0-9_-]+$/.test(token)) {
+        if (!/^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(token)) {
             throwError(ErrorCode.InvalidTokenName, qualifiedToken);
         }
         if (!tokens[token]) {

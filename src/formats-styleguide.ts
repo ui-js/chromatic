@@ -93,6 +93,8 @@ export const StyleGuideFormat: { formats: { [key: string]: Format } } = {
         html: {
             extends: 'html/fragment',
 
+            ext: '.html',
+
             renderFile: renderFile,
         },
     },

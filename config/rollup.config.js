@@ -57,7 +57,12 @@ export default [
             PRODUCTION && eslint(),
             typescript(TYPESCRIPT_OPTIONS),
             PRODUCTION && terser(TERSER_OPTIONS),
-            copy({ targets: [{ src: 'src/templates', dest: 'bin' }] }),
+            copy({
+                targets: [
+                    { src: 'src/templates', dest: 'bin' },
+                    { src: 'examples', dest: 'bin' },
+                ],
+            }),
         ],
         watch: {
             clearScreen: false,

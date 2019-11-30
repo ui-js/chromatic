@@ -4,6 +4,7 @@ export enum ErrorCode {
 
     UnexpectedOpenBracket,
     ExpectedCloseBracket,
+    ExpectedCloseCurlyBracket,
     ExpectedOpenParen,
     ExpectedCloseParen,
     ExpectedQuote,
@@ -38,6 +39,7 @@ const ERRORS = {
 
     [ErrorCode.UnexpectedOpenBracket]: 'Unexpected `[`',
     [ErrorCode.ExpectedCloseBracket]: 'Expected `]`',
+    [ErrorCode.ExpectedCloseCurlyBracket]: 'Expected `}`',
     [ErrorCode.ExpectedOpenParen]: 'Expected `(`',
     [ErrorCode.ExpectedCloseParen]: 'Expected `)`',
     [ErrorCode.ExpectedQuote]: 'Expected `"`',
@@ -76,7 +78,7 @@ export class SyntaxError extends Error {
     code: ErrorCode;
     args: string[];
     constructor(code: ErrorCode, ...args: string[]) {
-        super();
+        super(ERRORS[code]);
         this.code = code;
         this.args = args;
     }

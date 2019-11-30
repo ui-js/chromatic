@@ -632,7 +632,7 @@ class ArrayValue extends Value {
         return 'array';
     }
     css(): string {
-        return '"[' + this.value.map(x => x.css()).join(', ') + ']"';
+        return '[' + this.value.map(x => x.css()).join(', ') + ']';
     }
 }
 
@@ -652,7 +652,7 @@ function assertLength(arg: Value): asserts arg is Length {
     console.assert(arg instanceof Length);
 }
 
-function isColor(arg: Value): arg is Percentage {
+function isColor(arg: Value): arg is Color {
     return arg instanceof Color;
 }
 
@@ -864,7 +864,7 @@ const whiteColor = new Color('#fff');
 const blackColor = new Color('#000');
 
 export function scaleColor(
-    arg1: Value,
+    arg1: Color,
     arg2?: Value,
     arg3?: Value,
     arg4?: Value
@@ -927,6 +927,42 @@ export function scaleColor(
         .colors(n + 1);
 
     return new ArrayValue(colors.map(x => new Color(x)));
+}
+
+function scaleLength(arg1: Length, arg2?: Value): ArrayValue {
+    if (arg1.unit === 'multi') {
+        throw new SyntaxError(ErrorCode.InvalidOperand);
+    }
+    const scaleName = asString(arg2, 'pentatonic').toLowerCase();
+    let scale = {
+        tritonic: [2, 3],
+        tetratonic: [2, 4],
+        pentatonic: [2, 5],
+        golden: [1.618, 1],
+        'golden ditonic': [1.618, 2],
+    }[scaleName];
+    if (typeof scale === 'undefined') {
+        // Try to parse the scale as "p:q"
+        scale = scaleName.split(':').map(x => parseFloat(x));
+        if (isNaN(scale[0]) || isNaN(scale[1])) {
+            throw new SyntaxError(ErrorCode.InvalidOperand);
+        }
+        scale = [scale[1] / scale[0], 1];
+    }
+    const [r, n] = scale;
+    const range =
+        (arg1.value as number) * (Math.pow(r, 7 / n) - Math.pow(r, -2 / n));
+    const precision =
+        range < 10 || (arg1.value as number) * Math.pow(r, -2 / n) < 1 ? 2 : 0;
+    const result: Value[] = [-2, -1, 0, 1, 2, 3, 4, 5, 6, 7].map(
+        (i: number): Value =>
+            new Length(
+                roundTo((arg1.value as number) * Math.pow(r, i / n), precision),
+                arg1.unit
+            )
+    );
+
+    return new ArrayValue(result);
 }
 
 // Definition of the functions that can be used in the expression
@@ -1144,7 +1180,11 @@ FUNCTIONS = {
     shade: (c: Value, w: Value): Color =>
         FUNCTIONS.mix(blackColor, c, w ?? new NumberValue(0.1)) as Color,
     scale: (arg1: Value, arg2: Value, arg3: Value, arg4: Value): ArrayValue => {
-        return scaleColor(arg1, arg2, arg3, arg4);
+        if (isColor(arg1)) {
+            return scaleColor(arg1, arg2, arg3, arg4);
+        } else if (isLength(arg1)) {
+            return scaleLength(arg1, arg2);
+        }
     },
 };
 
@@ -1492,13 +1532,27 @@ class Stream {
                     // e.g. "red-200"
                     const m = identifier.match(/^(.+)-([0-9]{2,3})$/);
                     if (m) {
-                        const color = this.options?.aliasResolver(m[1]);
-                        if (typeof color !== 'string' && isColor(color)) {
-                            const index = Math.round(parseInt(m[2]) / 100);
+                        const resolvedValue = this.options?.aliasResolver(m[1]);
+                        if (typeof resolvedValue !== 'string') {
+                            if (isColor(resolvedValue)) {
+                                const index = Math.round(parseInt(m[2]) / 100);
 
-                            alias = scaleColor(color)?.get(index);
-                        } else if (typeof color === 'string') {
-                            this.error(ErrorCode.UnknownToken, m[1], color);
+                                alias = scaleColor(resolvedValue)?.get(index);
+                            } else if (isLength(resolvedValue)) {
+                                const index =
+                                    m[2] === '50'
+                                        ? 0
+                                        : Math.round(parseInt(m[2]) / 100);
+                                alias = scaleLength(resolvedValue)?.get(index);
+                            }
+                        } else if (typeof resolvedValue === 'string') {
+                            // A string indicate the identifier could not be
+                            // resolved. The string is the suggestion
+                            this.error(
+                                ErrorCode.UnknownToken,
+                                m[1],
+                                resolvedValue
+                            );
                         } else this.error(ErrorCode.InvalidOperand);
                     }
                 }
@@ -1513,7 +1567,9 @@ class Stream {
                     result.setSource('{' + identifier + '}');
                 }
             }
-            this.match('}');
+            if (!this.match('}')) {
+                this.error(ErrorCode.ExpectedCloseCurlyBracket);
+            }
         }
 
         if (!result) {
@@ -1839,6 +1895,8 @@ export function parseValue(
         // be interpreted as a string, not as "3px".
         return undefined;
     }
-    result.setSource(expression);
+    if (result) {
+        result.setSource(expression);
+    }
     return result;
 }

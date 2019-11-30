@@ -152,15 +152,15 @@ Object {
 tokens:
 	primary: \\"#0066ce\\"
 	auto-scaling__80b3e7: \\"#80b3e7\\"
-	array: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"\\"
+	array: \\"[#00f, #fff, #f00]\\"
 	array-literal__f0f: \\"#f0f\\"
 	array-index__00f: \\"#00f\\"
 	array-index-expression_fff: \\"#fff\\"
 	manual-scaling__80b3e7: \\"#80b3e7\\"
-	invalid.unterminated-array-index: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[1+2\\"
-	invalid.array-index-multiple-arguments: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[2, 4 ]\\"
-	invalid.array-index-length: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[2px]\\"
-	invalid.array-index-string: \\"\\\\\\"[#00f, #fff, #f00]\\\\\\"[\\\\\\"0\\\\\\"]\\"
+	invalid.unterminated-array-index: \\"[#00f, #fff, #f00][1+2\\"
+	invalid.array-index-multiple-arguments: \\"[#00f, #fff, #f00][2, 4 ]\\"
+	invalid.array-index-length: \\"[#00f, #fff, #f00][2px]\\"
+	invalid.array-index-string: \\"[#00f, #fff, #f00][\\\\\\"0\\\\\\"]\\"
 	invalid.index-of-float: \\"12[2]\\"
 	invalid.index-of-string: \\"\\\\\\"hello\\\\\\"[2]\\"",
 }
@@ -382,6 +382,9 @@ Object {
 ✘   Syntax error in \\"dimen-plus-percent: '12px + 5%'\\"
     [ERR] InvalidOperand
 
+✘   Syntax error in \\"invalid.scale-multi: 'scale(1em + 10px)'\\"
+    Invalid operand
+
 ✘   Syntax error in \\"invalid.unknown-unit: '12km'\\"
     [ERR] UnknownUnit
 
@@ -419,6 +422,14 @@ tokens:
 	dimen-plus-percent: \\"12px + 5%\\"
 	length-rem: \\"1rem\\"
 	length-em: \\"1em\\"
+	scale-default: \\"[9pt, 10pt, 12pt, 14pt, 16pt, 18pt, 21pt, 24pt, 28pt, 32pt]\\"
+	scale-pentatonic: \\"[0.76em, 0.87em, 1em, 1.15em, 1.32em, 1.52em, 1.74em, 2em, 2.3em, 2.64em]\\"
+	scale-golden: \\"[0.38em, 0.62em, 1em, 1.62em, 2.62em, 4.24em, 6.85em, 11.09em, 17.94em, 29.03em]\\"
+	scale-5-2: \\"[0.39em, 0.63em, 1em, 1.6em, 2.56em, 4.1em, 6.55em, 10.49em, 16.78em, 26.84em]\\"
+	body: \\"16px\\"
+	scaled-body-heading: \\"28px\\"
+	scaled-body-tiny: \\"12px\\"
+	invalid.scale-multi: \\"scale(1em + 10px)\\"
 	invalid.unknown-unit: \\"12km\\"
 	invalid.dimen-plus-color: \\"12px + #f7a\\"",
 }
@@ -1007,7 +1018,7 @@ Object {
     [ERR] ExpectedCloseParen",
   "tokens.yaml": "
 tokens:
-	array: \\"\\\\\\"[3, 5, 7, 13]\\\\\\"\\"
+	array: \\"[3, 5, 7, 13]\\"
 	circular-token: \\"{circular-token}\\"
 	expect-color: \\"contrast(12px)\\"
 	unknown-unit: \\"12km\\"
@@ -1015,10 +1026,10 @@ tokens:
 	unexpected-argument: \\"#ff0\\"
 	too-many-arguments: \\"min(3, 4, 5)\\"
 	unexpected-open-bracket: \\"12px[0]\\"
-	unclosed-array-index: \\"\\\\\\"[3, 5, 7, 13]\\\\\\"[0\\"
+	unclosed-array-index: \\"[3, 5, 7, 13][0\\"
 	unclosed-array-literal: \\"[3, 5, 7\\"
 	array-syntax-error: \\"[3;5]\\"
-	string-index: \\"\\\\\\"[3, 5, 7, 13]\\\\\\"[\\\\\\"0\\\\\\"]\\"
+	string-index: \\"[3, 5, 7, 13][\\\\\\"0\\\\\\"]\\"
 	unclosed-string: \\"\\\\\\"hello\\"
 	unknown-function: \\"foo(12)\\"
 	arg-list-syntax-error: \\"min(12;14)\\"

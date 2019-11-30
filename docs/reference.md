@@ -72,27 +72,53 @@ The file can include the following keys:
 
 ### Type
 
-| Type     | Name |
-| -------- | ---- |
-| `color`  |      |
-| `size`   |      |
-| `number` |      |
-| `string` |      |
+| Type         | Example           |
+| ------------ | ----------------- |
+| `percentage` | `50%`             |
+| `angle`      | `230deg`, `50rad` |
+| `color`      | `salmon`, `#ff0`  |
+| `length`     | `12px`, `5em`     |
+| `number`     | `12.55`           |
+| `string`     | `"Helvetica"`     |
+| `time`       | `200ms`           |
+| `frequency`  | `10hz`            |
 
--   ratio
--   icon
+Some types are expressed in specific units:
+
+-   `length`: `px`, `cm`, `mm`, `Q`, `in`, `pc`, `pt`, `em`, `ex`, `ch`, `rem`, `vw`, `vh`, `vmin`, `vmax`
+-   `angle`: `deg`, `grad`, `rad`, `degree`, `turn`
+-   `time`: `s`, `ms`
+-   `frequency`, `hz`, `khz`
 
 ### Expressive Design Tokens
 
 The value of a token is defined by an expression. The expression can include
 math operators, aliases refering to other tokens and functions
 
-| Type   | Arguments                                                                                           | Description          |
-| ------ | --------------------------------------------------------------------------------------------------- | -------------------- |
-| rgb()  | (red: number, green: number, blue: number, alpha?: number])                                         | Return a color value |
-| rgba() | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for rgb()    |
-| hsl()  | (hue: angle, saturation: percentage \| number, lightness: percentage \| lightness, alpha?: number]) | Return a color value |
-| hsla() | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for hsl()    |
+| Type         | Arguments                                                                                           | Description                        |
+| ------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| calc()       | 'any'                                                                                               |                                    |
+| rgb()        | (red: number, green: number, blue: number, alpha?: number])                                         | Return a color value               |
+| rgba()       | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for rgb()                  |
+| hsl()        | (hue: angle, saturation: percentage \| number, lightness: percentage \| lightness, alpha?: number]) | Return a color value               |
+| hsla()       | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for hsl()                  |
+| hsv()        | 'number                                                                                             | angle, number                      | percentage, number | percentage, number | percentage | none' |  |
+| hwb()        | 'number                                                                                             | angle, number                      | percentage, number | percentage, number | percentage | none' |  |
+| lab()        | 'number                                                                                             | percentage, number, number, number | percentage | none' |  |
+| gray()       | 'number                                                                                             | percentage, number                 | percentage | none' |  |
+| min()        | 'any, any'                                                                                          |                                    |
+| max()        | 'any, any'                                                                                          |                                    |
+| clamp()      | 'any, any, any'                                                                                     |                                    |
+| mix()        | 'color, color, number                                                                               | percentage                         | none, string | none' |  |
+| saturate()   | 'color, number                                                                                      | percentage                         | none' |  |
+| desaturate() | 'color, number                                                                                      | percentage                         | none' |  |
+| lighten()    | 'color, number                                                                                      | percentage                         | none' |  |
+| darken()     | 'color, number                                                                                      | percentage                         | none' |  |
+| rotateHue()  | 'color, angle                                                                                       | number                             | none' |  |
+| complement() | 'color'                                                                                             |                                    |
+| contrast()   | 'color, color                                                                                       | none, color                        | none' |  |
+| tint()       | 'color, number                                                                                      | percentage                         | none' |  |
+| shade()      | 'color, number                                                                                      | percentage                         | none' |  |
 
 Token value expressions can refer to other tokens. A token does not have to be declared separately to be used as an "alias", and it does not have to be declared before being used. A token alias is indicated by enclosing the token name in '{' and '}'.
 

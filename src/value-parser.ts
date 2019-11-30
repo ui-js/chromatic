@@ -15,7 +15,7 @@ import { getSuggestion } from './utils';
 
 export type ValueType =
     | 'string'
-    | 'float'
+    | 'number'
     | 'percentage'
     | 'angle'
     | 'color'
@@ -473,7 +473,7 @@ class Frequency extends Value {
     }
 }
 
-class Float extends Value {
+class NumberValue extends Value {
     value: number;
     constructor(from: number) {
         super();
@@ -483,7 +483,7 @@ class Float extends Value {
         return Number(this.value).toString();
     }
     type(): ValueType {
-        return 'float';
+        return 'number';
     }
     canonicalScalar(): number {
         return this.value;
@@ -636,16 +636,16 @@ class ArrayValue extends Value {
     }
 }
 
-function isFloat(arg: Value): arg is Float {
-    return arg instanceof Float;
+function isNumber(arg: Value): arg is NumberValue {
+    return arg instanceof NumberValue;
 }
 
-function assertFloat(arg: Value): asserts arg is Float {
-    console.assert(arg instanceof Float);
+function assertNumber(arg: Value): asserts arg is NumberValue {
+    console.assert(arg instanceof NumberValue);
 }
 
-function assertFloatOrPercentage(arg: Value): asserts arg is Float {
-    console.assert(arg instanceof Float || arg instanceof Percentage);
+function assertNumberOrPercentage(arg: Value): asserts arg is NumberValue {
+    console.assert(arg instanceof NumberValue || arg instanceof Percentage);
 }
 
 function assertLength(arg: Value): asserts arg is Length {
@@ -680,8 +680,8 @@ function isFrequency(arg: Value): arg is Frequency {
     return arg instanceof Frequency;
 }
 
-function isZero(arg: Value): arg is Float {
-    return arg instanceof Float && arg.value === 0;
+function isZero(arg: Value): arg is NumberValue {
+    return arg instanceof NumberValue && arg.value === 0;
 }
 
 export function makeValueFrom(from: {
@@ -703,8 +703,8 @@ export function makeValueFrom(from: {
             return new Length(from.value, from.unit);
         case 'percentage':
             return new Percentage(from.value);
-        case 'float':
-            return new Float(from.value);
+        case 'number':
+            return new NumberValue(from.value);
         case 'array':
             return new ArrayValue(from.value.map(makeValueFrom));
         default:
@@ -735,26 +735,26 @@ function asDecimalByte(value: Value): number {
     if (isPercentage(value)) {
         return Math.round((255 * value.value) / 100);
     }
-    assertFloat(value);
+    assertNumber(value);
     return Math.round(value.value);
 }
 
 function asInteger(value: Value, defaultValue?: number): number {
-    if (isFloat(value)) {
+    if (isNumber(value)) {
         return Math.round(value.value);
     }
-    if (typeof defaultValue === 'undefined') assertFloat(value);
+    if (typeof defaultValue === 'undefined') assertNumber(value);
     return defaultValue;
 }
 
 function asDecimalRatio(value: Value, defaultValue?: number | null): number {
     if (isPercentage(value)) {
         return value.value / 100;
-    } else if (isFloat(value)) {
+    } else if (isNumber(value)) {
         return value.value;
     }
 
-    if (typeof defaultValue === 'undefined') assertFloatOrPercentage(value);
+    if (typeof defaultValue === 'undefined') assertNumberOrPercentage(value);
     return defaultValue;
 }
 
@@ -773,7 +773,7 @@ function asDegree(value: Value): number {
         }
         throwError(ErrorCode.UnknownUnit, value.unit);
     } else {
-        assertFloat(value);
+        assertNumber(value);
         // Degree is the canonical unit for angles
         return value.value;
     }
@@ -832,7 +832,7 @@ function asPercent(value: Value): number {
     if (isPercentage(value)) {
         return value.value / 100;
     }
-    assertFloat(value);
+    assertNumber(value);
     return value.value;
 }
 
@@ -848,8 +848,8 @@ function compareValue(a: Value, b: Value): number {
     return b.canonicalScalar() - a.canonicalScalar();
 }
 
-function promoteToMulti(value: Length | Float): Length {
-    if (isFloat(value)) {
+function promoteToMulti(value: Length | NumberValue): Length {
+    if (isNumber(value)) {
         return new Length({ px: value.value }, 'multi');
     }
     if (value.unit === 'multi') return value;
@@ -894,20 +894,20 @@ export function scaleColor(
         n = asInteger(arg2, 10);
         const mode = new StringValue('rgb');
         return new ArrayValue([
-            FUNCTIONS.mix(c1, c2, new Float(0.12), mode),
-            FUNCTIONS.mix(c1, c2, new Float(0.3), mode),
-            FUNCTIONS.mix(c1, c2, new Float(0.5), mode),
-            FUNCTIONS.mix(c1, c2, new Float(0.7), mode),
-            FUNCTIONS.mix(c1, c2, new Float(0.85), mode),
+            FUNCTIONS.mix(c1, c2, new NumberValue(0.12), mode),
+            FUNCTIONS.mix(c1, c2, new NumberValue(0.3), mode),
+            FUNCTIONS.mix(c1, c2, new NumberValue(0.5), mode),
+            FUNCTIONS.mix(c1, c2, new NumberValue(0.7), mode),
+            FUNCTIONS.mix(c1, c2, new NumberValue(0.85), mode),
             c2,
-            FUNCTIONS.mix(c3, c2, new Float(0.85), mode),
-            FUNCTIONS.mix(c3, c2, new Float(0.7), mode),
-            FUNCTIONS.mix(c3, c2, new Float(0.5), mode),
-            FUNCTIONS.mix(c3, c2, new Float(0.2), mode),
-            // FUNCTIONS.darken(c2, new Float(0.06), mode),
-            // FUNCTIONS.darken(c2, new Float(0.12), mode),
-            // FUNCTIONS.darken(c2, new Float(0.18), mode),
-            // FUNCTIONS.darken(c2, new Float(0.24), mode),
+            FUNCTIONS.mix(c3, c2, new NumberValue(0.85), mode),
+            FUNCTIONS.mix(c3, c2, new NumberValue(0.7), mode),
+            FUNCTIONS.mix(c3, c2, new NumberValue(0.5), mode),
+            FUNCTIONS.mix(c3, c2, new NumberValue(0.2), mode),
+            // FUNCTIONS.darken(c2, new NumberValue(0.06), mode),
+            // FUNCTIONS.darken(c2, new NumberValue(0.12), mode),
+            // FUNCTIONS.darken(c2, new NumberValue(0.18), mode),
+            // FUNCTIONS.darken(c2, new NumberValue(0.24), mode),
         ]);
     }
 
@@ -1076,7 +1076,7 @@ FUNCTIONS = {
     rotateHue: (c: Value, v: Value): Color => {
         const color = asColor(c);
         if (color) {
-            if (!v || (!isAngle(v) && !isFloat(v))) {
+            if (!v || (!isAngle(v) && !isNumber(v))) {
                 return color;
             } else {
                 return new Color({
@@ -1140,9 +1140,9 @@ FUNCTIONS = {
     rgba: (r, g, b, a): Value => FUNCTIONS.rgb(r, g, b, a),
     hsla: (h, s, l, a): Value => FUNCTIONS.hsl(h, s, l, a),
     tint: (c: Value, w: Value): Color =>
-        FUNCTIONS.mix(whiteColor, c, w ?? new Float(0.1)) as Color,
+        FUNCTIONS.mix(whiteColor, c, w ?? new NumberValue(0.1)) as Color,
     shade: (c: Value, w: Value): Color =>
-        FUNCTIONS.mix(blackColor, c, w ?? new Float(0.1)) as Color,
+        FUNCTIONS.mix(blackColor, c, w ?? new NumberValue(0.1)) as Color,
     scale: (arg1: Value, arg2: Value, arg3: Value, arg4: Value): ArrayValue => {
         return scaleColor(arg1, arg2, arg3, arg4);
     },
@@ -1155,33 +1155,33 @@ const colorFunctions = ['rgb', 'rgba', 'hsl', 'hsla', 'hwb', 'grey', 'lab'];
 const FUNCTION_ARGUMENTS = {
     calc: 'any',
     rgb:
-        'float|percentage, float|percentage, float|percentage,float|percentage|none',
+        'number|percentage, number|percentage, number|percentage,number|percentage|none',
     rgba:
-        'float|percentage, float|percentage, float|percentage,float|percentage|none',
+        'number|percentage, number|percentage, number|percentage,number|percentage|none',
     hsl:
-        'float|angle, float|percentage, float|percentage, float|percentage|none',
+        'number|angle, number|percentage, number|percentage, number|percentage|none',
     hsla:
-        'float|angle, float|percentage, float|percentage, float|percentage|none',
+        'number|angle, number|percentage, number|percentage, number|percentage|none',
     hsv:
-        'float|angle, float|percentage, float|percentage, float|percentage|none',
+        'number|angle, number|percentage, number|percentage, number|percentage|none',
     hwb:
-        'float|angle, float|percentage, float|percentage, float|percentage|none',
-    // lab: 'float|percentage, float, float, float|percentage|none',
-    gray: 'float|percentage, float|percentage|none',
+        'number|angle, number|percentage, number|percentage, number|percentage|none',
+    lab: 'number|percentage, number, number, number|percentage|none',
+    gray: 'number|percentage, number|percentage|none',
     min: 'any, any',
     max: 'any, any',
     clamp: 'any, any, any',
-    mix: 'color, color, float|percentage|none, string|none',
-    saturate: 'color, float|percentage|none',
-    desaturate: 'color, float|percentage|none',
-    lighten: 'color, float|percentage|none',
-    darken: 'color, float|percentage|none',
-    rotateHue: 'color, angle|float|none',
+    mix: 'color, color, number|percentage|none, string|none',
+    saturate: 'color, number|percentage|none',
+    desaturate: 'color, number|percentage|none',
+    lighten: 'color, number|percentage|none',
+    darken: 'color, number|percentage|none',
+    rotateHue: 'color, angle|number|none',
     complement: 'color',
     contrast: 'color, color|none, color|none',
 
-    tint: 'color, float|percentage|none',
-    shade: 'color, float|percentage|none',
+    tint: 'color, number|percentage|none',
+    shade: 'color, number|percentage|none',
 };
 
 function validateArguments(fn: string, args: any[]): void {
@@ -1281,11 +1281,11 @@ class Stream {
      */
     applyOpToLength(
         op: string,
-        lhs: Length | Float,
-        rhs: Length | Float
+        lhs: Length | NumberValue,
+        rhs: Length | NumberValue
     ): Value {
-        if (isFloat(lhs) && op === '/') this.error(ErrorCode.InvalidOperand);
-        if (!isFloat(lhs) && !isFloat(rhs) && op === '*')
+        if (isNumber(lhs) && op === '/') this.error(ErrorCode.InvalidOperand);
+        if (!isNumber(lhs) && !isNumber(rhs) && op === '*')
             this.error(ErrorCode.InvalidOperand);
 
         const opFn = {
@@ -1295,7 +1295,7 @@ class Stream {
             '/': (a: any, b: any): any => a / b,
         }[op];
 
-        if (isFloat(lhs)) {
+        if (isNumber(lhs)) {
             assertLength(rhs);
             if (rhs.unit === 'multi') {
                 const multiLength = {};
@@ -1306,7 +1306,7 @@ class Stream {
             }
             return new Length(opFn(lhs.value, rhs.value), rhs.unit);
         }
-        if (isFloat(rhs)) {
+        if (isNumber(rhs)) {
             if (typeof lhs.value === 'number') {
                 return new Length(opFn(lhs.value, rhs.value), lhs.unit);
             }
@@ -1316,7 +1316,7 @@ class Stream {
             });
             return new Length(multiLength);
         }
-        // We've dealt with the case where one of the two operand is a float.
+        // We've dealt with the case where one of the two operand is a number.
         // Now, both operands are Length
         if (op === '/') {
             if (lhs.unit === 'multi' || rhs.unit === 'multi') {
@@ -1326,10 +1326,14 @@ class Stream {
             if (lhs.unit === rhs.unit) {
                 // If the units are the same, we can calculate the result
                 // even if the units are relative (em, vh, etc...)
-                return new Float((lhs.value as number) / (rhs.value as number));
+                return new NumberValue(
+                    (lhs.value as number) / (rhs.value as number)
+                );
             } else {
                 // The units are not the same. Attempt to conver them to a scalar
-                return new Float(lhs.canonicalScalar() / rhs.canonicalScalar());
+                return new NumberValue(
+                    lhs.canonicalScalar() / rhs.canonicalScalar()
+                );
             }
         }
         // Normalize them both to multi-units
@@ -1383,7 +1387,7 @@ class Stream {
         if (unit) {
             this.error(ErrorCode.UnknownUnit, unit);
         }
-        return new Float(num);
+        return new NumberValue(num);
     }
 
     parseIndex(v: Value): Value {
@@ -1415,8 +1419,8 @@ class Stream {
                 if (isPercentage(operand)) {
                     return new Percentage(-100 * asPercent(operand));
                 }
-                if (isFloat(operand)) {
-                    return new Float(-operand.value);
+                if (isNumber(operand)) {
+                    return new NumberValue(-operand.value);
                 }
                 if (isAngle(operand)) {
                     return new Angle(-operand.value, operand.unit);
@@ -1667,9 +1671,9 @@ class Stream {
             // num * length         -> length
             // Other combinations are invalid, but division of two
             // values of the same type is valid (and yields a unitless number)
-            if (isFloat(rhs)) {
-                if (isFloat(lhs)) {
-                    lhs = new Float(opFn(lhs.value, rhs.value));
+            if (isNumber(rhs)) {
+                if (isNumber(lhs)) {
+                    lhs = new NumberValue(opFn(lhs.value, rhs.value));
                 } else if (isPercentage(lhs)) {
                     lhs = new Percentage(opFn(lhs.value, rhs.value));
                 } else if (isLength(lhs)) {
@@ -1681,9 +1685,9 @@ class Stream {
                 } else if (isTime(lhs)) {
                     lhs = new Time(opFn(lhs.value, rhs.value), lhs.unit);
                 }
-            } else if ((isFloat(lhs) || isLength(lhs)) && isLength(rhs)) {
+            } else if ((isNumber(lhs) || isLength(lhs)) && isLength(rhs)) {
                 return this.applyOpToLength(op, lhs, rhs);
-            } else if (isFloat(lhs)) {
+            } else if (isNumber(lhs)) {
                 if (isPercentage(rhs)) {
                     lhs = new Percentage(opFn(lhs.value, rhs.value));
                 } else if (isLength(rhs)) {
@@ -1696,7 +1700,9 @@ class Stream {
                     lhs = new Time(opFn(lhs.value, rhs.value), rhs.unit);
                 }
             } else if (op === '/' && lhs.type() === rhs.type()) {
-                lhs = new Float(lhs.canonicalScalar() / rhs.canonicalScalar());
+                lhs = new NumberValue(
+                    lhs.canonicalScalar() / rhs.canonicalScalar()
+                );
             } else {
                 this.error(ErrorCode.InvalidOperand);
             }
@@ -1734,8 +1740,8 @@ class Stream {
             if (isString(lhs) || isString(rhs)) {
                 if (op === '-') this.error(ErrorCode.InvalidOperand);
                 lhs = new StringValue(opFn(lhs.css(), rhs.css()));
-            } else if (isFloat(lhs) && isFloat(rhs)) {
-                lhs = new Float(opFn(lhs.value, rhs.value));
+            } else if (isNumber(lhs) && isNumber(rhs)) {
+                lhs = new NumberValue(opFn(lhs.value, rhs.value));
             } else if (
                 (isZero(lhs) || isPercentage(lhs)) &&
                 (isZero(rhs) || isPercentage(rhs))
@@ -1803,8 +1809,8 @@ class Stream {
             }
         }
 
-        if (result && isFloat(result)) {
-            // If the value of the group is a float
+        if (result && isNumber(result)) {
+            // If the value of the group is a number
             // check and handle units that might be after it.
             // "(12 + 5)px"
             result = this.parseUnit(result.value);

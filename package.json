@@ -1,8 +1,25 @@
 {
-    "name": "chromatic",
+    "name": "@arnog/chromatic",
     "version": "0.5.0",
-    "description": "design tokens, design system, ui, theo, build system",
+    "description": "A build system for managing cross-platform design systems using design tokens.",
+    "keywords": [
+        "design tokens",
+        "design system",
+        "ui",
+        "theo",
+        "build system",
+        "css",
+        "sass",
+        "less",
+        "stylus",
+        "iOS",
+        "Android",
+        "style guide"
+    ],
     "license": "MIT",
+    "files": [
+        "bin/**"
+    ],
     "devDependencies": {
         "@cortex-js/prettier-config": "^1.0.0",
         "@typescript-eslint/eslint-plugin": "^2.9.0",
@@ -43,13 +60,6 @@
         "yaml": "^1.7.2",
         "yargs": "^15.0.2"
     },
-    "engines": {
-        "node": ">=10.9.0 <11.0.0"
-    },
-    "browserslist": [
-        "> 1%",
-        "last 2 versions"
-    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/arnog/chromatic.git"

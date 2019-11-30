@@ -17,7 +17,7 @@ tokens:
 
 ### Themes
 
-Each token can have a theme variant, such as dark/light, or compact/cozy layouts. The necessary output artifacts are generated automatically
+Each token can have a theme variant, such as dark/light, or compact/cozy layouts. The necessary output artifacts are generated automatically.
 
 ```yaml
 tokens:
@@ -43,10 +43,12 @@ From a single token file, generate platform specific artifacts:
 -   for iOS (JSON, plist)
 -   for Android (XML)
 
+Chromatic can also generate a style guide as a HTML file.
+
 ## Getting started with Chromatic
 
 ```shell
-$ npm install -g chromatic
+$ npm install -g @arnog/chromatic
 ```
 
 ```yaml

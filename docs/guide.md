@@ -11,7 +11,7 @@ It converts a token file expressed in YAML or JSON into one or more platform spe
 Install Chromatic using `npm`:
 
 ```shell
-$ npm install --save-dev chromatic
+$ npm install --save-dev @arnog/chromatic
 ```
 
 Integrate Chromatic into your build system and run it when you make a build.
@@ -84,7 +84,7 @@ tokens:
         comment: 'The background color of the top-level container'
         category: 'background-color'
     body-color:
-        value: #333
+        value: '#333'
         comment: 'Text color for most body text'
         category: 'text-color'
 ```
@@ -97,7 +97,7 @@ tokens:
 ```yaml
 # tokens.yaml
 tokens:
-    font-sizes:
+    font-size:
         x-small: 10px;
         small: 12px
         medium: 16px
@@ -108,10 +108,12 @@ tokens:
 
 ## Aliases
 
+The value of a token can reference another token by including it in curly brackets.
+
 ```yaml
 # tokens.yaml
 tokens:
-    font-sizes:
+    font-size:
         x-small: 10px;
         small: 12px
         medium: 16px

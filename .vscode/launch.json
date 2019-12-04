@@ -11,17 +11,13 @@
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
             "args": [
-                "./chromatic-example/tokens.yaml",
-                // "--format",
-                // "yaml",
-                // "--verbose",
-                // "--ignore-errors"
-                "-o",
-                "build/style.html"
-            ],
-            "env": {
-                // "TEST": "true"
-            }
+                "./test/tokens/../../examples/advanced/tokens.yaml",
+                "--format",
+                "yaml",
+                "--header=''",
+                "--verbose",
+                "--ignore-errors"
+            ]
         },
         {
             "type": "node",
@@ -45,7 +41,10 @@
             "name": "Test",
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
-            "args": ["test/tokens/angle.yaml", "--verbose", "--ignore-errors"]
+            "args": ["test/tokens/length.yaml", "--verbose", "--ignore-errors"],
+            "env": {
+                // "TEST": "true"
+            }
         },
         {
             "type": "node",

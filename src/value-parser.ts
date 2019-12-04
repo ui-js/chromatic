@@ -93,7 +93,9 @@ function hslToRgb(
     sat: number,
     light: number
 ): { r: number; g: number; b: number } {
-    hue = hue / 60.0;
+    hue = ((hue + 360) % 360) / 60.0;
+    light = Math.max(0, Math.min(light, 1.0));
+    sat = Math.max(0, Math.min(sat, 1.0));
     const t2 = light <= 0.5 ? light * (sat + 1) : light + sat - light * sat;
     const t1 = light * 2 - t2;
     return {
@@ -175,7 +177,6 @@ function labToRgb(
     };
 }
 
-/*
 function rgbToLab(
     r: number,
     g: number,
@@ -197,9 +198,8 @@ function rgbToLab(
     y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116;
     z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
 
-    return { L: 116 * y - 16, a: 500 * (x - y), b: 200 * (y - z) };
+    return { L: (116 * y - 16) / 100, a: 500 * (x - y), b: 200 * (y - z) };
 }
-*/
 
 function hwbToRgb(
     hue: number,
@@ -291,6 +291,12 @@ export class Value {
     }
     setSource(source: string): void {
         this.source = source;
+    }
+    equals(v: Value): boolean {
+        return (
+            this.type() === v.type() &&
+            this.canonicalScalar() == v.canonicalScalar()
+        );
     }
 }
 
@@ -434,6 +440,17 @@ class Length extends Value {
             ? NaN
             : asPx(this.value as number, this.unit);
     }
+    equals(v: Value): boolean {
+        if (isLength(v)) {
+            const v1 = promoteToMulti(this);
+            const v2 = promoteToMulti(v);
+            return [...Object.keys(v1.value), ...Object.keys(v2.value)].every(
+                x => v1.value[x] === v2.value[x]
+            );
+        }
+
+        return false;
+    }
 }
 class Time extends Value {
     value: number;
@@ -505,16 +522,19 @@ export class StringValue extends Value {
     canonicalScalar(): number {
         return parseFloat(this.value);
     }
+    equals(v: Value): boolean {
+        return isString(v) && this.value === v.value;
+    }
 }
 
 export class Color extends Value {
     r?: number; /* [0..255] */
     g?: number; /* [0..255] */
     b?: number; /* [0..255] */
-    l?: number;
-    h?: number; /* [0..360] */
+    h?: number; /* [0..360]deg */
     s?: number;
-    a: number; /* [0..1] */
+    l?: number;
+    a: number; /* [0..1] or [0..100]% */
     constructor(from: object | string) {
         super();
         if (typeof from === 'string') {
@@ -597,13 +617,14 @@ export class Color extends Value {
         return '#' + hexString;
     }
     rgb(): string {
-        return `rgb(${this.r}, ${this.g}, ${this.b}${
-            this.a < 1.0 ? ', ' + Number(100 * this.a).toFixed(0) + '%' : ''
-        })`;
+        return `rgb(${roundTo(this.r, 2)}, ${roundTo(this.g, 2)}, ${roundTo(
+            this.b,
+            2
+        )}${this.a < 1.0 ? ', ' + roundTo(100 * this.a, 2) + '%' : ''})`;
     }
     hsl(): string {
         return `hsl(${this.h}deg, ${this.s}%, ${this.l}%, ${
-            this.a < 1.0 ? ', ' + Number(100 * this.a).toFixed(0) + '%' : ''
+            this.a < 1.0 ? ', ' + roundTo(100 * this.a, 2) + '%' : ''
         })`;
     }
     css(): string {
@@ -616,6 +637,15 @@ export class Color extends Value {
     }
     canonicalScalar(): number {
         return this.luma();
+    }
+    equals(v: Value): boolean {
+        return (
+            isColor(v) &&
+            this.r === v.r &&
+            this.g === v.g &&
+            this.b === v.b &&
+            this.a === v.a
+        );
     }
 }
 
@@ -633,6 +663,13 @@ class ArrayValue extends Value {
     }
     css(): string {
         return '[' + this.value.map(x => x.css()).join(', ') + ']';
+    }
+    equals(v: Value): boolean {
+        return (
+            isArray(v) &&
+            this.value.length === v.value.length &&
+            this.value.every((val, idx) => val === v.value[idx])
+        );
     }
 }
 
@@ -652,7 +689,7 @@ function assertLength(arg: Value): asserts arg is Length {
     console.assert(arg instanceof Length);
 }
 
-function isColor(arg: Value): arg is Color {
+export function isColor(arg: Value): arg is Color {
     return arg instanceof Color;
 }
 
@@ -664,7 +701,7 @@ function isLength(arg: Value): arg is Length {
     return arg instanceof Length;
 }
 
-function isString(arg: Value): arg is StringValue {
+export function isString(arg: Value): arg is StringValue {
     return arg instanceof StringValue;
 }
 
@@ -678,6 +715,14 @@ function isTime(arg: Value): arg is Time {
 
 function isFrequency(arg: Value): arg is Frequency {
     return arg instanceof Frequency;
+}
+
+export function isArray(arg: Value): arg is ArrayValue {
+    return arg instanceof ArrayValue;
+}
+
+export function isColorArray(arg: Value): arg is ArrayValue {
+    return arg instanceof ArrayValue && arg.value.every(x => isColor(x));
 }
 
 function isZero(arg: Value): arg is NumberValue {
@@ -885,11 +930,26 @@ export function scaleColor(
         c3 = asColor(arg2);
         n = asInteger(arg3, 10);
     } else if (arg1.type() === 'color') {
+        // If a single color is provided, we'll calculate a color ramp
+        // with the provided color as the midpoint, and black and white
+        // as the extremes.
         c2 = asColor(arg1);
         c3 = new Color({
-            h: c2.h >= 60 && c2.h <= 240 ? c2.h + 30 : c2.h - 30,
-            s: c2.s,
-            l: 0.35,
+            // Correct the hue for the Abney Effect
+            // See https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.1909.0085
+            // (the human vision system perceives a hue shift as colors
+            // change in colorimetric purity (mix with black or mix
+            // with white))
+            // and the Bezold-Brücke effect (hue shift as intensity increases)
+            // See https://www.sciencedirect.com/science/article/pii/S0042698999000851
+
+            // h: c2.h >= 60 && c2.h <= 240 ? c2.h + 30 : c2.h - 30,
+            h: c2.h - 20 * Math.sin(4 * Math.PI * (c2.h / 360)),
+            s: c2.s + 0.2 * Math.sin(2 * Math.PI * (c2.h / 360)),
+            l:
+                c2.h >= 180
+                    ? c2.l - 0.35
+                    : c2.l - 0.15 + 0.15 * Math.sin(3 * Math.PI * (c2.h / 360)),
         });
         n = asInteger(arg2, 10);
         const mode = new StringValue('rgb');
@@ -913,6 +973,11 @@ export function scaleColor(
 
     if (!c1 || !c2 || !c3) return undefined;
 
+    // If there are three colors provided, we calculate a scale
+    // in Lab mode, corrected for lightness (so that there is as many
+    // light and dark colors). As a result, the mid-point may be a
+    // color than c2.
+    // This kind of scale is most appropriate for data visualization.
     const colors = chroma
         .scale(
             // chroma.bezier([
@@ -1066,6 +1131,26 @@ FUNCTIONS = {
                 s: color1.s + (color2.s - color1.s) * w,
                 l: color1.l + (color2.l - color1.l) * w,
                 a: alpha,
+            });
+        } else if (modelName === 'lab') {
+            const { L: L1, a: a1, b: b1 } = rgbToLab(
+                color1.r,
+                color1.g,
+                color1.b
+            );
+            const { L: L2, a: a2, b: b2 } = rgbToLab(
+                color2.r,
+                color2.g,
+                color2.b
+            );
+
+            return new Color({
+                ...labToRgb(
+                    L1 + (L2 - L1) * w,
+                    a1 + (a2 - a1) * w,
+                    b1 + (b2 - b1) * w
+                ),
+                alpha,
             });
         }
     },
@@ -1534,7 +1619,10 @@ class Stream {
                     if (m) {
                         const resolvedValue = this.options?.aliasResolver(m[1]);
                         if (typeof resolvedValue !== 'string') {
-                            if (isColor(resolvedValue)) {
+                            if (isArray(resolvedValue)) {
+                                const index = Math.round(parseInt(m[2]) / 100);
+                                alias = resolvedValue.get(index);
+                            } else if (isColor(resolvedValue)) {
                                 const index = Math.round(parseInt(m[2]) / 100);
 
                                 alias = scaleColor(resolvedValue)?.get(index);

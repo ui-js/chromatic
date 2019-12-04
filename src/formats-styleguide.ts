@@ -2,47 +2,63 @@ const marked = require('marked');
 const highlight = require('highlight.js');
 const handlebars = require('handlebars');
 const fs = require('fs');
-import { Color } from './value-parser';
+import { Color, isColor, isColorArray } from './value-parser';
 
-import {
-    RenderFileContext,
-    RenderPropertyContext,
-    RenderGroupContext,
-    Format,
-} from './formats';
+import { RenderContext, Format } from './formats';
 
-function renderFragment(context: RenderFileContext): string {
+function renderColorSection(context: RenderContext): string {
     let result = '';
-    const handlebarsContext = { colors: [], group: '' };
+    const handlebarsContext = { colors: [], colorRamps: [], group: '' };
     context.themes.forEach(theme => {
         handlebarsContext.group =
-            context.themes.length === 1 ? '' : theme === '_' ? 'Base' : theme;
+            context.themes.length === 1
+                ? ''
+                : theme.theme === '_'
+                ? 'Base'
+                : theme.theme;
         handlebarsContext.colors = [];
-        context.definitions.forEach((def, token) => {
-            if (def.value[theme]) {
-                const qualifiedToken =
-                    token + (theme === '_' ? '' : '.' + theme);
-                const value = context.rawValues.get(qualifiedToken);
-                if (value.type() === 'color') {
-                    const color = value as Color;
-                    let cls = color.luma() >= 1.0 ? 'frame ' : '';
-                    if (color.luma() > 0.42) cls += 'light';
-                    let opaqueColor;
-                    if (color.a < 1.0) {
-                        opaqueColor = new Color(color);
-                        opaqueColor.a = 1.0;
-                    }
-
-                    handlebarsContext.colors.push({
-                        name: token,
-                        def: def.value,
-                        source: color.getSource(),
-                        value: color.css(),
-                        comment: def.comment ?? '',
-                        cls: cls,
-                        opaqueColor: opaqueColor?.css(),
-                    });
+        theme.tokens.forEach(token => {
+            if (isColor(token.tokenValue)) {
+                const color = token.tokenValue as Color;
+                let cls = color.luma() >= 1.0 ? 'frame ' : '';
+                if (color.luma() > 0.42) cls += 'light';
+                let opaqueColor: Color;
+                if (color.a < 1.0) {
+                    opaqueColor = new Color(color);
+                    opaqueColor.a = 1.0;
                 }
+
+                handlebarsContext.colors.push({
+                    name: token.tokenId,
+                    value: token.tokenValue,
+                    source: color.getSource(),
+                    css: color.css(),
+                    comment: token.tokenDefinition.comment ?? '',
+                    cls,
+                    opaqueColor: opaqueColor?.css(),
+                });
+            } else if (isColorArray(token.tokenValue)) {
+                handlebarsContext.colorRamps.push({
+                    name: token.tokenId,
+                    source: token.tokenValue.getSource(),
+                    values: token.tokenValue.value.map((x, i) => {
+                        const color = x as Color;
+                        let cls = color.luma() >= 1.0 ? 'frame ' : '';
+                        if (color.luma() > 0.42) cls += 'light';
+                        let opaqueColor: Color;
+                        if (color.a < 1.0) {
+                            opaqueColor = new Color(color);
+                            opaqueColor.a = 1.0;
+                        }
+                        return {
+                            name: i === 0 ? '50' : i * 100,
+                            cls,
+                            value: color,
+                            css: color.css(),
+                            opaqueColor: opaqueColor?.css(),
+                        };
+                    }),
+                });
             }
         });
         result += handlebars.compile(
@@ -50,61 +66,32 @@ function renderFragment(context: RenderFileContext): string {
         )(handlebarsContext);
     });
 
-    if (result) {
-        result = '<h2>Colors</h2>' + result;
-    }
-    return result;
-}
-
-function renderFile(context: RenderFileContext): string {
-    return handlebars.compile(
-        fs.readFileSync(__dirname + '/templates/html-file.hbs', 'utf-8')
-    )(context);
-}
-
-function renderGroup(context: RenderGroupContext): string {
-    return renderFragment(context);
-}
-
-function renderProperty(context: RenderPropertyContext): string {
-    let result = '';
-    result += `<b>${context.propertyName}</b>: ${context.propertyValue}`;
-    if (context.definition.comment) {
-        result += `<p>${context.definition.comment}</p>`;
-    }
-    if (context.definition.remarks) {
-        result += marked(context.definition.remarks);
-    }
-
     return result;
 }
 
 export const StyleGuideFormat: { formats: { [key: string]: Format } } = {
     formats: {
-        'html/fragment': {
+        'html/colors': {
             ext: '.html',
-
-            renderFile: renderFragment,
-
-            renderGroup: renderGroup,
-
-            renderProperty: renderProperty,
+            render: renderColorSection,
         },
         html: {
-            extends: 'html/fragment',
-
             ext: '.html',
-
-            renderFile: renderFile,
+            render: (context: RenderContext): string =>
+                context.renderTemplate(
+                    fs.readFileSync(
+                        __dirname + '/templates/html-file.hbs',
+                        'utf-8'
+                    ),
+                    { ...context, 'color-section': renderColorSection(context) }
+                ),
         },
     },
 };
 
 marked.setOptions({
     renderer: new marked.Renderer(),
-    highlight: function(code: string): string {
-        return highlight.highlightAuto(code).value;
-    },
+    highlight: (code: string): string => highlight.highlightAuto(code).value,
     pedantic: false,
     gfm: true,
     breaks: false,

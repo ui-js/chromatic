@@ -1,0 +1,9 @@
+tokens:
+    single: '#00F'
+    base:
+        value:
+            _: '#f00'
+            green: '#0f0'
+    first-level: '{base}'
+    second-level: 'darken({first-level})'
+    first-level-single: '{single}'

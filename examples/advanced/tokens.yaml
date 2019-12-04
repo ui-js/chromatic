@@ -1,19 +1,24 @@
-# This token file is using the .yaml format, but tokens files can also
-# be authored using JSON5 (JSON with comments)
-
-# A token file should have a mandatory "tokens" key
 tokens:
-    # Token names can contain letters, digits, '_' or '-'.
-    # The value of a token can be a literal (constant) or an expression.
-    # Some literals have units, here 'px' for pixels.
+    red: 'scale(hsl(4deg, 90%, 50%))'
+    orange: 'scale(hsl(35deg, 100%, 60%))'
+    yellow: 'scale(hsl(50deg, 100%, 62%))'
+    lime: 'scale(hsl(90deg, 79%, 39%))'
+    green: 'scale(hsl(130deg, 70%, 43%))'
+    teal: 'scale(hsl(180deg, 80%, 50%))'
+    blue: 'scale(hsl(210deg, 90%, 50%))'
+    indigo: 'scale(hsl(260deg, 60%, 50%))'
+    purple: 'scale(hsl(280deg, 80%, 50%))'
+    magenta: 'scale(hsl(330deg, 80%, 60%))'
+
     border-radius: '4px'
 
-    # Here we define a length using an arithmetic expression.
-    # The syntax of token expressions follows closely the CSS level-4 syntax.
     line-height: '18pt + 4px'
 
     # Defining an angle using the 'deg' unit
-    primary-hue: '200deg'
+    primary-hue:
+        value:
+            _: '210deg'
+            dark: '200deg'
 
     # A token expression can reference another token by enclosing it in "{}"
     # Functions can be used to perform more complex calculations
@@ -24,17 +29,17 @@ tokens:
     cta-button-background-active: 'darken({cta-button-background}, 20%)'
     cta-button-background-hover: 'darken({cta-button-background}, 10%)'
 
-    red: 'hsl(348, 86%, 61%)'
-    orange: 'hsl(14,  100%, 53%)'
-    green: 'hsl(141, 53%,  53%)'
-
     # Related tokens can be grouped together
     semantic:
         # Color scales (darker or lighter variant of a base color) are
         # created automatically and can be referenced by adding a "-" and three
         # digits after a token name.
         error: '{red-600}'
-        warning: '{orange-400}'
+        warning:
+            value:
+                _: '{orange-400}'
+                dark: '{orange-500}'
+            comment: 'Use for problems that do not prevent the task to complete'
         success: '{green-600}'
 
 groups:

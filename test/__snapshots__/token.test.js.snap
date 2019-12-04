@@ -3,7 +3,7 @@
 exports[`evaluates a file with an array of tokens 1`] = `
 Object {
   "stderr": "
-✘   token-array.yaml
+✘   ← token-array.yaml
     [ERR] UnexpectedTokensArray
 
 ✘   No tokens found.
@@ -27,15 +27,17 @@ exports[`evaluates a simple token file 1`] = `
 Object {
   "stderr": "⚠   Format not specified. Using \\"yaml\\". Use --format to indicate which output format to use.",
   "tokens.yaml": "
-tokens:
-	primary__0066ce: \\"#0066ce\\"",
+
+
+primary__0066ce: \\"#0066ce\\"
+",
 }
 `;
 
 exports[`evaluates a token file with an invalid token name 1`] = `
 Object {
   "stderr": "
-✘   invalid-token-name.yaml
+✘   ← invalid-token-name.yaml
     [ERR] InvalidTokenName
 
 ✘   No tokens found.
@@ -51,11 +53,11 @@ Object {
 ✘   Syntax error in \\"invalid.circular-alias: 'darken({invalid.circular-alias})'\\"
     [ERR] CircularDefinition
 
-✘   Syntax error in \\"invalid.two-level-circular-alias: '{invalid.one-level-circular-alias}'\\"
-    [ERR] CircularDefinition
-
 ✘   Syntax error in \\"invalid.one-level-circular-alias: '{invalid.two-level-circular-alias}'\\"
     [ERR] CircularDefinition
+
+✘   Syntax error in \\"invalid.two-level-circular-alias: '{invalid.one-level-circular-alias}'\\"
+    [ERR] UnknownToken
 
 ✘   Syntax error in \\"invalid.mispelled-alias: 'darken({rogue})'\\"
     [ERR] UnknownToken
@@ -65,17 +67,24 @@ Object {
 
 ✘   Unresolved alias. Cannot find token \\"{rogue}\\". Did you mean \\"rouge\\"?",
   "tokens.yaml": "
-tokens:
-	rouge: \\"#f00\\"
-	simple-alias__red: \\"#f00\\"
-	two-level-alias__red: \\"#f00\\"
-	alias-in-expression__e60000: \\"#e60000\\"
-	alias-in-string__3px_f00: \\"3px #f00\\"
-	invalid.circular-alias: \\"darken({invalid.circular-alias})\\"
-	invalid.two-level-circular-alias: \\"{invalid.one-level-circular-alias}\\"
-	invalid.one-level-circular-alias: \\"{invalid.two-level-circular-alias}\\"
-	invalid.mispelled-alias: \\"darken({rogue})\\"
-	invalid.alias-syntax-error: \\"darken(#f00}\\"",
+
+
+rouge: \\"#f00\\"
+simple-alias__red: \\"#f00\\"
+two-level-alias__red: \\"#f00\\"
+alias-in-expression__e60000: \\"#e60000\\"
+alias-in-string__3px_f00: \\"3px #f00\\"
+
+#
+# invalid
+#
+
+invalid.circular-alias: \\"darken(darken({invalid.circular-alias}))\\"
+invalid.two-level-circular-alias: \\"{invalid.two-level-circular-alias}\\"
+invalid.one-level-circular-alias: \\"{invalid.two-level-circular-alias}\\"
+invalid.mispelled-alias: \\"darken({rogue})\\"
+invalid.alias-syntax-error: \\"darken(#f00}\\"
+",
 }
 `;
 
@@ -106,25 +115,32 @@ Object {
 ✘   Syntax error in \\"invalid.angle-plus-dimen: '10deg + 10px'\\"
     [ERR] InvalidOperand",
   "tokens.yaml": "
-tokens:
-	canonical: \\"45deg\\"
-	rad__55deg: \\"55deg\\"
-	grad__55deg: \\"55deg\\"
-	turn__100deg: \\"100deg\\"
-	add__45deg: \\"45deg\\"
-	substract__45deg: \\"45deg\\"
-	divide-by-number__45deg: \\"45deg\\"
-	divide__2: \\"2\\"
-	multiply-by-number-right__15deg: \\"15deg\\"
-	multiply-by-number-left__15deg: \\"15deg\\"
-	invalid.number-plus-angle: \\"42 + 10deg\\"
-	invalid.add-color: \\"3deg + #fff\\"
-	invalid.multiply-deg: \\"3deg * 5rad\\"
-	invalid.percent-plus-angle: \\"10% + 30deg\\"
-	invalid.angle-plus-number: \\"10deg + 5\\"
-	invalid.angle-plus-percent: \\"10deg + 10%\\"
-	invalid.angle-plus-color: \\"10deg + #fa7\\"
-	invalid.angle-plus-dimen: \\"10deg + 10px\\"",
+
+
+canonical: \\"45deg\\"
+rad__55deg: \\"55deg\\"
+grad__55deg: \\"55deg\\"
+turn__100deg: \\"100deg\\"
+add__45deg: \\"45deg\\"
+substract__45deg: \\"45deg\\"
+divide-by-number__45deg: \\"45deg\\"
+divide__2: \\"2\\"
+multiply-by-number-right__15deg: \\"15deg\\"
+multiply-by-number-left__15deg: \\"15deg\\"
+
+#
+# invalid
+#
+
+invalid.number-plus-angle: \\"42 + 10deg\\"
+invalid.add-color: \\"3deg + #fff\\"
+invalid.multiply-deg: \\"3deg * 5rad\\"
+invalid.percent-plus-angle: \\"10% + 30deg\\"
+invalid.angle-plus-number: \\"10deg + 5\\"
+invalid.angle-plus-percent: \\"10deg + 10%\\"
+invalid.angle-plus-color: \\"10deg + #fa7\\"
+invalid.angle-plus-dimen: \\"10deg + 10px\\"
+",
 }
 `;
 
@@ -149,20 +165,27 @@ Object {
 ✘   Syntax error in \\"invalid.index-of-string: '\\"hello\\"[2]'\\"
     [ERR] UnexpectedOpenBracket",
   "tokens.yaml": "
-tokens:
-	primary: \\"#0066ce\\"
-	auto-scaling__80b3e7: \\"#80b3e7\\"
-	array: \\"[#00f, #fff, #f00]\\"
-	array-literal__f0f: \\"#f0f\\"
-	array-index__00f: \\"#00f\\"
-	array-index-expression_fff: \\"#fff\\"
-	manual-scaling__80b3e7: \\"#80b3e7\\"
-	invalid.unterminated-array-index: \\"[#00f, #fff, #f00][1+2\\"
-	invalid.array-index-multiple-arguments: \\"[#00f, #fff, #f00][2, 4 ]\\"
-	invalid.array-index-length: \\"[#00f, #fff, #f00][2px]\\"
-	invalid.array-index-string: \\"[#00f, #fff, #f00][\\\\\\"0\\\\\\"]\\"
-	invalid.index-of-float: \\"12[2]\\"
-	invalid.index-of-string: \\"\\\\\\"hello\\\\\\"[2]\\"",
+
+
+primary: \\"#0066ce\\"
+auto-scaling__80b3e7: \\"#80b3e7\\"
+array: \\"[#00f, #fff, #f00]\\"
+array-literal__f0f: \\"#f0f\\"
+array-index__00f: \\"#00f\\"
+array-index-expression_fff: \\"#fff\\"
+manual-scaling__80b3e7: \\"#80b3e7\\"
+
+#
+# invalid
+#
+
+invalid.unterminated-array-index: \\"[#00f, #fff, #f00][1+2\\"
+invalid.array-index-multiple-arguments: \\"[#00f, #fff, #f00][2, 4 ]\\"
+invalid.array-index-length: \\"[#00f, #fff, #f00][2px]\\"
+invalid.array-index-string: \\"[#00f, #fff, #f00][\\"0\\"]\\"
+invalid.index-of-float: \\"12[2]\\"
+invalid.index-of-string: \\"\\"hello\\"[2]\\"
+",
 }
 `;
 
@@ -220,82 +243,91 @@ Object {
 ✘   Syntax error in \\"invalid.color-plus-dimen: '#fa7 + 12px'\\"
     [ERR] InvalidOperand",
   "tokens.yaml": "
-tokens:
-	rgb-decimal-1: \\"rgb(255, 160, 122, 50%)\\"
-	hex-3: \\"#fa7\\"
-	hex-4: \\"rgb(255, 170, 119, 53%)\\"
-	hex-6: \\"#ffa07a\\"
-	hex-8: \\"rgb(255, 160, 122, 50%)\\"
-	hex-6-uppercase: \\"rgb(255, 160, 122, 50%)\\"
-	named: \\"#fa8072\\"
-	named-uppercase: \\"#fa8072\\"
-	transparent: \\"transparent\\"
-	current: \\"currentcolor\\"
-	complex: \\"#7f56d4\\"
-	transparent-as-rgb: \\"transparent\\"
-	rgb-decimal: \\"rgb(255, 160, 122, 50%)\\"
-	rgb-percent: \\"rgb(254, 160, 122, 50%)\\"
-	rgb-clamped-alpha: \\"#ffa07a\\"
-	rgb-alpha-percent: \\"rgb(255, 160, 122, 50%)\\"
-	rgb-no-alpha: \\"#ffa07a\\"
-	rgba: \\"rgb(255, 160, 122, 50%)\\"
-	rgb-legacy-syntax: \\"rgb(255, 160, 122, 50%)\\"
-	hsl: \\"rgb(255, 160, 122, 50%)\\"
-	hsl-decimal-deg: \\"rgb(255, 160, 122, 50%)\\"
-	hsl-decimal: \\"rgb(255, 160, 122, 50%)\\"
-	hsl-legacy-syntax: \\"rgb(255, 160, 122, 50%)\\"
-	hsla: \\"rgb(255, 160, 122, 50%)\\"
-	hsl-with-grad: \\"rgb(255, 160, 122, 50%)\\"
-	hsl-with-rad: \\"rgb(255, 160, 122, 50%)\\"
-	hwb: \\"#ffa07a\\"
-	hsv: \\"#9370db\\"
-	hsv-with-unicode-deg: \\"#9370db\\"
-	lab: \\"#9370db\\"
-	gray: \\"#777\\"
-	rotate-hue: \\"#faff7a\\"
-	rotate-hue-single-argument: \\"#ffa07a\\"
-	complement-1: \\"#7ad9ff\\"
-	complement: \\"#e1d2d6\\"
-	mix-white: \\"#e8ebe6\\"
-	mix-black: \\"#7e9174\\"
-	darken: \\"#7ca89c\\"
-	lighten: \\"#e1ebe8\\"
-	shade: \\"#4d4c43\\"
-	tint: \\"#f3f3f2\\"
-	tint-default: \\"#fbfbfb\\"
-	tint-10: \\"#fbfbfb\\"
-	saturate: \\"#794bd5\\"
-	desaturate: \\"#8878a8\\"
-	saturate-desaturate: \\"#805fc1\\"
-	contrast-purple: \\"#cc21cc\\"
-	contrast-auto: \\"#000\\"
-	string-argument: \\"#e8ebe6\\"
-	invalid.argument-alias: \\"tint(#ffa07a, #fa8072)\\"
-	invalid.argument: \\"tint(#f00, #0f0)\\"
-	invalid.not-enough-arguments: \\"min(56)\\"
-	invalid.too-many-arguments: \\"min(56, 42, 33)\\"
-	invalid.missing-arguments: \\"rgb(255)\\"
-	invalid.rotate-hue-lowercase: \\"rotatehue(#ffa07a, 45deg)\\"
-	invalid.number-plus-percent: \\"42 + 10%\\"
-	invalid.number-plus-color: \\"42 + #fa7\\"
-	invalid.number-plus-dimen: \\"42 + 10px\\"
-	invalid.percent-plus-number: \\"10% + 5\\"
-	invalid.percent-plus-color: \\"10% + #fa7\\"
-	invalid.percent-plus-dimen: \\"10% + 10px\\"
-	invalid.color-plus-number: \\"#fa7 + 2\\"
-	invalid.color-plus-angle: \\"#fa7 + 10deg\\"
-	invalid.color-plus-percent: \\"#fa7 + 10%\\"
-	invalid.color-plus-color: \\"#fa7 + #123\\"
-	invalid.color-plus-dimen: \\"#fa7 + 12px\\"",
+
+
+rgb-decimal-1: \\"rgb(255, 160, 122, 50%)\\"
+hex-3: \\"#fa7\\"
+hex-4: \\"rgb(255, 170, 119, 53.33%)\\"
+hex-6: \\"#ffa07a\\"
+hex-8: \\"rgb(255, 160, 122, 50.2%)\\"
+hex-6-uppercase: \\"rgb(255, 160, 122, 50.2%)\\"
+named: \\"#fa8072\\"
+named-uppercase: \\"#fa8072\\"
+transparent: \\"transparent\\"
+current: \\"currentcolor\\"
+complex: \\"#7f56d4\\"
+transparent-as-rgb: \\"transparent\\"
+rgb-decimal: \\"rgb(255, 160, 122, 50%)\\"
+rgb-percent: \\"rgb(254, 160, 122, 50%)\\"
+rgb-clamped-alpha: \\"#ffa07a\\"
+rgb-alpha-percent: \\"rgb(255, 160, 122, 50%)\\"
+rgb-no-alpha: \\"#ffa07a\\"
+rgba: \\"rgb(255, 160, 122, 50%)\\"
+rgb-legacy-syntax: \\"rgb(255, 160, 122, 50%)\\"
+hsl: \\"rgb(255, 160, 122, 50%)\\"
+hsl-decimal-deg: \\"rgb(255, 160, 122, 50%)\\"
+hsl-decimal: \\"rgb(255, 160, 122, 50%)\\"
+hsl-legacy-syntax: \\"rgb(255, 160, 122, 50%)\\"
+hsla: \\"rgb(255, 160, 122, 50%)\\"
+hsl-with-grad: \\"rgb(255, 160, 122, 50%)\\"
+hsl-with-rad: \\"rgb(255, 160, 122, 50%)\\"
+hwb: \\"#ffa07a\\"
+hsv: \\"#9370db\\"
+hsv-with-unicode-deg: \\"#9370db\\"
+lab: \\"#9370db\\"
+gray: \\"#777\\"
+rotate-hue: \\"#faff7a\\"
+rotate-hue-single-argument: \\"#ffa07a\\"
+complement-1: \\"#7ad9ff\\"
+complement: \\"#e1d2d6\\"
+mix-white: \\"#e8ebe6\\"
+mix-black: \\"#7e9174\\"
+darken: \\"#7ca89c\\"
+lighten: \\"#e1ebe8\\"
+shade: \\"#4d4c43\\"
+tint: \\"#f3f3f2\\"
+tint-default: \\"#fbfbfb\\"
+tint-10: \\"#fbfbfb\\"
+saturate: \\"#794bd5\\"
+desaturate: \\"#8878a8\\"
+saturate-desaturate: \\"#805fc1\\"
+contrast-purple: \\"#cc21cc\\"
+contrast-auto: \\"#000\\"
+string-argument: \\"#e8ebe6\\"
+
+#
+# invalid
+#
+
+invalid.argument-alias: \\"tint(#ffa07a, #fa8072)\\"
+invalid.argument: \\"tint(#f00, #0f0)\\"
+invalid.not-enough-arguments: \\"min(56)\\"
+invalid.too-many-arguments: \\"min(56, 42, 33)\\"
+invalid.missing-arguments: \\"rgb(255)\\"
+invalid.rotate-hue-lowercase: \\"rotatehue(#ffa07a, 45deg)\\"
+invalid.number-plus-percent: \\"42 + 10%\\"
+invalid.number-plus-color: \\"42 + #fa7\\"
+invalid.number-plus-dimen: \\"42 + 10px\\"
+invalid.percent-plus-number: \\"10% + 5\\"
+invalid.percent-plus-color: \\"10% + #fa7\\"
+invalid.percent-plus-dimen: \\"10% + 10px\\"
+invalid.color-plus-number: \\"#fa7 + 2\\"
+invalid.color-plus-angle: \\"#fa7 + 10deg\\"
+invalid.color-plus-percent: \\"#fa7 + 10%\\"
+invalid.color-plus-color: \\"#fa7 + #123\\"
+invalid.color-plus-dimen: \\"#fa7 + 12px\\"
+",
 }
 `;
 
 exports[`evaluates comments, etc... associated with a token 1`] = `
 Object {
   "tokens.yaml": "
-tokens:
-	# Use sparingly
-	primary: \\"#002aff\\"",
+
+
+# Use sparingly
+primary: \\"#002aff\\"
+",
 }
 `;
 
@@ -311,59 +343,66 @@ Object {
 ✘   Syntax error in \\"invalid.string-unary-neg: '-\\"hello\\"'\\"
     [ERR] InvalidUnaryOperand",
   "tokens.yaml": "
-tokens:
-	string: \\"boom\\"
-	length__12px: \\"12px\\"
-	product-mul__15px: \\"15px\\"
-	product-mul-multi__30px: \\"30px\\"
-	product-div__9pt: \\"9pt\\"
-	term-add: \\"26px\\"
-	term-add-multi: \\"33.33px\\"
-	term-add-multi-angle: \\"17deg\\"
-	term-sub: \\"58px\\"
-	term-zero__36pt: \\"36pt\\"
-	term-product__13: \\"13\\"
-	term-product-2__13: \\"13\\"
-	unary-minus__-17: \\"-17\\"
-	unary-plus__17: \\"17\\"
-	string-plus-string-2: \\"42 is the answer\\"
-	number-plus-number__42: \\"42\\"
-	angle-plus-angle: \\"296.48deg\\"
-	add-angles-same-unit__18deg: \\"18deg\\"
-	angle-plus-string: \\"10deg slope\\"
-	percent-plus-percent: \\"40%\\"
-	percent-plus-string: \\"10% discount\\"
-	color-plus-string: \\"#fa7 color\\"
-	dimen-plus-dimen: \\"18.67px\\"
-	string-plus-number: \\"answer: 42\\"
-	string-plus-angle: \\"hello 12deg\\"
-	string-plus-percent: \\"hello 10%\\"
-	string-plus-color: \\"hello #f7a\\"
-	string-plus-dimen: \\"hello 12px\\"
-	string-plus-string: \\"hello  world\\"
-	product-angle__20deg: \\"20deg\\"
-	product-percent__30percent: \\"30%\\"
-	product-length__18pt: \\"18pt\\"
-	divide-angle__5deg: \\"5deg\\"
-	divide-percent__25percent: \\"25%\\"
-	divide-length__5px: \\"5px\\"
-	group-percent__33-percent: \\"33.33%\\"
-	group-length__15px: \\"15px\\"
-	group__25: \\"25\\"
-	assoc-multi__30: \\"30\\"
-	assoc-sub__2: \\"2\\"
-	length-ratio: \\"6.25\\"
-	color-ratio__008: \\"0.08235471767793863\\"
-	ws-in-expression__25: \\"25\\"
-	no-ws-in-expression__25: \\"25\\"
-	ws-in-function: \\"#dc1c89\\"
-	zero-add-to-length: \\"12pt\\"
-	zero-add-to-time: \\"1s\\"
-	zero-add-to-angle: \\"23deg\\"
-	zero-add-to-frequency: \\"50hz\\"
-	invalid.missing-right-operand: \\"3 + (5 +\\"
-	invalid.missing-close-paren: \\"3 + (5 + 2\\"
-	invalid.string-unary-neg: \\"-\\\\\\"hello\\\\\\"\\"",
+
+
+string: \\"boom\\"
+length__12px: \\"12px\\"
+product-mul__15px: \\"15px\\"
+product-mul-multi__30px: \\"30px\\"
+product-div__9pt: \\"9pt\\"
+term-add: \\"26px\\"
+term-add-multi: \\"33.33px\\"
+term-add-multi-angle: \\"17deg\\"
+term-sub: \\"58px\\"
+term-zero__36pt: \\"36pt\\"
+term-product__13: \\"13\\"
+term-product-2__13: \\"13\\"
+unary-minus__-17: \\"-17\\"
+unary-plus__17: \\"17\\"
+string-plus-string-2: \\"42 is the answer\\"
+number-plus-number__42: \\"42\\"
+angle-plus-angle: \\"296.48deg\\"
+add-angles-same-unit__18deg: \\"18deg\\"
+angle-plus-string: \\"10deg slope\\"
+percent-plus-percent: \\"40%\\"
+percent-plus-string: \\"10% discount\\"
+color-plus-string: \\"#fa7 color\\"
+dimen-plus-dimen: \\"18.67px\\"
+string-plus-number: \\"answer: 42\\"
+string-plus-angle: \\"hello 12deg\\"
+string-plus-percent: \\"hello 10%\\"
+string-plus-color: \\"hello #f7a\\"
+string-plus-dimen: \\"hello 12px\\"
+string-plus-string: \\"hello  world\\"
+product-angle__20deg: \\"20deg\\"
+product-percent__30percent: \\"30%\\"
+product-length__18pt: \\"18pt\\"
+divide-angle__5deg: \\"5deg\\"
+divide-percent__25percent: \\"25%\\"
+divide-length__5px: \\"5px\\"
+group-percent__33-percent: \\"33.33%\\"
+group-length__15px: \\"15px\\"
+group__25: \\"25\\"
+assoc-multi__30: \\"30\\"
+assoc-sub__2: \\"2\\"
+length-ratio: \\"6.25\\"
+color-ratio__008: \\"0.08235471767793863\\"
+ws-in-expression__25: \\"25\\"
+no-ws-in-expression__25: \\"25\\"
+ws-in-function: \\"#dc1c89\\"
+zero-add-to-length: \\"12pt\\"
+zero-add-to-time: \\"1s\\"
+zero-add-to-angle: \\"23deg\\"
+zero-add-to-frequency: \\"50hz\\"
+
+#
+# invalid
+#
+
+invalid.missing-right-operand: \\"3 + (5 +\\"
+invalid.missing-close-paren: \\"3 + (5 + 2\\"
+invalid.string-unary-neg: \\"-\\"hello\\"\\"
+",
 }
 `;
 
@@ -391,146 +430,180 @@ Object {
 ✘   Syntax error in \\"invalid.dimen-plus-color: '12px + #f7a'\\"
     [ERR] InvalidOperand",
   "tokens.yaml": "
-tokens:
-	length-cm: \\"38.8px\\"
-	length-mm: \\"4.78px\\"
-	length-Q: \\"1.94px\\"
-	length-in: \\"97px\\"
-	length-pc: \\"17px\\"
-	length-pt: \\"2.33px\\"
-	length-px: \\"1px\\"
-	divide-two-lengths-different-relative-unit__NaN: \\"NaN\\"
-	divide-two-lengths-same-relative-units__2: \\"2\\"
-	multiply-two-lengths__throw: \\"2em * 5rem\\"
-	product-mul__15px: \\"15px\\"
-	add-px__calc-2em-plus-15px: \\"calc(2em + 8px)\\"
-	term-zero__36pt: \\"36pt\\"
-	term-zero-relative-unit__2em: \\"2em\\"
-	length-cm__38-8px: \\"38.8px\\"
-	divide-two-lengths-same-unit__2: \\"2\\"
-	divide-two-lengths-absolute-units__7-5: \\"7.5\\"
-	substract-to-0__0: \\"0\\"
-	two-em-and-3ex__calc: \\"calc(2em + 3ex)\\"
-	two-em-and-3px__calc: \\"calc(2em + 3px)\\"
-	add-px-alias__calc__2em-plus-8px: \\"calc(2em + 8px)\\"
-	add-em__calc-4em-plus-3px: \\"calc(4em + 3px)\\"
-	multiply-lhs-calc-4em-plus-6px: \\"calc(4em + 6px)\\"
-	multiply-rhs-calc-4em-plus-6px: \\"calc(4em + 6px)\\"
-	substract-to-absolute__3px: \\"3px\\"
-	dimen-plus-number: \\"12px + 5\\"
-	dimen-plus-angle: \\"12px + 10deg\\"
-	dimen-plus-percent: \\"12px + 5%\\"
-	length-rem: \\"1rem\\"
-	length-em: \\"1em\\"
-	scale-default: \\"[9pt, 10pt, 12pt, 14pt, 16pt, 18pt, 21pt, 24pt, 28pt, 32pt]\\"
-	scale-pentatonic: \\"[0.76em, 0.87em, 1em, 1.15em, 1.32em, 1.52em, 1.74em, 2em, 2.3em, 2.64em]\\"
-	scale-golden: \\"[0.38em, 0.62em, 1em, 1.62em, 2.62em, 4.24em, 6.85em, 11.09em, 17.94em, 29.03em]\\"
-	scale-5-2: \\"[0.39em, 0.63em, 1em, 1.6em, 2.56em, 4.1em, 6.55em, 10.49em, 16.78em, 26.84em]\\"
-	body: \\"16px\\"
-	scaled-body-heading: \\"28px\\"
-	scaled-body-tiny: \\"12px\\"
-	invalid.scale-multi: \\"scale(1em + 10px)\\"
-	invalid.unknown-unit: \\"12km\\"
-	invalid.dimen-plus-color: \\"12px + #f7a\\"",
+
+
+length-cm: \\"38.8px\\"
+length-mm: \\"4.78px\\"
+length-Q: \\"1.94px\\"
+length-in: \\"97px\\"
+length-pc: \\"17px\\"
+length-pt: \\"2.33px\\"
+length-px: \\"1px\\"
+divide-two-lengths-different-relative-unit__NaN: \\"NaN\\"
+divide-two-lengths-same-relative-units__2: \\"2\\"
+multiply-two-lengths__throw: \\"2em * 5rem\\"
+product-mul__15px: \\"15px\\"
+add-px__calc-2em-plus-15px: \\"calc(2em + 8px)\\"
+term-zero__36pt: \\"36pt\\"
+term-zero-relative-unit__2em: \\"2em\\"
+length-cm__38-8px: \\"38.8px\\"
+divide-two-lengths-same-unit__2: \\"2\\"
+divide-two-lengths-absolute-units__7-5: \\"7.5\\"
+substract-to-0__0: \\"0\\"
+two-em-and-3ex__calc: \\"calc(2em + 3ex)\\"
+two-em-and-3px__calc: \\"calc(2em + 3px)\\"
+add-px-alias__calc__2em-plus-8px: \\"calc(2em + 8px)\\"
+add-em__calc-4em-plus-3px: \\"calc(4em + 3px)\\"
+multiply-lhs-calc-4em-plus-6px: \\"calc(4em + 6px)\\"
+multiply-rhs-calc-4em-plus-6px: \\"calc(4em + 6px)\\"
+substract-to-absolute__3px: \\"3px\\"
+dimen-plus-number: \\"12px + 5\\"
+dimen-plus-angle: \\"12px + 10deg\\"
+dimen-plus-percent: \\"12px + 5%\\"
+length-rem: \\"1rem\\"
+length-em: \\"1em\\"
+scale-default: \\"[9pt, 10pt, 12pt, 14pt, 16pt, 18pt, 21pt, 24pt, 28pt, 32pt]\\"
+scale-pentatonic: \\"[0.76em, 0.87em, 1em, 1.15em, 1.32em, 1.52em, 1.74em, 2em, 2.3em, 2.64em]\\"
+scale-golden: \\"[0.38em, 0.62em, 1em, 1.62em, 2.62em, 4.24em, 6.85em, 11.09em, 17.94em, 29.03em]\\"
+scale-5-2: \\"[0.39em, 0.63em, 1em, 1.6em, 2.56em, 4.1em, 6.55em, 10.49em, 16.78em, 26.84em]\\"
+body: \\"16px\\"
+scaled-body-heading: \\"28px\\"
+scaled-body-tiny: \\"12px\\"
+
+#
+# invalid
+#
+
+invalid.scale-multi: \\"scale(1em + 10px)\\"
+invalid.unknown-unit: \\"12km\\"
+invalid.dimen-plus-color: \\"12px + #f7a\\"
+",
 }
 `;
 
 exports[`evaluates two themes 1`] = `
 Object {
   "tokens.yaml": "
-tokens:
-	background-dark: \\"#fff\\"
-	body-dark: \\"#222\\"
-	background-light: \\"#333\\"
-	body-light: \\"#ddd\\"",
+
+
+background.dark: \\"#fff\\"
+background.light: \\"#333\\"
+body.dark: \\"#222\\"
+body.light: \\"#ddd\\"
+",
 }
 `;
 
 exports[`generates a JSON file 1`] = `
 Object {
-  "tokens.json": "{
-	\\"red\\": \\"#d83933\\",
-	\\"orange\\": \\"#ffa500\\",
-	\\"yellow\\": \\"#fc0\\",
-	\\"green\\": \\"#607f35\\",
-	\\"blue\\": \\"#2378c3\\",
-	\\"purple\\": \\"#af52de\\",
-	\\"primary-hue\\": \\"210deg\\",
-	\\"primary\\": \\"#0a66c2\\",
-	\\"volcano\\": \\"#ffeb3b\\",
-	\\"volcano-100\\": \\"#fff9c4\\",
-	\\"volcano-200\\": \\"#fff59d\\",
-	\\"volcano-300\\": \\"#fff176\\",
-	\\"volcano-400\\": \\"#ffee58\\",
-	\\"volcano-500\\": \\"#ffeb3b\\",
-	\\"volcano-600\\": \\"#f4d232\\",
-	\\"volcano-700\\": \\"#e8ba29\\",
-	\\"volcano-800\\": \\"#d9991e\\",
-	\\"volcano-900\\": \\"#c2680c\\",
-	\\"semantic.success\\": \\"#607f35\\",
-	\\"semantic.warning\\": \\"#ffa500\\",
-	\\"semantic.error\\": \\"#d83933\\",
-	\\"page-background\\": \\"#f9f9f9\\",
-	\\"text-color\\": \\"#111\\",
-	\\"scrim\\": \\"rgb(71, 71, 71, 40%)\\",
-	\\"cta-button-background\\": \\"#0a66c2\\",
-	\\"cta-button-color\\": \\"#ddd\\",
-	\\"link-color\\": \\"#2378c3\\",
-	\\"link-active-color\\": \\"#1c72be\\",
-	\\"link-down-color\\": \\"#206caf\\",
-	\\"link-hover-color\\": \\"#1e72bc\\",
-	\\"warm-grey\\": \\"#7f7070\\",
-	\\"cool-grey\\": \\"#7b6e6d\\",
-	\\"semantic.error-dark\\": \\"#e2423c\\",
-	\\"page-background-dark\\": \\"#262626\\",
-	\\"text-color-dark\\": \\"#f1f1f1\\"
+  "tokens.json": "
+
+{
+    
+    \\"red\\": \\"#d83933\\",
+    \\"orange\\": \\"#ffa500\\",
+    \\"yellow\\": \\"#fc0\\",
+    \\"green\\": \\"#607f35\\",
+    \\"blue\\": \\"#2378c3\\",
+    \\"purple\\": \\"#af52de\\",
+    \\"primary-hue\\": \\"210deg\\",
+    \\"primary\\": \\"#0a66c2\\",
+    \\"volcano\\": \\"#ffeb3b\\",
+    \\"volcano-100\\": \\"#fff9c4\\",
+    \\"volcano-200\\": \\"#fff59d\\",
+    \\"volcano-300\\": \\"#fff176\\",
+    \\"volcano-400\\": \\"#ffee58\\",
+    \\"volcano-500\\": \\"#ffeb3b\\",
+    \\"volcano-600\\": \\"#ffe23b\\",
+    \\"volcano-700\\": \\"#ffd83b\\",
+    \\"volcano-800\\": \\"#ffcc3b\\",
+    \\"volcano-900\\": \\"#ffb93a\\",
+    \\"page-background\\": \\"#f9f9f9\\",
+    \\"page-background.dark\\": \\"#262626\\",
+    \\"text-color\\": \\"#111\\",
+    \\"text-color.dark\\": \\"#f1f1f1\\",
+    \\"scrim\\": \\"rgb(71, 71, 71, 40%)\\",
+    \\"cta-button-background\\": \\"#0a66c2\\",
+    \\"cta-button-color\\": \\"#ddd\\",
+    \\"link-color\\": \\"#2378c3\\",
+    \\"link-active-color\\": \\"#1c72be\\",
+    \\"link-down-color\\": \\"#206caf\\",
+    \\"link-hover-color\\": \\"#1e72bc\\",
+    \\"warm-grey\\": \\"#7f7070\\",
+    \\"cool-grey\\": \\"#7b6e6d\\",
+
+    /*
+    * semantic
+    */
+
+    
+    // Indicate a completed task.
+    \\"semantic.success\\": \\"#607f35\\",
+    // Indicate a problem that does not prevent a task from being completed.
+    \\"semantic.warning\\": \\"#ffa500\\",
+    // Indicate an error that prevents a task from being completed.
+    \\"semantic.error\\": \\"#d83933\\",
+    \\"semantic.error.dark\\": \\"#e2423c\\"
 }",
 }
 `;
 
 exports[`generates a Sass stylesheet 1`] = `
 Object {
-  "tokens.scss": ":root {
-	--semantic-error: #d83933;
-	--page-background: #f9f9f9;
-	--text-color: #111;
-}
+  "tokens.scss": "
+
+$red: \\"#d83933\\" !default;
+$orange: \\"#ffa500\\" !default;
+$yellow: \\"#fc0\\" !default;
+$green: \\"#607f35\\" !default;
+$blue: \\"#2378c3\\" !default;
+$purple: \\"#af52de\\" !default;
+$primary-hue: \\"210deg\\" !default;
+$primary: \\"#0a66c2\\" !default;
+$volcano: \\"#ffeb3b\\" !default;
+$volcano-100: \\"#fff9c4\\" !default;
+$volcano-200: \\"#fff59d\\" !default;
+$volcano-300: \\"#fff176\\" !default;
+$volcano-400: \\"#ffee58\\" !default;
+$volcano-500: \\"#ffeb3b\\" !default;
+$volcano-600: \\"#ffe23b\\" !default;
+$volcano-700: \\"#ffd83b\\" !default;
+$volcano-800: \\"#ffcc3b\\" !default;
+$volcano-900: \\"#ffb93a\\" !default;
+//Indicate a completed task.
+$semantic-success: \\"#607f35\\" !default;
+//Indicate a problem that does not prevent a task from being completed.
+$semantic-warning: \\"#ffa500\\" !default;
+$scrim: \\"rgb(71, 71, 71, 40%)\\" !default;
+$cta-button-background: \\"#0a66c2\\" !default;
+$cta-button-color: \\"#ddd\\" !default;
+$link-color: \\"#2378c3\\" !default;
+$link-active-color: \\"#1c72be\\" !default;
+$link-down-color: \\"#206caf\\" !default;
+$link-hover-color: \\"#1e72bc\\" !default;
+$warm-grey: \\"#7f7070\\" !default;
+$cool-grey: \\"#7b6e6d\\" !default;
+
+
+$semantic-error: var(--semantic-error) !default;
+$page-background: var(--page-background) !default;
+$text-color: var(--text-color) !default;
+
+:root {
+    --semantic-error: \\"#d83933\\";
+    --page-background: \\"#f9f9f9\\";
+    --text-color: \\"#111\\";
+};
+
+
+
 body[data-theme=\\"dark\\"] {
-	--semantic-error: #e2423c;
-	--page-background: #262626;
-	--text-color: #f1f1f1;
-}
-$red: #d83933 !default;
-$orange: #ffa500 !default;
-$yellow: #fc0 !default;
-$green: #607f35 !default;
-$blue: #2378c3 !default;
-$purple: #af52de !default;
-$primary-hue: 210deg !default;
-$primary: #0a66c2 !default;
-$volcano: #ffeb3b !default;
-$volcano-100: #fff9c4 !default;
-$volcano-200: #fff59d !default;
-$volcano-300: #fff176 !default;
-$volcano-400: #ffee58 !default;
-$volcano-500: #ffeb3b !default;
-$volcano-600: #f4d232 !default;
-$volcano-700: #e8ba29 !default;
-$volcano-800: #d9991e !default;
-$volcano-900: #c2680c !default;
-// Indicate a completed task.
-$semantic-success: #607f35 !default;
-// Indicate a problem that does not prevent a task from being completed.
-$semantic-warning: #ffa500 !default;
-$scrim: rgb(71, 71, 71, 40%) !default;
-$cta-button-background: #0a66c2 !default;
-$cta-button-color: #ddd !default;
-$link-color: #2378c3 !default;
-$link-active-color: #1c72be !default;
-$link-down-color: #206caf !default;
-$link-hover-color: #1e72bc !default;
-$warm-grey: #7f7070 !default;
-$cool-grey: #7b6e6d !default;",
+    --semantic-error-dark: \\"#e2423c\\";
+    --page-background-dark: \\"#262626\\";
+    --text-color-dark: \\"#f1f1f1\\";
+};
+
+",
 }
 `;
 
@@ -563,7 +636,7 @@ Object {
       width: 200px;
       margin: 20px;
     }
-    .color-chip-swatch {
+    .color-chip__swatch {
       border-radius: 8px;
       padding: 8px;
       position: absolute;
@@ -572,7 +645,7 @@ Object {
       box-sizing: border-box;
       color: #fff
     }
-    .color-chip-swatch h3,  .color-chip-swatch h4 {
+    .color-chip__swatch h3,  .color-chip__swatch h4 {
       padding: 0;
       margin: 0;
       margin-left: -8px;
@@ -581,39 +654,106 @@ Object {
       padding-bottom: 4px;
       overflow-wrap: break-word;
     }
-    .color-chip-swatch h3 {
+    .color-chip__swatch h3 {
       font-size: 1.2rem;
       font-weight: 700;
+      opacity: .8;
     }
-    .color-chip-swatch h4 {
+    .color-chip__swatch h4 {
       font-size: 1rem;
       font-weight: normal;
       margin-bottom: 1.2rem;
       font-family: var(--monospace-font);
     }
-    .color-chip-swatch.frame {
+    .color-chip__swatch.frame {
       border: 1px solid #ddd
     }
-    .color-chip-swatch.light {
+    .color-chip__swatch.light {
       color: #333;
     }
-    .color-chip p {
+    .color-chip p, .color-ramp p {
       margin: 0;
       padding-top: .5rem;
       font-size: .86rem;
       line-height: 1.2;
       color: #777;
     }
-    .color-chip-swatch-container {
+    .color-chip__swatch-container {
       position: relative;
       width: 100%;
       min-height: 100px;
 
       border-radius: 8px;
 
+    }
+    .checkerboard-bg {
       background-image: linear-gradient(45deg, #777 25%, transparent 25%), linear-gradient(-45deg, #777 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #777 75%), linear-gradient(-45deg, transparent 75%, #777 75%);
       background-size: 20px 20px;
       background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    .color-ramps {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .color-ramp {
+      min-width: 226px;
+      margin-left: 20px;
+      margin-right: 20px;
+      margin-bottom: 20px;
+    }
+    .color-ramp .checkerboard-bg {
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    .color-ramp__item {
+      border: 1px solid rgba(0,0,0,.12);
+      border-top-color: transparent;
+      color: #fff;
+      padding: 10px 15px 11px;
+      margin: 0;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-width: 200px;
+
+    }
+    .color-ramp__item:first-of-type {
+      border-top-color: rgba(0,0,0,.12);
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+    .color-ramp__item:last-of-type {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+    .color-ramp__item.light {
+      color: #333;
+    }
+    .color-ramp__item h3, .color-ramp__item h4 {
+      margin: 0;
+      padding: 0;
+      overflow-wrap: break-word;
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: 2em;
+      padding-top: 2px;
+      margin-top: -2px;
+      padding-bottom: 2px;
+    }
+    .color-ramp__item h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-left: -8px;
+      margin-right: 16px;
+    }
+    .color-ramp__item h4 {
+      font-family: var(--monospace-font);
+      font-size: .8rem;
+      font-weight: normal;
+      margin-left: 16px;
+      margin-right: -8px;
     }
     .value-source {
       font-weight: bold;
@@ -625,325 +765,1488 @@ Object {
 
 <body>
 
-<h2>Colors</h2>
- <h3>Base</h3> 
+  <section id='color'>
+  <h2>Colors</h2>
+  
+
+
+<div class='color-ramps'>  
+<div class=\\"color-ramp\\">
+    <h3>red</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fde4e2'>
+        <h3 >50</h3>
+        <h4 >#fde4e2</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fbbbb6'>
+        <h3 >100</h3>
+        <h4 >#fbbbb6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f98e86'>
+        <h3 >200</h3>
+        <h4 >#f98e86</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f66056'>
+        <h3 >300</h3>
+        <h4 >#f66056</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f43e31'>
+        <h3 >400</h3>
+        <h4 >#f43e31</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f21c0d'>
+        <h3 >500</h3>
+        <h4 >#f21c0d</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#e81a0c'>
+        <h3 >600</h3>
+        <h4 >#e81a0c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#df170c'>
+        <h3 >700</h3>
+        <h4 >#df170c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d2140b'>
+        <h3 >800</h3>
+        <h4 >#d2140b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#bf0f09'>
+        <h3 >900</h3>
+        <h4 >#bf0f09</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(4deg, 90%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>orange</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fff5e7'>
+        <h3 >50</h3>
+        <h4 >#fff5e7</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe6c2'>
+        <h3 >100</h3>
+        <h4 >#ffe6c2</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffd599'>
+        <h3 >200</h3>
+        <h4 >#ffd599</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffc470'>
+        <h3 >300</h3>
+        <h4 >#ffc470</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffb752'>
+        <h3 >400</h3>
+        <h4 >#ffb752</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fa3'>
+        <h3 >500</h3>
+        <h4 >#fa3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ff9f31'>
+        <h3 >600</h3>
+        <h4 >#ff9f31</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ff942e'>
+        <h3 >700</h3>
+        <h4 >#ff942e</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ff852b'>
+        <h3 >800</h3>
+        <h4 >#ff852b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ff6e26'>
+        <h3 >900</h3>
+        <h4 >#ff6e26</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(35deg, 100%, 60%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>yellow</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fffbe8'>
+        <h3 >50</h3>
+        <h4 >#fffbe8</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fff5c5'>
+        <h3 >100</h3>
+        <h4 >#fff5c5</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffef9e'>
+        <h3 >200</h3>
+        <h4 >#ffef9e</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe977'>
+        <h3 >300</h3>
+        <h4 >#ffe977</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe45a'>
+        <h3 >400</h3>
+        <h4 >#ffe45a</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffdf3d'>
+        <h3 >500</h3>
+        <h4 >#ffdf3d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffd53d'>
+        <h3 >600</h3>
+        <h4 >#ffd53d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffcc3c'>
+        <h3 >700</h3>
+        <h4 >#ffcc3c</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffbf3c'>
+        <h3 >800</h3>
+        <h4 >#ffbf3c</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffab3b'>
+        <h3 >900</h3>
+        <h4 >#ffab3b</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(50deg, 100%, 62%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>lime</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#ecf6e3'>
+        <h3 >50</h3>
+        <h4 >#ecf6e3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#d0e8b9'>
+        <h3 >100</h3>
+        <h4 >#d0e8b9</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#b1d98a'>
+        <h3 >200</h3>
+        <h4 >#b1d98a</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#92c95b'>
+        <h3 >300</h3>
+        <h4 >#92c95b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#7abe38'>
+        <h3 >400</h3>
+        <h4 >#7abe38</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#63b215'>
+        <h3 >500</h3>
+        <h4 >#63b215</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#61b212'>
+        <h3 >600</h3>
+        <h4 >#61b212</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5fb10f'>
+        <h3 >700</h3>
+        <h4 >#5fb10f</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5db10b'>
+        <h3 >800</h3>
+        <h4 >#5db10b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#59b005'>
+        <h3 >900</h3>
+        <h4 >#59b005</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(90deg, 79%, 39%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>green</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e4f7e7'>
+        <h3 >50</h3>
+        <h4 >#e4f7e7</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#bceac4'>
+        <h3 >100</h3>
+        <h4 >#bceac4</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#90dd9d'>
+        <h3 >200</h3>
+        <h4 >#90dd9d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#64cf75'>
+        <h3 >300</h3>
+        <h4 >#64cf75</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#42c458'>
+        <h3 >400</h3>
+        <h4 >#42c458</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#21ba3a'>
+        <h3 >500</h3>
+        <h4 >#21ba3a</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#1daf3a'>
+        <h3 >600</h3>
+        <h4 >#1daf3a</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#1aa43b'>
+        <h3 >700</h3>
+        <h4 >#1aa43b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#15963c'>
+        <h3 >800</h3>
+        <h4 >#15963c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0e803c'>
+        <h3 >900</h3>
+        <h4 >#0e803c</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(130deg, 70%, 43%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>teal</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e3fcfc'>
+        <h3 >50</h3>
+        <h4 >#e3fcfc</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#baf8f8'>
+        <h3 >100</h3>
+        <h4 >#baf8f8</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#8cf3f3'>
+        <h3 >200</h3>
+        <h4 >#8cf3f3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#5eeeee'>
+        <h3 >300</h3>
+        <h4 >#5eeeee</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#3ceaea'>
+        <h3 >400</h3>
+        <h4 >#3ceaea</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#19e6e6'>
+        <h3 >500</h3>
+        <h4 >#19e6e6</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#16cece'>
+        <h3 >600</h3>
+        <h4 >#16cece</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#14b6b6'>
+        <h3 >700</h3>
+        <h4 >#14b6b6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#119696'>
+        <h3 >800</h3>
+        <h4 >#119696</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0b6565'>
+        <h3 >900</h3>
+        <h4 >#0b6565</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(180deg, 80%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>blue</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e2f0fd'>
+        <h3 >50</h3>
+        <h4 >#e2f0fd</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#b6d9fb'>
+        <h3 >100</h3>
+        <h4 >#b6d9fb</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#86c0f9'>
+        <h3 >200</h3>
+        <h4 >#86c0f9</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#56a6f6'>
+        <h3 >300</h3>
+        <h4 >#56a6f6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#3193f4'>
+        <h3 >400</h3>
+        <h4 >#3193f4</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0d80f2'>
+        <h3 >500</h3>
+        <h4 >#0d80f2</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0c75d8'>
+        <h3 >600</h3>
+        <h4 >#0c75d8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0c6abe'>
+        <h3 >700</h3>
+        <h4 >#0c6abe</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0b5c9c'>
+        <h3 >800</h3>
+        <h4 >#0b5c9c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#094668'>
+        <h3 >900</h3>
+        <h4 >#094668</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(210deg, 90%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>indigo</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#ede7f9'>
+        <h3 >50</h3>
+        <h4 >#ede7f9</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#d1c2f0'>
+        <h3 >100</h3>
+        <h4 >#d1c2f0</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#b399e6'>
+        <h3 >200</h3>
+        <h4 >#b399e6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#9470db'>
+        <h3 >300</h3>
+        <h4 >#9470db</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#7d52d4'>
+        <h3 >400</h3>
+        <h4 >#7d52d4</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#63c'>
+        <h3 >500</h3>
+        <h4 >#63c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5b2fb6'>
+        <h3 >600</h3>
+        <h4 >#5b2fb6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#502b9f'>
+        <h3 >700</h3>
+        <h4 >#502b9f</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#422581'>
+        <h3 >800</h3>
+        <h4 >#422581</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#2c1d54'>
+        <h3 >900</h3>
+        <h4 >#2c1d54</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(260deg, 60%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>purple</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#f4e3fc'>
+        <h3 >50</h3>
+        <h4 >#f4e3fc</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#e3baf8'>
+        <h3 >100</h3>
+        <h4 >#e3baf8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d18cf3'>
+        <h3 >200</h3>
+        <h4 >#d18cf3</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#be5eee'>
+        <h3 >300</h3>
+        <h4 >#be5eee</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#b03cea'>
+        <h3 >400</h3>
+        <h4 >#b03cea</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#a219e6'>
+        <h3 >500</h3>
+        <h4 >#a219e6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#9118cd'>
+        <h3 >600</h3>
+        <h4 >#9118cd</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#8116b3'>
+        <h3 >700</h3>
+        <h4 >#8116b3</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#6b1492'>
+        <h3 >800</h3>
+        <h4 >#6b1492</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#49115f'>
+        <h3 >900</h3>
+        <h4 >#49115f</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(280deg, 80%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>magenta</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fde9f3'>
+        <h3 >50</h3>
+        <h4 >#fde9f3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#f9c8e0'>
+        <h3 >100</h3>
+        <h4 >#f9c8e0</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#f5a3cc'>
+        <h3 >200</h3>
+        <h4 >#f5a3cc</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f17eb8'>
+        <h3 >300</h3>
+        <h4 >#f17eb8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ee63a8'>
+        <h3 >400</h3>
+        <h4 >#ee63a8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#eb4799'>
+        <h3 >500</h3>
+        <h4 >#eb4799</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d83f88'>
+        <h3 >600</h3>
+        <h4 >#d83f88</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#c53777'>
+        <h3 >700</h3>
+        <h4 >#c53777</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ac2d60'>
+        <h3 >800</h3>
+        <h4 >#ac2d60</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#861d3d'>
+        <h3 >900</h3>
+        <h4 >#861d3d</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(330deg, 80%, 60%))</p>
+</div>
+</div>
+
 <div class='color-chips'>  
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#d83933'>
-        <h3 >red</h3>
-        <h4 >#d83933</h4>
-        </div>
-    </div>
-    <p class='value-source'>hsl(2.2,67.9%,52.4%) </p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#ffa500'>
-        <h3 >orange</h3>
-        <h4 >#ffa500</h4>
-        </div>
-    </div>
-    <p class='value-source'>hsl(38.8,100%,50%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#fc0'>
-        <h3 >yellow</h3>
-        <h4 >#fc0</h4>
-        </div>
-    </div>
-    <p class='value-source'>hsl(48,100%,50%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#607f35'>
-        <h3 >green</h3>
-        <h4 >#607f35</h4>
-        </div>
-    </div>
-    <p class='value-source'>hsl(85.1,41.1%,35.3%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#2378c3'>
-        <h3 >blue</h3>
-        <h4 >#2378c3</h4>
-        </div>
-    </div>
-    <p class='value-source'>hsl(208.1,69.6%,45.1%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#af52de'>
-        <h3 >purple</h3>
-        <h4 >#af52de</h4>
-        </div>
-    </div>
-    <p class='value-source'>hsl(279.9,68%,59.6%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#0a66c2'>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch ' style='background-color:#06c'>
         <h3 >primary</h3>
-        <h4 >#0a66c2</h4>
+        <h4 >#06c</h4>
         </div>
     </div>
-    <p class='value-source'>hsl({primary-hue}, 90%, 40%)</p>
+    <p class='value-source'>hsl({primary-hue}, 100%, 40%)</p>
     </div>
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#ffeb3b'>
-        <h3 >volcano</h3>
-        <h4 >#ffeb3b</h4>
-        </div>
-    </div>
-    <p class='value-source'>#FFEB3B</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#fff9c4'>
-        <h3 >volcano-100</h3>
-        <h4 >#fff9c4</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[1]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#fff59d'>
-        <h3 >volcano-200</h3>
-        <h4 >#fff59d</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[2]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#fff176'>
-        <h3 >volcano-300</h3>
-        <h4 >#fff176</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[3]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#ffee58'>
-        <h3 >volcano-400</h3>
-        <h4 >#ffee58</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[4]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#ffeb3b'>
-        <h3 >volcano-500</h3>
-        <h4 >#ffeb3b</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[5]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#f4d232'>
-        <h3 >volcano-600</h3>
-        <h4 >#f4d232</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[6]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#e8ba29'>
-        <h3 >volcano-700</h3>
-        <h4 >#e8ba29</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[7]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#d9991e'>
-        <h3 >volcano-800</h3>
-        <h4 >#d9991e</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[8]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#c2680c'>
-        <h3 >volcano-900</h3>
-        <h4 >#c2680c</h4>
-        </div>
-    </div>
-    <p class='value-source'>scale({volcano})[9]</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#607f35'>
-        <h3 >semantic.success</h3>
-        <h4 >#607f35</h4>
-        </div>
-    </div>
-    <p class='value-source'>{green}</p>
-    <p class='color-chip-comment'>Indicate a completed task.</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#ffa500'>
-        <h3 >semantic.warning</h3>
-        <h4 >#ffa500</h4>
-        </div>
-    </div>
-    <p class='value-source'>{orange}</p>
-    <p class='color-chip-comment'>Indicate a problem that does not prevent a task from being completed.</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#d83933'>
-        <h3 >semantic.error</h3>
-        <h4 >#d83933</h4>
-        </div>
-    </div>
-    <p class='value-source'>{red}</p>
-    <p class='color-chip-comment'>Indicate an error that prevents a task from being completed.</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#f9f9f9'>
-        <h3 >page-background</h3>
-        <h4 >#f9f9f9</h4>
-        </div>
-    </div>
-    <p class='value-source'>gray(98%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#111'>
-        <h3 >text-color</h3>
-        <h4 >#111</h4>
-        </div>
-    </div>
-    <p class='value-source'>gray(5%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:rgb(71, 71, 71, 40%)'>
-        <h3 style='background:#474747'>scrim</h3>
-        <h4 style='background:#474747'>rgb(71, 71, 71, 40%)</h4>
-        </div>
-    </div>
-    <p class='value-source'>gray(30%, 40%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#0a66c2'>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch ' style='background-color:#06c'>
         <h3 >cta-button-background</h3>
-        <h4 >#0a66c2</h4>
+        <h4 >#06c</h4>
         </div>
     </div>
     <p class='value-source'>{primary}</p>
     </div>
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#ddd'>
-        <h3 >cta-button-color</h3>
-        <h4 >#ddd</h4>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch ' style='background-color:#0052a3'>
+        <h3 >cta-button-background-active</h3>
+        <h4 >#0052a3</h4>
         </div>
     </div>
-    <p class='value-source'>contrast({primary}, #ddd, #333)</p>
+    <p class='value-source'>darken({cta-button-background}, 20%)</p>
     </div>
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#2378c3'>
-        <h3 >link-color</h3>
-        <h4 >#2378c3</h4>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch ' style='background-color:#005cb8'>
+        <h3 >cta-button-background-hover</h3>
+        <h4 >#005cb8</h4>
         </div>
     </div>
-    <p class='value-source'>{blue}</p>
+    <p class='value-source'>darken({cta-button-background}, 10%)</p>
     </div>
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#1c72be'>
-        <h3 >link-active-color</h3>
-        <h4 >#1c72be</h4>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch ' style='background-color:#e81a0c'>
+        <h3 >semantic.error</h3>
+        <h4 >#e81a0c</h4>
         </div>
     </div>
-    <p class='value-source'>saturate(darken({link-color}, 5%), 15%)</p>
+    <p class='value-source'>{red-600}</p>
     </div>
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#206caf'>
-        <h3 >link-down-color</h3>
-        <h4 >#206caf</h4>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch ' style='background-color:#1daf3a'>
+        <h3 >semantic.success</h3>
+        <h4 >#1daf3a</h4>
         </div>
     </div>
-    <p class='value-source'>darken({link-color}, 10%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#1e72bc'>
-        <h3 >link-hover-color</h3>
-        <h4 >#1e72bc</h4>
-        </div>
-    </div>
-    <p class='value-source'>saturate(darken({link-color}, 5%), 10%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#7f7070'>
-        <h3 >warm-grey</h3>
-        <h4 >#7f7070</h4>
-        </div>
-    </div>
-    <p class='value-source'>mix(gray(50%), red, 6%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#7b6e6d'>
-        <h3 >cool-grey</h3>
-        <h4 >#7b6e6d</h4>
-        </div>
-    </div>
-    <p class='value-source'>mix(gray(50%), green, 6%)</p>
+    <p class='value-source'>{green-600}</p>
     </div>
 </div>
 
+ <h3>Base</h3> 
 
- <h3>dark</h3> 
+<div class='color-ramps'>  
+<div class=\\"color-ramp\\">
+    <h3>red</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fde4e2'>
+        <h3 >50</h3>
+        <h4 >#fde4e2</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fbbbb6'>
+        <h3 >100</h3>
+        <h4 >#fbbbb6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f98e86'>
+        <h3 >200</h3>
+        <h4 >#f98e86</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f66056'>
+        <h3 >300</h3>
+        <h4 >#f66056</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f43e31'>
+        <h3 >400</h3>
+        <h4 >#f43e31</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f21c0d'>
+        <h3 >500</h3>
+        <h4 >#f21c0d</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#e81a0c'>
+        <h3 >600</h3>
+        <h4 >#e81a0c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#df170c'>
+        <h3 >700</h3>
+        <h4 >#df170c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d2140b'>
+        <h3 >800</h3>
+        <h4 >#d2140b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#bf0f09'>
+        <h3 >900</h3>
+        <h4 >#bf0f09</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(4deg, 90%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>orange</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fff5e7'>
+        <h3 >50</h3>
+        <h4 >#fff5e7</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe6c2'>
+        <h3 >100</h3>
+        <h4 >#ffe6c2</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffd599'>
+        <h3 >200</h3>
+        <h4 >#ffd599</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffc470'>
+        <h3 >300</h3>
+        <h4 >#ffc470</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffb752'>
+        <h3 >400</h3>
+        <h4 >#ffb752</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fa3'>
+        <h3 >500</h3>
+        <h4 >#fa3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ff9f31'>
+        <h3 >600</h3>
+        <h4 >#ff9f31</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ff942e'>
+        <h3 >700</h3>
+        <h4 >#ff942e</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ff852b'>
+        <h3 >800</h3>
+        <h4 >#ff852b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ff6e26'>
+        <h3 >900</h3>
+        <h4 >#ff6e26</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(35deg, 100%, 60%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>yellow</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fffbe8'>
+        <h3 >50</h3>
+        <h4 >#fffbe8</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fff5c5'>
+        <h3 >100</h3>
+        <h4 >#fff5c5</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffef9e'>
+        <h3 >200</h3>
+        <h4 >#ffef9e</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe977'>
+        <h3 >300</h3>
+        <h4 >#ffe977</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe45a'>
+        <h3 >400</h3>
+        <h4 >#ffe45a</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffdf3d'>
+        <h3 >500</h3>
+        <h4 >#ffdf3d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffd53d'>
+        <h3 >600</h3>
+        <h4 >#ffd53d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffcc3c'>
+        <h3 >700</h3>
+        <h4 >#ffcc3c</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffbf3c'>
+        <h3 >800</h3>
+        <h4 >#ffbf3c</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffab3b'>
+        <h3 >900</h3>
+        <h4 >#ffab3b</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(50deg, 100%, 62%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>lime</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#ecf6e3'>
+        <h3 >50</h3>
+        <h4 >#ecf6e3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#d0e8b9'>
+        <h3 >100</h3>
+        <h4 >#d0e8b9</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#b1d98a'>
+        <h3 >200</h3>
+        <h4 >#b1d98a</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#92c95b'>
+        <h3 >300</h3>
+        <h4 >#92c95b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#7abe38'>
+        <h3 >400</h3>
+        <h4 >#7abe38</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#63b215'>
+        <h3 >500</h3>
+        <h4 >#63b215</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#61b212'>
+        <h3 >600</h3>
+        <h4 >#61b212</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5fb10f'>
+        <h3 >700</h3>
+        <h4 >#5fb10f</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5db10b'>
+        <h3 >800</h3>
+        <h4 >#5db10b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#59b005'>
+        <h3 >900</h3>
+        <h4 >#59b005</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(90deg, 79%, 39%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>green</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e4f7e7'>
+        <h3 >50</h3>
+        <h4 >#e4f7e7</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#bceac4'>
+        <h3 >100</h3>
+        <h4 >#bceac4</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#90dd9d'>
+        <h3 >200</h3>
+        <h4 >#90dd9d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#64cf75'>
+        <h3 >300</h3>
+        <h4 >#64cf75</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#42c458'>
+        <h3 >400</h3>
+        <h4 >#42c458</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#21ba3a'>
+        <h3 >500</h3>
+        <h4 >#21ba3a</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#1daf3a'>
+        <h3 >600</h3>
+        <h4 >#1daf3a</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#1aa43b'>
+        <h3 >700</h3>
+        <h4 >#1aa43b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#15963c'>
+        <h3 >800</h3>
+        <h4 >#15963c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0e803c'>
+        <h3 >900</h3>
+        <h4 >#0e803c</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(130deg, 70%, 43%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>teal</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e3fcfc'>
+        <h3 >50</h3>
+        <h4 >#e3fcfc</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#baf8f8'>
+        <h3 >100</h3>
+        <h4 >#baf8f8</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#8cf3f3'>
+        <h3 >200</h3>
+        <h4 >#8cf3f3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#5eeeee'>
+        <h3 >300</h3>
+        <h4 >#5eeeee</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#3ceaea'>
+        <h3 >400</h3>
+        <h4 >#3ceaea</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#19e6e6'>
+        <h3 >500</h3>
+        <h4 >#19e6e6</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#16cece'>
+        <h3 >600</h3>
+        <h4 >#16cece</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#14b6b6'>
+        <h3 >700</h3>
+        <h4 >#14b6b6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#119696'>
+        <h3 >800</h3>
+        <h4 >#119696</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0b6565'>
+        <h3 >900</h3>
+        <h4 >#0b6565</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(180deg, 80%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>blue</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e2f0fd'>
+        <h3 >50</h3>
+        <h4 >#e2f0fd</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#b6d9fb'>
+        <h3 >100</h3>
+        <h4 >#b6d9fb</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#86c0f9'>
+        <h3 >200</h3>
+        <h4 >#86c0f9</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#56a6f6'>
+        <h3 >300</h3>
+        <h4 >#56a6f6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#3193f4'>
+        <h3 >400</h3>
+        <h4 >#3193f4</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0d80f2'>
+        <h3 >500</h3>
+        <h4 >#0d80f2</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0c75d8'>
+        <h3 >600</h3>
+        <h4 >#0c75d8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0c6abe'>
+        <h3 >700</h3>
+        <h4 >#0c6abe</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0b5c9c'>
+        <h3 >800</h3>
+        <h4 >#0b5c9c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#094668'>
+        <h3 >900</h3>
+        <h4 >#094668</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(210deg, 90%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>indigo</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#ede7f9'>
+        <h3 >50</h3>
+        <h4 >#ede7f9</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#d1c2f0'>
+        <h3 >100</h3>
+        <h4 >#d1c2f0</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#b399e6'>
+        <h3 >200</h3>
+        <h4 >#b399e6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#9470db'>
+        <h3 >300</h3>
+        <h4 >#9470db</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#7d52d4'>
+        <h3 >400</h3>
+        <h4 >#7d52d4</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#63c'>
+        <h3 >500</h3>
+        <h4 >#63c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5b2fb6'>
+        <h3 >600</h3>
+        <h4 >#5b2fb6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#502b9f'>
+        <h3 >700</h3>
+        <h4 >#502b9f</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#422581'>
+        <h3 >800</h3>
+        <h4 >#422581</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#2c1d54'>
+        <h3 >900</h3>
+        <h4 >#2c1d54</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(260deg, 60%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>purple</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#f4e3fc'>
+        <h3 >50</h3>
+        <h4 >#f4e3fc</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#e3baf8'>
+        <h3 >100</h3>
+        <h4 >#e3baf8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d18cf3'>
+        <h3 >200</h3>
+        <h4 >#d18cf3</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#be5eee'>
+        <h3 >300</h3>
+        <h4 >#be5eee</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#b03cea'>
+        <h3 >400</h3>
+        <h4 >#b03cea</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#a219e6'>
+        <h3 >500</h3>
+        <h4 >#a219e6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#9118cd'>
+        <h3 >600</h3>
+        <h4 >#9118cd</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#8116b3'>
+        <h3 >700</h3>
+        <h4 >#8116b3</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#6b1492'>
+        <h3 >800</h3>
+        <h4 >#6b1492</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#49115f'>
+        <h3 >900</h3>
+        <h4 >#49115f</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(280deg, 80%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>magenta</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fde9f3'>
+        <h3 >50</h3>
+        <h4 >#fde9f3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#f9c8e0'>
+        <h3 >100</h3>
+        <h4 >#f9c8e0</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#f5a3cc'>
+        <h3 >200</h3>
+        <h4 >#f5a3cc</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f17eb8'>
+        <h3 >300</h3>
+        <h4 >#f17eb8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ee63a8'>
+        <h3 >400</h3>
+        <h4 >#ee63a8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#eb4799'>
+        <h3 >500</h3>
+        <h4 >#eb4799</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d83f88'>
+        <h3 >600</h3>
+        <h4 >#d83f88</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#c53777'>
+        <h3 >700</h3>
+        <h4 >#c53777</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ac2d60'>
+        <h3 >800</h3>
+        <h4 >#ac2d60</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#861d3d'>
+        <h3 >900</h3>
+        <h4 >#861d3d</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(330deg, 80%, 60%))</p>
+</div>
+</div>
+
 <div class='color-chips'>  
     <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#e2423c'>
-        <h3 >semantic.error</h3>
-        <h4 >#e2423c</h4>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch light' style='background-color:#ffb752'>
+        <h3 >semantic.warning</h3>
+        <h4 >#ffb752</h4>
         </div>
     </div>
-    <p class='value-source'>lighten(saturate({semantic.error}, 20%), 8%)</p>
-    <p class='color-chip-comment'>Indicate an error that prevents a task from being completed.</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch ' style='background-color:#262626'>
-        <h3 >page-background</h3>
-        <h4 >#262626</h4>
-        </div>
-    </div>
-    <p class='value-source'>gray(15%)</p>
-    </div>
-    <div class=\\"color-chip\\">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch light' style='background-color:#f1f1f1'>
-        <h3 >text-color</h3>
-        <h4 >#f1f1f1</h4>
-        </div>
-    </div>
-    <p class='value-source'>gray(95%)</p>
+    <p class='value-source'>{orange-400}</p>
+    <p class='color-chip__comment'>Use for problems that do not prevent the task to complete</p>
     </div>
 </div>
+
+ <h3>dark</h3> 
+
+<div class='color-ramps'>  
+<div class=\\"color-ramp\\">
+    <h3>red</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fde4e2'>
+        <h3 >50</h3>
+        <h4 >#fde4e2</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fbbbb6'>
+        <h3 >100</h3>
+        <h4 >#fbbbb6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f98e86'>
+        <h3 >200</h3>
+        <h4 >#f98e86</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f66056'>
+        <h3 >300</h3>
+        <h4 >#f66056</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f43e31'>
+        <h3 >400</h3>
+        <h4 >#f43e31</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f21c0d'>
+        <h3 >500</h3>
+        <h4 >#f21c0d</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#e81a0c'>
+        <h3 >600</h3>
+        <h4 >#e81a0c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#df170c'>
+        <h3 >700</h3>
+        <h4 >#df170c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d2140b'>
+        <h3 >800</h3>
+        <h4 >#d2140b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#bf0f09'>
+        <h3 >900</h3>
+        <h4 >#bf0f09</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(4deg, 90%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>orange</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fff5e7'>
+        <h3 >50</h3>
+        <h4 >#fff5e7</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe6c2'>
+        <h3 >100</h3>
+        <h4 >#ffe6c2</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffd599'>
+        <h3 >200</h3>
+        <h4 >#ffd599</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffc470'>
+        <h3 >300</h3>
+        <h4 >#ffc470</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffb752'>
+        <h3 >400</h3>
+        <h4 >#ffb752</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fa3'>
+        <h3 >500</h3>
+        <h4 >#fa3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ff9f31'>
+        <h3 >600</h3>
+        <h4 >#ff9f31</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ff942e'>
+        <h3 >700</h3>
+        <h4 >#ff942e</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ff852b'>
+        <h3 >800</h3>
+        <h4 >#ff852b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ff6e26'>
+        <h3 >900</h3>
+        <h4 >#ff6e26</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(35deg, 100%, 60%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>yellow</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fffbe8'>
+        <h3 >50</h3>
+        <h4 >#fffbe8</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#fff5c5'>
+        <h3 >100</h3>
+        <h4 >#fff5c5</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffef9e'>
+        <h3 >200</h3>
+        <h4 >#ffef9e</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe977'>
+        <h3 >300</h3>
+        <h4 >#ffe977</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffe45a'>
+        <h3 >400</h3>
+        <h4 >#ffe45a</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffdf3d'>
+        <h3 >500</h3>
+        <h4 >#ffdf3d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffd53d'>
+        <h3 >600</h3>
+        <h4 >#ffd53d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffcc3c'>
+        <h3 >700</h3>
+        <h4 >#ffcc3c</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffbf3c'>
+        <h3 >800</h3>
+        <h4 >#ffbf3c</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#ffab3b'>
+        <h3 >900</h3>
+        <h4 >#ffab3b</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(50deg, 100%, 62%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>lime</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#ecf6e3'>
+        <h3 >50</h3>
+        <h4 >#ecf6e3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#d0e8b9'>
+        <h3 >100</h3>
+        <h4 >#d0e8b9</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#b1d98a'>
+        <h3 >200</h3>
+        <h4 >#b1d98a</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#92c95b'>
+        <h3 >300</h3>
+        <h4 >#92c95b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#7abe38'>
+        <h3 >400</h3>
+        <h4 >#7abe38</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#63b215'>
+        <h3 >500</h3>
+        <h4 >#63b215</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#61b212'>
+        <h3 >600</h3>
+        <h4 >#61b212</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5fb10f'>
+        <h3 >700</h3>
+        <h4 >#5fb10f</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5db10b'>
+        <h3 >800</h3>
+        <h4 >#5db10b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#59b005'>
+        <h3 >900</h3>
+        <h4 >#59b005</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(90deg, 79%, 39%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>green</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e4f7e7'>
+        <h3 >50</h3>
+        <h4 >#e4f7e7</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#bceac4'>
+        <h3 >100</h3>
+        <h4 >#bceac4</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#90dd9d'>
+        <h3 >200</h3>
+        <h4 >#90dd9d</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#64cf75'>
+        <h3 >300</h3>
+        <h4 >#64cf75</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#42c458'>
+        <h3 >400</h3>
+        <h4 >#42c458</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#21ba3a'>
+        <h3 >500</h3>
+        <h4 >#21ba3a</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#1daf3a'>
+        <h3 >600</h3>
+        <h4 >#1daf3a</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#1aa43b'>
+        <h3 >700</h3>
+        <h4 >#1aa43b</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#15963c'>
+        <h3 >800</h3>
+        <h4 >#15963c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0e803c'>
+        <h3 >900</h3>
+        <h4 >#0e803c</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(130deg, 70%, 43%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>teal</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e3fcfc'>
+        <h3 >50</h3>
+        <h4 >#e3fcfc</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#baf8f8'>
+        <h3 >100</h3>
+        <h4 >#baf8f8</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#8cf3f3'>
+        <h3 >200</h3>
+        <h4 >#8cf3f3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#5eeeee'>
+        <h3 >300</h3>
+        <h4 >#5eeeee</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#3ceaea'>
+        <h3 >400</h3>
+        <h4 >#3ceaea</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#19e6e6'>
+        <h3 >500</h3>
+        <h4 >#19e6e6</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#16cece'>
+        <h3 >600</h3>
+        <h4 >#16cece</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#14b6b6'>
+        <h3 >700</h3>
+        <h4 >#14b6b6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#119696'>
+        <h3 >800</h3>
+        <h4 >#119696</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0b6565'>
+        <h3 >900</h3>
+        <h4 >#0b6565</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(180deg, 80%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>blue</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#e2f0fd'>
+        <h3 >50</h3>
+        <h4 >#e2f0fd</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#b6d9fb'>
+        <h3 >100</h3>
+        <h4 >#b6d9fb</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#86c0f9'>
+        <h3 >200</h3>
+        <h4 >#86c0f9</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#56a6f6'>
+        <h3 >300</h3>
+        <h4 >#56a6f6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#3193f4'>
+        <h3 >400</h3>
+        <h4 >#3193f4</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0d80f2'>
+        <h3 >500</h3>
+        <h4 >#0d80f2</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0c75d8'>
+        <h3 >600</h3>
+        <h4 >#0c75d8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0c6abe'>
+        <h3 >700</h3>
+        <h4 >#0c6abe</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#0b5c9c'>
+        <h3 >800</h3>
+        <h4 >#0b5c9c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#094668'>
+        <h3 >900</h3>
+        <h4 >#094668</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(210deg, 90%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>indigo</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#ede7f9'>
+        <h3 >50</h3>
+        <h4 >#ede7f9</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#d1c2f0'>
+        <h3 >100</h3>
+        <h4 >#d1c2f0</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#b399e6'>
+        <h3 >200</h3>
+        <h4 >#b399e6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#9470db'>
+        <h3 >300</h3>
+        <h4 >#9470db</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#7d52d4'>
+        <h3 >400</h3>
+        <h4 >#7d52d4</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#63c'>
+        <h3 >500</h3>
+        <h4 >#63c</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#5b2fb6'>
+        <h3 >600</h3>
+        <h4 >#5b2fb6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#502b9f'>
+        <h3 >700</h3>
+        <h4 >#502b9f</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#422581'>
+        <h3 >800</h3>
+        <h4 >#422581</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#2c1d54'>
+        <h3 >900</h3>
+        <h4 >#2c1d54</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(260deg, 60%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>purple</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#f4e3fc'>
+        <h3 >50</h3>
+        <h4 >#f4e3fc</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#e3baf8'>
+        <h3 >100</h3>
+        <h4 >#e3baf8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d18cf3'>
+        <h3 >200</h3>
+        <h4 >#d18cf3</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#be5eee'>
+        <h3 >300</h3>
+        <h4 >#be5eee</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#b03cea'>
+        <h3 >400</h3>
+        <h4 >#b03cea</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#a219e6'>
+        <h3 >500</h3>
+        <h4 >#a219e6</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#9118cd'>
+        <h3 >600</h3>
+        <h4 >#9118cd</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#8116b3'>
+        <h3 >700</h3>
+        <h4 >#8116b3</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#6b1492'>
+        <h3 >800</h3>
+        <h4 >#6b1492</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#49115f'>
+        <h3 >900</h3>
+        <h4 >#49115f</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(280deg, 80%, 50%))</p>
+</div>
+<div class=\\"color-ramp\\">
+    <h3>magenta</h3>
+    <div class=\\"checkerboard-bg\\">
+    <div class=\\"color-ramp__item light\\" style='background-color:#fde9f3'>
+        <h3 >50</h3>
+        <h4 >#fde9f3</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#f9c8e0'>
+        <h3 >100</h3>
+        <h4 >#f9c8e0</h4>
+    </div>
+    <div class=\\"color-ramp__item light\\" style='background-color:#f5a3cc'>
+        <h3 >200</h3>
+        <h4 >#f5a3cc</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#f17eb8'>
+        <h3 >300</h3>
+        <h4 >#f17eb8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ee63a8'>
+        <h3 >400</h3>
+        <h4 >#ee63a8</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#eb4799'>
+        <h3 >500</h3>
+        <h4 >#eb4799</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#d83f88'>
+        <h3 >600</h3>
+        <h4 >#d83f88</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#c53777'>
+        <h3 >700</h3>
+        <h4 >#c53777</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#ac2d60'>
+        <h3 >800</h3>
+        <h4 >#ac2d60</h4>
+    </div>
+    <div class=\\"color-ramp__item \\" style='background-color:#861d3d'>
+        <h3 >900</h3>
+        <h4 >#861d3d</h4>
+    </div>
+    </div>
+    <p class=\\"value-source\\">scale(hsl(330deg, 80%, 60%))</p>
+</div>
+</div>
+
+<div class='color-chips'>  
+    <div class=\\"color-chip\\">
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch light' style='background-color:#fa3'>
+        <h3 >semantic.warning</h3>
+        <h4 >#fa3</h4>
+        </div>
+    </div>
+    <p class='value-source'>{orange-500}</p>
+    <p class='color-chip__comment'>Use for problems that do not prevent the task to complete</p>
+    </div>
+</div>
+
+  </section>
 
 
 
@@ -1015,31 +2318,127 @@ Object {
     [ERR] InvalidUnaryOperand
 
 ✘   Syntax error in \\"unterminated-group: '(1+5'\\"
-    [ERR] ExpectedCloseParen",
+    [ERR] ExpectedCloseParen
+
+✘   Syntax error in \\"expect-color.dark: 'contrast(12px)'\\"
+    [ERR] ExpectedArgument
+
+✘   Syntax error in \\"expect-color.light: 'contrast(12px)'\\"
+    [ERR] ExpectedArgument
+
+✘   Syntax error in \\"unknown-unit.dark: '12km'\\"
+    [ERR] UnknownUnit
+
+✘   Syntax error in \\"unknown-unit.light: '12km'\\"
+    [ERR] UnknownUnit
+
+✘   Syntax error in \\"missing-argument.dark: 'min(12)'\\"
+    [ERR] MissingArgument
+
+✘   Syntax error in \\"missing-argument.light: 'min(12)'\\"
+    [ERR] MissingArgument
+
+✘   Syntax error in \\"too-many-arguments.dark: 'min(3, 4, 5)'\\"
+    [ERR] TooManyArguments
+
+✘   Syntax error in \\"too-many-arguments.light: 'min(3, 4, 5)'\\"
+    [ERR] TooManyArguments
+
+✘   Syntax error in \\"unexpected-open-bracket.dark: '12px[0]'\\"
+    [ERR] UnexpectedOpenBracket
+
+✘   Syntax error in \\"unexpected-open-bracket.light: '12px[0]'\\"
+    [ERR] UnexpectedOpenBracket
+
+✘   Syntax error in \\"unclosed-array-index.dark: '{array}[0'\\"
+    [ERR] ExpectedCloseBracket
+
+✘   Syntax error in \\"unclosed-array-index.light: '{array}[0'\\"
+    [ERR] ExpectedCloseBracket
+
+✘   Syntax error in \\"unclosed-array-literal.dark: '[3, 5, 7'\\"
+    [ERR] ExpectedCloseBracket
+
+✘   Syntax error in \\"unclosed-array-literal.light: '[3, 5, 7'\\"
+    [ERR] ExpectedCloseBracket
+
+✘   Syntax error in \\"array-syntax-error.dark: '[3;5]'\\"
+    [ERR] SyntaxError
+
+✘   Syntax error in \\"array-syntax-error.light: '[3;5]'\\"
+    [ERR] SyntaxError
+
+✘   Syntax error in \\"string-index.dark: '{array}[\\"0\\"]'\\"
+    [ERR] ExpectedIntegerIndex
+
+✘   Syntax error in \\"string-index.light: '{array}[\\"0\\"]'\\"
+    [ERR] ExpectedIntegerIndex
+
+✘   Syntax error in \\"unclosed-string.dark: '\\"hello'\\"
+    [ERR] ExpectedQuote
+
+✘   Syntax error in \\"unclosed-string.light: '\\"hello'\\"
+    [ERR] ExpectedQuote
+
+✘   Syntax error in \\"unknown-function.dark: 'foo(12)'\\"
+    [ERR] UnknownFunction
+
+✘   Syntax error in \\"unknown-function.light: 'foo(12)'\\"
+    [ERR] UnknownFunction
+
+✘   Syntax error in \\"arg-list-syntax-error.dark: 'min(12;14)'\\"
+    [ERR] SyntaxError
+
+✘   Syntax error in \\"arg-list-syntax-error.light: 'min(12;14)'\\"
+    [ERR] SyntaxError
+
+✘   Syntax error in \\"expected-operand-term.dark: '12+'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"expected-operand-term.light: '12+'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"expected-operand-prod.dark: '12*'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"expected-operand-prod.light: '12*'\\"
+    [ERR] ExpectedOperand
+
+✘   Syntax error in \\"invalid-operand-prod.dark: '(#fff/2)+15px'\\"
+    [ERR] InvalidOperand
+
+✘   Syntax error in \\"invalid-operand-prod.light: '(#fff/2)+15px'\\"
+    [ERR] InvalidOperand
+
+✘   Syntax error in \\"invalid-unary-operand.dark: '-#fff'\\"
+    [ERR] InvalidUnaryOperand
+
+✘   Syntax error in \\"invalid-unary-operand.light: '-#fff'\\"
+    [ERR] InvalidUnaryOperand
+
+✘   Syntax error in \\"unterminated-group.dark: '(1+5'\\"
+    [ERR] ExpectedCloseParen
+
+✘   Syntax error in \\"unterminated-group.light: '(1+5'\\"
+    [ERR] ExpectedCloseParen
+
+✘   [ERR] InconsistentTokenType",
+}
+`;
+
+exports[`propagate theme values 1`] = `
+Object {
   "tokens.yaml": "
-tokens:
-	array: \\"[3, 5, 7, 13]\\"
-	circular-token: \\"{circular-token}\\"
-	expect-color: \\"contrast(12px)\\"
-	unknown-unit: \\"12km\\"
-	missing-argument: \\"min(12)\\"
-	unexpected-argument: \\"#ff0\\"
-	too-many-arguments: \\"min(3, 4, 5)\\"
-	unexpected-open-bracket: \\"12px[0]\\"
-	unclosed-array-index: \\"[3, 5, 7, 13][0\\"
-	unclosed-array-literal: \\"[3, 5, 7\\"
-	array-syntax-error: \\"[3;5]\\"
-	string-index: \\"[3, 5, 7, 13][\\\\\\"0\\\\\\"]\\"
-	unclosed-string: \\"\\\\\\"hello\\"
-	unknown-function: \\"foo(12)\\"
-	arg-list-syntax-error: \\"min(12;14)\\"
-	expected-operand-term: \\"12+\\"
-	expected-operand-prod: \\"12*\\"
-	invalid-operand-prod: \\"(#fff/2)+15px\\"
-	invalid-unary-operand: \\"-#fff\\"
-	invalid-operand-term: \\"10%hello\\"
-	unterminated-group: \\"(1+5\\"
-	inconsistent-token-dark: \\"#ff0\\"
-	inconsistent-token-light: \\"2px\\"",
+
+
+single: \\"#00f\\"
+base: \\"#f00\\"
+base.green: \\"#0f0\\"
+first-level: \\"#f00\\"
+first-level.green: \\"#0f0\\"
+second-level: \\"#e60000\\"
+second-level.green: \\"#00e600\\"
+first-level-single: \\"#00f\\"
+",
 }
 `;

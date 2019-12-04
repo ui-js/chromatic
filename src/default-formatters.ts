@@ -1,22 +1,6 @@
-export const DefaultFormatters = {
-    valueFormatters: {
-        //         'color/hex': (value: Value, type: string): string =>
-        //             type === 'color' ? value.hex() : value,
-        //         'color/hsl': (value: Value, type: string): string =>
-        //             type !== 'color' ? value : Color(value).hsl(),
-        //         'color/plist': (value: Value, type: string): string => {
-        //             if (type !== 'color') return value;
-        //             const color = value.object();
-        //             return `
-        // <dict>
-        //     <key>r</key><real>${color.r / 255}</real>
-        //     <key>g</key><real>${color.g / 255}</real>
-        //     <key>b</key><real>${color.b / 255}</real>
-        // </dict>
-        // `;
-        //         },
-    },
+import { Value } from './value-parser';
 
+export const DefaultFormatters = {
     nameFormatters: {
         camelcase: (name: string, theme: string): string =>
             (name + !theme ? '' : '.' + theme)
@@ -37,5 +21,81 @@ export const DefaultFormatters = {
             (name + !theme ? '' : '.' + theme).toUpperCase(),
         lowercase: (name: string, theme: string): string =>
             (name + !theme ? '' : '.' + theme).toLowerCase(),
+    },
+    handlebarsHelpers: {
+        uppercase: (s: string): string => s.toUpperCase(),
+
+        /**
+         * Replace any invalid characters with a '-'
+         * "{{sanitizeCssPropertyName "foo.bar"}} -> "foo-bar"
+         */
+
+        sanitizeCssPropertyName: (s: string): string =>
+            s.replace(/[^a-zA-Z0-9_-]/g, '-'),
+
+        /**
+         * Return a CSS formatted representation of the value
+         */
+
+        cssValue: (v: Value): string => v?.css() ?? '[MISSING VALUE]',
+
+        /**
+         * In a list (\n separated lines), remove the trailing ","
+         * on the last line that has one.
+         * This is useful for JSON lists for example.
+         */
+
+        'remove-last-comma': function(context): string {
+            const lines = context.fn(this).split('\n');
+            const lastCommaLine = lines.reduce(
+                (acc, v, idx) => (/,$/.test(v) ? idx : acc),
+                -1
+            );
+            return lines
+                .map((line, idx) =>
+                    idx !== lastCommaLine ? line : line.slice(0, -1)
+                )
+                .join('\n');
+        },
+
+        /** Usage:
+         * {{comment property}} -> "/* value of property * /"
+         * {{comment property "# "}} -> "# value of property"
+         * {{comment property "    # "}}} -> "    # value of property"
+         * {{comment property "//}} -> "// value of property"
+         */
+
+        comment: function(s: string, format = '/* */'): string {
+            if (typeof s !== 'string') {
+                return this.comment;
+            }
+            if (!s) return '';
+            // If there's only one argument passed to the helper
+            // (i.e. {{comment foo}}) the second argument passed in is a context
+            // object
+            if (typeof format !== 'string') format = '/* */';
+            const prefix = format.match(/(\s*)/)?.[1] ?? '';
+            const suffix = format.slice(prefix.length);
+            let [open, close] = suffix.split(' ');
+            if (open === '/*' && close === '*/') {
+                return (
+                    prefix +
+                    '/* ' +
+                    s.split('\n').join('\n' + prefix + ' * ') +
+                    '\n' +
+                    prefix +
+                    ' */'
+                );
+            }
+            if (!close) {
+                open = format.slice(prefix.length);
+                close = '';
+            }
+            return (
+                prefix +
+                open +
+                s.split('\n').join((close ?? '') + '\n' + prefix + open)
+            );
+        },
     },
 };

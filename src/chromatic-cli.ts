@@ -200,7 +200,9 @@ require('yargs')
     .command(
         'help',
         'Show help',
-        () => {},
+        () => {
+            return;
+        },
         yargs => yargs.help()
     )
 

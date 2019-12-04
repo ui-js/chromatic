@@ -65,8 +65,9 @@ export default [
             }),
         ],
         watch: {
-            clearScreen: false,
-            exclude: ['node_modules/**'],
+            clearScreen: true,
+            exclude: 'node_modules/**',
+            include: ['src/**', 'examples/**'],
         },
     },
     {

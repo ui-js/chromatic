@@ -1,8 +1,5 @@
-// @todo handle comments, remarks for non-token scopes (e.g. groups, categories, file). Have a 'categories' key with data for the categories.
-// @todo: group by categories (groupByCategory)
 // @todo: breakpoints (using a 'breakpoint:' instead of 'value:' property)
 // and media queries
-// @todo: array as a value (for scales) and array references in aliases ({font-scale[2]})
 // @todo: compatibility with theo design tokens, support {!} style alias
 
 const { cosmiconfigSync } = require('cosmiconfig');
@@ -13,25 +10,24 @@ const path = require('path');
 const yaml = require('yaml');
 const json5 = require('json5');
 const resolveFrom = require('resolve-from');
+const handlebars = require('handlebars');
 
-import { throwError, ErrorCode } from './errors';
+import { throwErrorIf, ErrorCode } from './errors';
 import { getSuggestion } from './utils';
 import { DefaultFormatters } from './default-formatters';
 import {
     Format,
-    NameFormatter,
     TokenDefinition,
-    ValueFormatter,
+    TokenGroupInfo,
     DEFAULT_FILE_HEADER,
-    RenderPropertyContext,
-    RenderGroupContext,
-    RenderFileContext,
+    RenderContext,
 } from './formats';
 import {
     parseValue,
     ValueParserOptions,
     Value,
     StringValue,
+    isString,
 } from './value-parser';
 
 import { GenericFormats } from './formats-generic';
@@ -46,11 +42,15 @@ import { terminal } from './terminal';
 
 type TokenGroup = { [token: string]: TokenDefinition | TokenGroup };
 
-type TokenFile = {
+interface TokenFile {
     theme?: string;
     import: string | string[];
+    groups?: { [group: string]: TokenGroupInfo };
     tokens: TokenGroup;
-};
+}
+
+/** The configuration settings that can be defined in a configuration file
+ */
 
 interface Config extends ValueParserOptions {
     tokenFileExt?: string;
@@ -72,8 +72,7 @@ interface Config extends ValueParserOptions {
 
     /** A list of custom output formats */
     formats?: { [key: string]: Format };
-    valueFormatters?: { [key: string]: ValueFormatter };
-    nameFormatters?: NameFormatter[];
+    handlebarsHelpers?: { [helper: string]: (...args: string[]) => string };
 
     /** An object to output error and log messages to (defaults to the system
      * console) */
@@ -83,6 +82,9 @@ interface Config extends ValueParserOptions {
     };
 }
 
+/** The set of options that can be passed to the chromatic() function
+ * or to the CLI tool
+ */
 interface Options {
     /** If true, only do validation of token files and formats */
     dryRun: boolean;
@@ -105,11 +107,8 @@ interface Options {
     /** Output file or directory */
     output: string;
 
-    /** A map of name formatter functions */
-    nameFormatters: { [key: string]: NameFormatter };
-
-    /** A map of value formatter functions */
-    valueFormatters: { [key: string]: ValueFormatter };
+    /** A map of custom helper function for handlebar templates */
+    handlebarsHelpers: { [helper: string]: (...args: string[]) => string };
 
     /** If true, the process is in 'watch' mode */
     watching: boolean;
@@ -119,9 +118,6 @@ interface Options {
 
     /** Header to include at the top of each generated file */
     header: string;
-
-    /** Group the items in a file by their category property */
-    groupByCategory?: boolean;
 
     /**  Split themes in multiple files. */
     splitOutput?: boolean;
@@ -148,16 +144,27 @@ let gWatching = false;
 /** True if an attempt to continue should be made after encountering an error */
 let gIgnoreErrors = false;
 
-/** The themes encountered while parsing */
+/** The themes and groups encountered while parsing */
 let gThemes: string[];
 
+/** The groups encountered while parsing (and their associated metadata) */
+let gGroups: Map<string, TokenGroupInfo>;
+
+/** The key is a token path ('semantic.warning') and the value is
+ * the definition of the tokens, including its values (as Value objects)
+ * for each theme it has a definition for (including the default theme, '_')
+ */
 let gTokenDefinitions: Map<string, TokenDefinition>;
 
-/** For a given qualified token, the evaluated value */
+/** For a given qualified token (e.g. 'semantic.warning.dark'), its value */
 let gTokenValues: Map<string, Value>;
 
 /**  The qualified token names that are in the process of being evaluated. Used to detect recursive definitions. */
 let gRecursiveEvaluationStack: string[];
+
+/** Tokens that have failed to evaluate. */
+/* We keep track of them to avoid repetitive error messages */
+let gErroredTokens: string[];
 
 /* Paths of the processed files (used to detect and prevent circular references) */
 let gProcessedFiles: string[];
@@ -247,78 +254,117 @@ function normalizeToken(
  */
 function evaluateTokenExpression(
     qualifiedToken: string,
-    expression: string
+    expression: string,
+    theme: string
 ): Value {
     if (!expression) return undefined;
-    if (gRecursiveEvaluationStack.includes(qualifiedToken)) {
-        throwError(ErrorCode.CircularDefinition, qualifiedToken);
+    if (gErroredTokens.includes(qualifiedToken)) return undefined;
+
+    try {
+        throwErrorIf(
+            gRecursiveEvaluationStack.includes(qualifiedToken),
+            ErrorCode.CircularDefinition,
+            qualifiedToken
+        );
+
+        gRecursiveEvaluationStack.push(qualifiedToken);
+
+        const result = parseValue(expression, {
+            ...gConfig,
+            aliasResolver: (identifier): Value | string => {
+                // If we have already evaluated this token, return its value
+                let aliasValue: Value;
+                if (theme) {
+                    if (gTokenValues.has(identifier + '.' + theme))
+                        return gTokenValues.get(identifier + '.' + theme);
+                    if (gTokenDefinitions.has(identifier)) {
+                        // There is a token definition with that name
+                        // Let's try for a value for the current theme
+                        aliasValue = evaluateTokenExpression(
+                            identifier + '.' + theme,
+                            gTokenDefinitions.get(identifier)?.value[theme] ??
+                                gTokenDefinitions.get(qualifiedToken)?.value[
+                                    '_'
+                                ],
+                            theme
+                        );
+                    }
+                    if (aliasValue) return aliasValue;
+                }
+                if (gTokenValues.has(identifier))
+                    return gTokenValues.get(identifier);
+
+                // The token 'identifier' has not been evaluated yet.
+                // Let's try to evaluate it now.
+                if (gTokenDefinitions.has(identifier)) {
+                    // There is a token definition with that name
+                    // Let's try for a value for the current theme
+                    if (theme) {
+                        aliasValue = evaluateTokenExpression(
+                            identifier + '.' + theme,
+                            gTokenDefinitions.get(identifier)?.value[theme],
+                            theme
+                        );
+                    }
+                    // If that didn't work, try a default value
+                    if (!aliasValue) {
+                        aliasValue = evaluateTokenExpression(
+                            identifier,
+                            gTokenDefinitions.get(qualifiedToken)?.value['_'],
+                            theme
+                        );
+                    }
+                }
+                return (
+                    aliasValue ?? getSuggestion(identifier, gTokenDefinitions)
+                );
+            },
+        });
+        gRecursiveEvaluationStack.pop();
+
+        return result;
+    } catch (err) {
+        if (!gErroredTokens.includes(qualifiedToken)) {
+            gErroredTokens.push(qualifiedToken);
+            error([
+                terminal.error('Syntax error') +
+                    ` in "${qualifiedToken + ": '" + expression}\'"`,
+                err.message,
+            ]);
+        }
     }
-
-    gRecursiveEvaluationStack.push(qualifiedToken);
-
-    const result = parseValue(expression, {
-        ...gConfig,
-        aliasResolver: (identifier): Value | string => {
-            // If we have already evaluated this token, return its value
-            if (gTokenValues.has(identifier))
-                return gTokenValues.get(identifier);
-
-            // The token 'identifier' has not been evaluated yet.
-            // Let's try to evaluate it now.
-            let aliasValue: Value;
-            if (gTokenDefinitions.has(identifier)) {
-                // There is a token definition with that name
-                // Let's try for a value for the current theme
-                if (gConfig.defaultTheme) {
-                    aliasValue = evaluateTokenExpression(
-                        identifier + '.' + gConfig.defaultTheme,
-                        gTokenDefinitions.get(identifier)?.value[
-                            gConfig.defaultTheme
-                        ]
-                    );
-                }
-                // If that didn't work, try a default value
-                if (!aliasValue) {
-                    aliasValue = evaluateTokenExpression(
-                        identifier,
-                        gTokenDefinitions.get(qualifiedToken)?.value['_']
-                    );
-                }
-            }
-            return aliasValue ?? getSuggestion(identifier, gTokenDefinitions);
-        },
-    });
-    gRecursiveEvaluationStack.pop();
-
-    return result;
+    return undefined;
 }
 
 /**
  * Process an object literal that contains a group of tokens
  *
  * @param tokenFile - A parsed token file
- * @param tokenPath - A dot separated path to this group, if not at root
+ * @param groupPath - A dot separated path to this group, if not at root
  * @param tokens - A key/value map of token names and values
  */
 function processTokenGroup(
     tokenFile: TokenFile,
-    tokenPath: string,
+    groupPath: string,
     tokens: object
 ): void {
-    if (Array.isArray(tokens)) {
-        throwError(
-            ErrorCode.UnexpectedTokensArray,
-            terminal.link('tokens-as-array')
-        );
+    throwErrorIf(
+        Array.isArray(tokens),
+        ErrorCode.UnexpectedTokensArray,
+        terminal.link('tokens-as-array')
+    );
+
+    if (!gGroups.has(groupPath)) {
+        gGroups.set(groupPath, {});
     }
     Object.keys(tokens).forEach(token => {
-        const qualifiedToken = (tokenPath ? tokenPath + '.' : '') + token;
-        if (!/^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(token)) {
-            throwError(ErrorCode.InvalidTokenName, qualifiedToken);
-        }
-        if (!tokens[token]) {
-            throwError(ErrorCode.InvalidTokenValue, token);
-        }
+        const tokenPath = (groupPath ? groupPath + '.' : '') + token;
+        throwErrorIf(
+            !/^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(token),
+            ErrorCode.InvalidTokenName,
+            tokenPath
+        );
+        throwErrorIf(!tokens[token], ErrorCode.InvalidTokenValue, token);
         try {
             const normalizedToken = normalizeToken(
                 tokenFile.theme ?? gConfig.defaultTheme,
@@ -326,36 +372,19 @@ function processTokenGroup(
             );
             if (!normalizedToken) {
                 // If it's not a token, it's a group of tokens
-                processTokenGroup(tokenFile, qualifiedToken, tokens[token]);
+                processTokenGroup(tokenFile, tokenPath, tokens[token]);
             } else {
-                if (!gTokenDefinitions.has(qualifiedToken)) {
-                    gTokenDefinitions.set(qualifiedToken, normalizedToken);
+                if (!gTokenDefinitions.has(tokenPath)) {
+                    gTokenDefinitions.set(tokenPath, normalizedToken);
                 } else {
-                    // There's already a definition for this token.
-                    // Check that the types are consistent.
-                    if (
-                        normalizedToken.type &&
-                        gTokenDefinitions.get(qualifiedToken).type &&
-                        gTokenDefinitions.get(qualifiedToken).type !==
-                            normalizedToken.type
-                    ) {
-                        throwError(
-                            ErrorCode.InconsistentTokenType,
-                            normalizedToken.type,
-                            gTokenDefinitions.get(qualifiedToken).type
-                        );
-                    }
-
                     // Merge the new definition with the previous one
-                    const mergedToken = gTokenDefinitions.get(qualifiedToken);
+                    const mergedToken = gTokenDefinitions.get(tokenPath);
                     mergeObject(mergedToken, normalizedToken);
-                    gTokenDefinitions.set(qualifiedToken, mergedToken);
+                    gTokenDefinitions.set(tokenPath, mergedToken);
                 }
             }
         } catch (err) {
-            throw new Error(
-                `${qualifiedToken}: "${tokens[token]}"\n${err.message}`
-            );
+            throw new Error(`${tokenPath}: "${tokens[token]}"\n${err.message}`);
         }
     });
 }
@@ -378,7 +407,7 @@ function processPath(f: string): void {
     // If the path to process is a directory, process (recursively) all the
     // token files it contains.
     if (fs.lstatSync(f).isDirectory()) {
-        glob.sync(f + '/**/*.' + gConfig.tokenFileExt).forEach(processPath);
+        glob.sync(f + '/**/*' + gConfig.tokenFileExt).forEach(processPath);
         return;
     }
 
@@ -440,41 +469,62 @@ function processPath(f: string): void {
         }
     }
 
-    if (tokenFile && gConfig.verbose) {
-        if (
-            (tokenFile['imports'] ||
-                tokenFile['extends'] ||
-                tokenFile['include'] ||
-                tokenFile['includes']) &&
-            !tokenFile.import
-        ) {
-            log(
-                terminal.warning() +
-                    terminal.path(path.relative('', f)) +
-                    `\n${terminal.warning(
-                        'Warning:'
-                    )} use the \`"import"\` property to import other token files`
-            );
-        }
+    if (
+        tokenFile &&
+        gConfig.verbose &&
+        (tokenFile['imports'] ||
+            tokenFile['extends'] ||
+            tokenFile['include'] ||
+            tokenFile['includes']) &&
+        !tokenFile.import
+    ) {
+        log(
+            terminal.warning() +
+                terminal.path(path.relative('', f)) +
+                `\n${terminal.warning(
+                    'Warning:'
+                )} use the \`"import"\` property to import other token files`
+        );
     }
 
     //
-    // 3. Process any token declaration
+    // 3. Process group declarations
+    //
+    if (tokenFile?.groups) {
+        Object.keys(tokenFile.groups).forEach(group => {
+            if (gGroups.has(group)) {
+                const info = gGroups.get(group);
+                info.name = tokenFile.groups[group].name ?? info.name;
+                info.comment =
+                    (info.comment ? info.comment + '\n' : '') +
+                    tokenFile.groups[group].comment;
+                info.remarks =
+                    (info.remarks ? info.remarks + '\n' : '') +
+                    tokenFile.groups[group].remarks;
+                gGroups.set(group, info);
+            } else {
+                gGroups.set(group, tokenFile.groups[group]);
+            }
+        });
+    }
+
+    //
+    // 4. Process any token declaration
     //
     if (tokenFile?.tokens) {
+        throwErrorIf(
+            typeof tokenFile.tokens !== 'object',
+            ErrorCode.UnexpectedTokensType
+        );
         try {
-            if (typeof tokenFile.tokens !== 'object') {
-                throwError(ErrorCode.UnexpectedTokensType);
-            } else {
-                processTokenGroup(tokenFile, '', tokenFile.tokens);
-            }
+            processTokenGroup(tokenFile, '', tokenFile.tokens);
         } catch (err) {
             errors.push(err.message);
         }
     }
 
     //
-    // 4. Display any accumulated errors
+    // 5. Display any accumulated errors
     //
     if (gConfig.verbose && errors.length === 0) {
         log(
@@ -488,35 +538,13 @@ function processPath(f: string): void {
     if (errors.length > 0) {
         error([
             terminal.error() +
+                '← ' +
                 terminal.path(
                     process.env.TEST ? path.basename(f) : path.relative('', f)
                 ),
             ...errors,
         ]);
     }
-}
-
-function formatTokenValues(
-    tokens: string[],
-    valueFormatter: ValueFormatter
-): Map<string, string> {
-    if (!valueFormatter) return undefined;
-    const result = new Map<string, string>();
-    tokens.forEach(token => {
-        try {
-            result.set(token, valueFormatter(gTokenValues.get(token)));
-        } catch (err) {
-            error([
-                terminal.error(
-                    `Error formatting "${gTokenValues
-                        .get(token)
-                        .css()}" for the "${token}" token`
-                ),
-                err.message,
-            ]);
-        }
-    });
-    return result;
 }
 
 function areThemesValid(): boolean {
@@ -550,10 +578,10 @@ function areThemesValid(): boolean {
     return true;
 }
 
-function setFormat(formatName: string): Format {
+function getFormat(formatName: string): Format {
     const result: Format = {
         fileHeader: DEFAULT_FILE_HEADER,
-        renderFilename: function({
+        formatFilename: function({
             theme,
             basename,
         }: {
@@ -562,90 +590,67 @@ function setFormat(formatName: string): Format {
         }): string {
             return basename + (!theme ? '' : '-' + theme);
         },
-        renderGroup: (context: RenderGroupContext): string =>
-            context.properties.join('\n'),
-        renderFile: (context: RenderFileContext): string => context.content,
+        handlebarsHelpers: { ...gConfig.handlebarsHelpers },
+        render: (_context: RenderContext): string =>
+            'Expected a render() function in the Format definition.',
     };
 
-    if (!gConfig.formats[formatName]) {
-        throwError(
-            ErrorCode.UnknownFormat,
-            formatName,
-            getSuggestion(formatName, gConfig.formats)
-        );
-    }
+    //
+    // 1. Check that the format exists
+    //
+    throwErrorIf(
+        !gConfig.formats[formatName],
+        ErrorCode.UnknownFormat,
+        formatName,
+        getSuggestion(formatName, gConfig.formats)
+    );
 
-    // If this format extends another...
+    //
+    // 2. If this format extends another format,
+    //    merge the base format
+    //
     const baseFormat = gConfig.formats[formatName].extends;
-    if (typeof baseFormat === 'string') {
-        if (gConfig.formats[baseFormat]) {
-            mergeObject(result, gConfig.formats[baseFormat]);
-            mergeObject(result, gConfig.formats[formatName]);
-        } else {
-            throwError(
-                ErrorCode.UnknownFormat,
-                formatName,
-                getSuggestion(formatName, gConfig.formats)
-            );
-        }
-    } else {
-        mergeObject(result, gConfig.formats[formatName]);
+    if (baseFormat) {
+        throwErrorIf(
+            !gConfig.formats[baseFormat],
+            ErrorCode.UnknownFormat,
+            baseFormat,
+            getSuggestion(baseFormat, gConfig.formats)
+        );
+
+        mergeObject(result, gConfig.formats[baseFormat]);
     }
 
-    // Normalize shorthand format for valueFormatters and nameFormatters
-    if (typeof result.valueFormatter === 'string') {
-        if (!gConfig.valueFormatters[result.valueFormatter]) {
-            throwError(
-                ErrorCode.UnknownValueFormatter,
-                result.valueFormatter,
-                getSuggestion(result.valueFormatter, gConfig.valueFormatters)
-            );
-        }
-    } else if (typeof result.valueFormatter !== 'function') {
-        result.valueFormatter = (v): string => v.css();
-    }
+    //
+    // 3. Add the override from this format
+    //
+    mergeObject(result, gConfig.formats[formatName]);
 
-    if (typeof result.nameFormatter === 'string') {
-        if (!gConfig.nameFormatters[result.nameFormatter]) {
-            throwError(
-                ErrorCode.UnknownNameFormatter,
-                result.nameFormatter,
-                getSuggestion(result.nameFormatter, gConfig.nameFormatters)
-            );
-        }
-    } else if (typeof result.nameFormatter !== 'function') {
-        result.nameFormatter = (n, theme): string =>
-            n + (!theme || theme === '_' ? '' : '-' + theme);
-    }
+    //
+    // 4. Register the handlebar helpers
+    //
 
-    // Provide a default property template if none is provided
-    // but issue a warning, as those should really be provided.
-    if (typeof result.renderProperty !== 'function') {
-        if (gConfig.verbose) {
-            log(
-                terminal.warning('Warning: ') +
-                    ` the "${formatName}" format does not have a \`propertyTemplate\` function`
-            );
-        }
-        result.renderProperty = (context: RenderPropertyContext): string =>
-            `${context.propertyName}${
-                context.theme ? '-' + context.theme : ''
-            }: ${context.propertyValue}`;
-    }
+    // A handlebarsHelper can be defined:
+    // - in a config file
+    // - passed in as options to chromatic()
+    // - in a format definition
+
+    Object.keys(result.handlebarsHelpers).forEach(helper => {
+        handlebars.registerHelper(helper, result.handlebarsHelpers[helper]);
+    });
 
     return result;
 }
 
-function renderFile(format: Format, context: RenderFileContext): string {
-    // @todo: filter tokens as necessary
-    /** List of generated properties (used to detect duplicates).
-     * Note those are not *token names* they are formatted property names */
-    const propertyNames: string[] = [];
-
+function renderFile(
+    format: Format,
+    themes: string[],
+    filepath: string
+): string {
     const tokens = [];
     gTokenDefinitions.forEach((def, token) => {
         Object.keys(def.value).forEach(tokenTheme => {
-            if (context.themes.includes(tokenTheme)) {
+            if (themes.includes(tokenTheme)) {
                 tokens.push(
                     tokenTheme === '_' ? token : token + '.' + tokenTheme
                 );
@@ -653,87 +658,84 @@ function renderFile(format: Format, context: RenderFileContext): string {
         });
     });
 
-    // 1. Apply the value formatter
+    //
+    // 1. Aggregate the tokens by group
+    //
+    const tokensByGroup = [];
 
-    const formattedTokenValues = formatTokenValues(
-        tokens,
-        format.valueFormatter
-    );
-
-    // 2. If there are any remaining unresolved aliases (in a string such
-    // as "1px solid {color.border.base}", for example), replace their value.
-
-    formattedTokenValues.forEach((value, token) => {
-        const newValue = value.replace(/{[a-zA-Z0-9_-]+}/g, match => {
-            const alias = match.slice(1, -1);
-            if (formattedTokenValues.has(alias)) {
-                return formattedTokenValues.get(alias);
-            }
-
-            const msg =
-                terminal.error('Unresolved alias. ') +
-                `Cannot find token "${match}"` +
-                getSuggestion(alias, formattedTokenValues);
-            error(msg);
-            return match;
-        });
-
-        if (newValue) formattedTokenValues.set(token, newValue);
-    });
-
-    // 3. Render the properties
-
-    const properties = [];
-    context.themes.forEach(theme => {
-        gTokenDefinitions.forEach((def, token) => {
-            if (typeof def.value[theme] === 'undefined') return;
-
-            // 3.1. Calculate the property name. Check it's not a duplicate
-            const propertyName = format.nameFormatter(token, theme);
-
-            if (propertyNames.includes(propertyName)) {
-                if (propertyName !== token) {
-                    log(
-                        terminal.warning('Warning: ') +
-                            ` the "${token}" token has multiple definitions as "${propertyName}"`
-                    );
-                } else {
-                    log(
-                        terminal.warning('Warning: ') +
-                            ` the "${token}" token has multiple definitions`
-                    );
-                }
-            }
-            propertyNames.push(propertyName);
-
-            // 3.2 Calculate the property (name + value)
-            const qualifiedToken = token + (theme === '_' ? '' : '.' + theme);
-            properties.push(
-                format.renderProperty({
-                    ...context,
-                    theme: theme,
-                    category: '',
-                    properties: properties,
-                    values: formattedTokenValues,
-
-                    token: qualifiedToken,
-                    definition: def,
-                    propertyName: propertyName,
-                    propertyValue: formattedTokenValues.get(qualifiedToken),
-                })
-            );
+    gGroups.forEach((info, group) => {
+        const groupTokens = [...gTokenDefinitions].filter(([token, _def]) =>
+            group ? token.startsWith(group + '.') : !/\./.test(token)
+        );
+        tokensByGroup.push({
+            groupId: group,
+            groupInfo: info,
+            tokens: groupTokens.map(([tokenId, tokenDefinition]) => {
+                return {
+                    tokenId,
+                    tokenDefinition,
+                    themes: themes
+                        .map(theme => {
+                            const qualifiedToken =
+                                tokenId + (theme === '_' ? '' : '.' + theme);
+                            return {
+                                theme: theme,
+                                tokenName: qualifiedToken,
+                                tokenValue: gTokenValues.get(qualifiedToken),
+                            };
+                        })
+                        .filter(x => x.tokenValue),
+                };
+            }),
         });
     });
 
-    // 4. Render the file
-    return format.renderFile({
-        ...context,
-        content: format.renderGroup({
-            ...context,
-            category: '',
-            properties: properties,
-            values: formattedTokenValues,
+    //
+    // 2. Aggregate the tokens by theme
+    //
+    const tokensByTheme = {};
+    gTokenDefinitions.forEach((def, tokenId) => {
+        if (Object.keys(def.value).length > 1) {
+            Object.keys(def.value).forEach(theme => {
+                if (!tokensByTheme[theme]) tokensByTheme[theme] = [];
+                const qualifiedToken =
+                    tokenId + (theme === '_' ? '' : '.' + theme);
+                tokensByTheme[theme].push({
+                    tokenId: tokenId,
+                    tokenName: qualifiedToken,
+                    tokenDefinition: def,
+                    tokenValue: gTokenValues.get(qualifiedToken),
+                });
+            });
+        } else {
+            const theme = Object.keys(def.value)[0];
+            const qualifiedToken = tokenId + (theme === '_' ? '' : '.' + theme);
+            if (!tokensByTheme['']) tokensByTheme[''] = [];
+            tokensByTheme[''].push({
+                tokenId: tokenId,
+                tokenName: qualifiedToken,
+                tokenDefinition: def,
+                tokenValue: gTokenValues.get(qualifiedToken),
+            });
+        }
+    });
+
+    //
+    // 3. Render the file
+    //
+    return format.render({
+        filepath,
+        fileHeader: format.fileHeader,
+        themes: Object.keys(tokensByTheme).map(theme => {
+            return {
+                theme,
+                isDefaultTheme: theme === '_',
+                tokens: tokensByTheme[theme],
+            };
         }),
+        groups: tokensByGroup,
+        renderTemplate: (template: string, context: RenderContext): string =>
+            handlebars.compile(template.replace(/\r\n/g, '\n'))(context),
     });
 }
 
@@ -742,6 +744,7 @@ function render(
     format: Format
 ): { [filename: string]: string } {
     const result = {};
+    let outputPath = '';
 
     // Check that there are tokens in each of the themes
     if (!areThemesValid()) return;
@@ -750,42 +753,30 @@ function render(
         name: 'tokens',
     };
 
-    const context: RenderFileContext = {
-        filepath: '',
-        themes: [],
-        header: format.fileHeader,
-        definitions: gTokenDefinitions,
-        rawValues: gTokenValues,
-        content: '',
-    };
-
     if (gConfig.splitOutput) {
         // Output one file per theme
         gThemes.forEach(theme => {
-            context.filepath = path.format({
+            outputPath = path.format({
                 dir: pathRecord.dir,
-                name: format.renderFilename({
+                name: format.formatFilename({
                     theme: theme,
                     basename: pathRecord.name,
                 }),
                 ext: format.ext,
             });
-
-            context.themes = [theme];
-            result[context.filepath] = renderFile(format, context);
+            result[outputPath] = renderFile(format, [theme], outputPath);
         });
     } else {
         // Output a single file for all themes
-        context.filepath = path.format({
+        outputPath = path.format({
             dir: pathRecord.dir,
-            name: format.renderFilename({
+            name: format.formatFilename({
                 theme: '',
                 basename: pathRecord.name,
             }),
             ext: format.ext,
         });
-        context.themes = gThemes;
-        result[context.filepath] = renderFile(format, context);
+        result[outputPath] = renderFile(format, gThemes, outputPath);
     }
 
     return result;
@@ -826,9 +817,11 @@ function build(
 
     gThemes = [];
     gTokenDefinitions = new Map();
+    gGroups = new Map();
     gTokenValues = new Map();
     gRecursiveEvaluationStack = [];
     gProcessedFiles = [];
+    gErroredTokens = [];
 
     paths.forEach((x: string): void => {
         const files = glob.sync(x);
@@ -842,54 +835,129 @@ function build(
     //
     // 2. Evaluate the tokens
     //
+
+    // 2.1 First pass
     // Evaluate the token value expressions, including aliases,
     // except in strings. Store the result in gTokenValues.
-
-    gTokenDefinitions.forEach((def, token) => {
-        Object.keys(def.value).forEach(theme => {
-            const qualifiedToken = token + (theme === '_' ? '' : '.' + theme);
-            let value;
-            try {
-                value = evaluateTokenExpression(
-                    qualifiedToken,
-                    def.value[theme]
-                );
-                if (!value) {
-                    value = new StringValue(def.value[theme]);
-                    // throw new Error(
-                    //     'Could not evaluate expression "' + def.value[theme] + '"'
-                    // );
-                }
-            } catch (err) {
-                error([
-                    terminal.error('Syntax error') +
-                        ` in "${token + ": '" + def.value[theme]}\'"`,
-                    err.message,
-                ]);
-                value = new StringValue(def.value[theme]);
-            }
-            gTokenValues.set(qualifiedToken, value);
-
-            const actualType = value.type();
-
-            if (def.type && actualType != def.type) {
-                log(
-                    terminal.warning('Warning:') +
-                        ` Type mismatch. Expected \`${def.type}\` but got \`${actualType}\` for "${qualifiedToken}" token`
-                );
-            }
-
-            // @todo: cross-check category
-        });
-    });
-
-    //
-    // 3. Format and output
-    //
     try {
+        gTokenDefinitions.forEach((def, token) => {
+            Object.keys(def.value).forEach(theme => {
+                const qualifiedToken =
+                    token + (theme === '_' ? '' : '.' + theme);
+                const value =
+                    evaluateTokenExpression(
+                        qualifiedToken,
+                        def.value[theme],
+                        gConfig.defaultTheme
+                    ) ?? new StringValue(def.value[theme]);
+
+                gTokenValues.set(qualifiedToken, value);
+
+                if (def.type && value.type() != def.type) {
+                    log(
+                        terminal.warning('Warning:') +
+                            ` Type mismatch. Expected \`${
+                                def.type
+                            }\` but got \`${value.type()}\` for "${qualifiedToken}" token`
+                    );
+                }
+
+                // @todo: cross-check category
+            });
+        });
+
+        // 2.2
+        // For any string that may still contain an alias, replace the
+        // alias reference with its value
+        gTokenValues.forEach((value, _token) => {
+            if (isString(value)) {
+                value.value = value.value.replace(
+                    /{[a-zA-Z0-9\._-]+}/g,
+                    match => {
+                        const alias = match.slice(1, -1);
+                        if (gTokenValues.has(alias)) {
+                            return gTokenValues.get(alias).css();
+                        }
+
+                        error(
+                            terminal.error('Unresolved alias. ') +
+                                `Cannot find token "${match}"` +
+                                getSuggestion(alias, gTokenValues)
+                        );
+                        return match;
+                    }
+                );
+            }
+        });
+
+        // 2.3 Calculate missing values for each theme
+        gTokenDefinitions.forEach((def, token) => {
+            gThemes.forEach(theme => {
+                if (theme !== '_' && typeof def.value[theme] === 'undefined') {
+                    const qualifiedToken = token + '.' + theme;
+                    const value =
+                        evaluateTokenExpression(
+                            qualifiedToken,
+                            def.value['_'],
+                            theme
+                        ) ?? new StringValue(def.value['_']);
+                    gTokenValues.set(qualifiedToken, value);
+                }
+            });
+        });
+
+        // 2.4 Eliminate any themed values that are the same as base
+        // Steps 2.3 and 2.4 are necessary to handle this case:
+        /* ``` 
+    hue:
+        value:
+            _: "0deg"
+            dark: "10deg"
+    primary: "hsl({hue}, 50%, 50%)"
+*/
+        // Since the expression to calculate value depends on a token that does
+        // have a theme variant, primary also needs to have a theme variant
+        gTokenDefinitions.forEach((_def, token) => {
+            gThemes.forEach(theme => {
+                if (theme !== '_') {
+                    const qualifiedToken = token + '.' + theme;
+                    if (
+                        gTokenValues
+                            .get(token)
+                            ?.equals(gTokenValues.get(qualifiedToken))
+                    ) {
+                        gTokenValues.delete(qualifiedToken);
+                    }
+                }
+            });
+        });
+
+        // 2.5 Validate that all the types for a given definition are consistent
+        gTokenDefinitions.forEach((def, token) => {
+            const types = Object.keys(def.value).reduce(
+                (acc: string[], x: string): string[] => {
+                    const qualifiedToken = x === '_' ? token : token + '.' + x;
+                    if (!acc.includes(gTokenValues.get(qualifiedToken)?.type()))
+                        acc.push(gTokenValues.get(qualifiedToken)?.type());
+                    return acc;
+                },
+                []
+            );
+            // If there's more than one type for the values of this definition,
+            // throw
+            throwErrorIf(
+                types.length > 1,
+                ErrorCode.InconsistentTokenType,
+                token
+            );
+        });
+
+        //
+        // 3. Format and output
+        //
         // 3.1 Determine the output format
 
-        const format = setFormat(gConfig.outputFormat);
+        const format = getFormat(gConfig.outputFormat);
 
         // Override format settings from options
         format.fileHeader = options.header ?? format.fileHeader;
@@ -1024,7 +1092,9 @@ export function chromatic(
         const fileExt = options?.output && path.extname(options?.output);
         if (fileExt) {
             const matchingExtensions = Object.keys(gConfig.formats).filter(
-                x => gConfig.formats[x].ext === fileExt
+                x =>
+                    gConfig.formats[x].ext === fileExt ||
+                    gConfig.formats[gConfig.formats[x]?.extends]?.ext
             );
             if (matchingExtensions.length === 1) {
                 gConfig.outputFormat = matchingExtensions[0];
@@ -1065,9 +1135,8 @@ export function chromatic(
         }
     }
 
-    // Merge (registers) any custom formatters
-    mergeObject(gConfig.nameFormatters, options?.nameFormatters);
-    mergeObject(gConfig.valueFormatters, options?.valueFormatters);
+    // Merge any custom handlebars helpers
+    mergeObject(gConfig.handlebarsHelpers, options?.handlebarsHelpers);
 
     const result = build(paths, options);
     if (messages.length > 0) {

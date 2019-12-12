@@ -51,6 +51,12 @@ export class Value {
     setSource(source: string): void {
         this.source = source;
     }
+    equals(v: Value): boolean {
+        return (
+            this.type() === v.type() &&
+            this.canonicalScalar() == v.canonicalScalar()
+        );
+    }
 }
 
 // Forward declaration of the Color class
@@ -111,7 +117,7 @@ export function makeValueFrom(from: {
     return undefined;
 }
 
-function roundTo(num: number, precision: number): number {
+export function roundTo(num: number, precision: number): number {
     return (
         Math.round(num * Math.pow(10, precision) + 1e-14) /
         Math.pow(10, precision)
@@ -132,6 +138,17 @@ export class Percentage extends Value {
     }
     canonicalScalar(): number {
         return this.value / 100;
+    }
+    equals(v: Value): boolean {
+        if (isLength(v)) {
+            const v1 = promoteToMulti(this);
+            const v2 = promoteToMulti(v);
+            return [...Object.keys(v1.value), ...Object.keys(v2.value)].every(
+                x => v1.value[x] === v2.value[x]
+            );
+        }
+
+        return false;
     }
 }
 
@@ -330,6 +347,9 @@ export class StringValue extends Value {
     canonicalScalar(): number {
         return parseFloat(this.value);
     }
+    equals(v: Value): boolean {
+        return isString(v) && this.value === v.value;
+    }
 }
 
 export class ArrayValue extends Value {
@@ -346,6 +366,13 @@ export class ArrayValue extends Value {
     }
     css(): string {
         return '[' + this.value.map(x => x.css()).join(', ') + ']';
+    }
+    equals(v: Value): boolean {
+        return (
+            isArray(v) &&
+            this.value.length === v.value.length &&
+            this.value.every((val, idx) => val === v.value[idx])
+        );
     }
 }
 
@@ -387,6 +414,14 @@ export function isTime(arg: Value): arg is Time {
 
 export function isFrequency(arg: Value): arg is Frequency {
     return arg instanceof Frequency;
+}
+
+export function isArray(arg: Value): arg is ArrayValue {
+    return arg instanceof ArrayValue;
+}
+
+export function isColorArray(arg: Value): arg is ArrayValue {
+    return arg instanceof ArrayValue && arg.value.every(x => isColor(x));
 }
 
 export function isZero(arg: Value): arg is NumberValue {

@@ -13,7 +13,7 @@ tokens:
     line-height: '18pt + 4px'
 
     # Defining an angle using the 'deg' unit
-    primary-hue: '210deg'
+    primary-hue: '200deg'
 
     # A token expression can reference another token by enclosing it in "{}"
     # Functions can be used to perform more complex calculations
@@ -36,3 +36,8 @@ tokens:
         error: '{red-600}'
         warning: '{orange-400}'
         success: '{green-600}'
+
+groups:
+    semantic:
+        comment: 'These color values are used to convey a meaning'
+        remarks: '**For more information** about the hidden meaning of semantic colors [read this](https://en.wikipedia.org/wiki/Color_symbolism)'

@@ -5,50 +5,44 @@
 - sketch/palette
 - sketch/palette/v2
 */
+const fs = require('fs');
 
-import {
-    Format,
-    RenderPropertyContext,
-    RenderGroupContext,
-    RenderFileContext,
-} from './formats';
+import { Format, RenderContext } from './formats';
 
 export const GenericFormats: { formats: { [key: string]: Format } } = {
     formats: {
         yaml: {
             ext: '.yaml',
 
-            renderFile: (context: RenderFileContext): string =>
-                (!context.header
-                    ? ''
-                    : '# ' + context.header.split('\n').join('\n# ')) +
-                '\ntokens:\n' +
-                context.content,
-
-            renderGroup: (context: RenderGroupContext): string =>
-                '\t' + context.properties.join('\n\t'),
-
-            renderProperty: (context: RenderPropertyContext): string =>
-                `${
-                    !context.definition.comment
-                        ? ''
-                        : '# ' + context.definition.comment + '\n\t'
-                }${context.propertyName}: "${context.propertyValue.replace(
-                    /"/g,
-                    '\\"'
-                )}"`,
+            render: (context: RenderContext): string =>
+                context.renderTemplate(
+                    fs.readFileSync(__dirname + '/templates/yaml.hbs', 'utf-8'),
+                    context
+                ),
         },
 
         json: {
             ext: '.json',
 
-            renderFile: (context: RenderFileContext): string => context.content,
+            render: (context: RenderContext): string =>
+                context.renderTemplate(
+                    fs.readFileSync(__dirname + '/templates/json.hbs', 'utf-8'),
+                    context
+                ),
 
-            renderGroup: (context: RenderGroupContext): string =>
-                '{\n\t' + context.properties.join(',\n\t') + '\n}',
+            handlebarsHelpers: {},
+        },
+        'data-dump': {
+            ext: '.yaml',
 
-            renderProperty: (context: RenderPropertyContext): string =>
-                `"${context.propertyName}": "${context.propertyValue}"`,
+            render: (context: RenderContext): string =>
+                context.renderTemplate(
+                    fs.readFileSync(
+                        __dirname + '/templates/data-dump.hbs',
+                        'utf-8'
+                    ),
+                    context
+                ),
         },
     },
 };

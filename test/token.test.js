@@ -22,6 +22,7 @@ const testFiles = {
     theme: 'evaluates two themes',
     array: 'evaluates arrays',
     length: 'evaluates lengths',
+    'theme-propagation': 'propagate theme values',
     errors: 'handles syntax errors',
 };
 
@@ -32,7 +33,9 @@ Object.keys(testFiles).forEach(x => {
 });
 
 it('generates a style guide', () => {
-    expect(c('basic-example/tokens', { format: 'html' })).toMatchSnapshot();
+    expect(
+        c('../../examples/advanced/tokens', { format: 'html' })
+    ).toMatchSnapshot();
 });
 
 it('generates a Sass stylesheet', () => {

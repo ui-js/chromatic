@@ -1,0 +1,39 @@
+filepath: "{{filepath}}"
+fileHeader: "{{fileHeader}}"
+themes:
+    {{#each themes}}
+    - theme: "{{theme}}":
+        isDefaultTheme: {{isDefaultTheme}}
+        tokens:
+        {{#each tokens}}
+            - tokenId: "{{tokenId}}"
+                tokenName: "{{tokenName}}"
+                tokenDefinition:
+                    comment: {{tokenDefinition.comment}}
+                    remarks: {{tokenDefinition.remarks}}
+                    deprecated: {{tokenDefinition.deprecated}}
+                tokenValue: "{{cssValue tokenValue}}"
+        {{/each}}
+    {{/each}}
+groups:
+    {{#each groups}}
+    - groupId: "{{groupId}}"
+        groupInfo: 
+            name: "{{groupInfo.name}}"
+            comment: "{{groupInfo.comment}}"
+            remarks: "{{groupInfo.remarks}}"
+        tokens:
+        {{#each tokens}}
+        - tokenId: "{{tokenId}}"
+            tokenDefinition:
+                comment: {{tokenDefinition.comment}}
+                remarks: {{tokenDefinition.remarks}}
+                deprecated: {{tokenDefinition.deprecated}}
+            themes:
+                {{#each themes}}
+                - theme: "{{theme}}"
+                    tokenName: "{{tokenName}}"
+                    tokenValue: "{{cssValue tokenValue}}"
+                {{/each}}
+        {{/each}}
+    {{/each}}

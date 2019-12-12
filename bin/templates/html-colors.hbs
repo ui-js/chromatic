@@ -1,23 +1,38 @@
 
-{{#if colors}}
 {{#if group}} <h3>{{ group }}</h3> {{/if}}
+
+<div class='color-ramps'>  
+{{#each colorRamps}}
+<div class="color-ramp">
+    <h3>{{name}}</h3>
+    <div class="checkerboard-bg">
+    {{#each values}}
+    <div class="color-ramp__item {{cls}}" style='background-color:{{css}}'>
+        <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{name}}</h3>
+        <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{css}}</h4>
+    </div>
+    {{/each}}
+    </div>
+    <p class="value-source">{{source}}</p>
+</div>
+{{/each}}
+</div>
+
 <div class='color-chips'>  
     {{#each colors}}
     <div class="color-chip">
-    <div class='color-chip-swatch-container'>
-        <div class='color-chip-swatch {{cls}}' style='background-color:{{value}}'>
+    <div class='color-chip__swatch-container checkerboard-bg'>
+        <div class='color-chip__swatch {{cls}}' style='background-color:{{css}}'>
         <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{name}}</h3>
-        <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{value}}</h4>
+        <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{css}}</h4>
         </div>
     </div>
     {{#if source}}
     <p class='value-source'>{{source}}</p>
     {{/if}}
     {{#if comment}}
-    <p class='color-chip-comment'>{{{comment}}}</p>
+    <p class='color-chip__comment'>{{{comment}}}</p>
     {{/if}}
     </div>
     {{/each}}
 </div>
-
-{{/if}}

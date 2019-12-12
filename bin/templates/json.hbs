@@ -1,0 +1,24 @@
+{{comment fileHeader}}
+
+{
+{{#remove-last-comma}}
+{{#each groups}}
+{{#if groupId }}
+
+    /*
+    * {{ groupId }}
+    */
+
+{{/if}}
+    {{comment groupInfo.comment '// '}}
+{{#each tokens}}
+{{#if tokenDefinition.comment}}
+    {{comment tokenDefinition.comment '// '}}
+{{/if}}
+{{#each themes }}
+    "{{tokenName}}": "{{{cssValue tokenValue}}}",
+{{/each}}
+{{/each}}
+{{/each}}
+{{/remove-last-comma}}
+}

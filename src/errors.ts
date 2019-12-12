@@ -67,11 +67,12 @@ const ERRORS = {
         'Invalid token name "%1": it must only contain digits, letters, "_" and "-"',
     [ErrorCode.InvalidTokenValue]:
         'The "%1" token is invalid. If using a YAML file, make sure RGB hex values are within quotes',
-    [ErrorCode.InconsistentTokenType]: 'Inconsistent token type: "%1" ( "%2")',
+    [ErrorCode.InconsistentTokenType]:
+        'Inconsistent token type in valus of token "%1"',
     [ErrorCode.UnknownFormat]: 'Unknown format "%1"%2',
     [ErrorCode.UnknownValueFormatter]: 'Unknown value formatter "%1"%2',
     [ErrorCode.UnknownNameFormatter]: 'Unknown name formatter "%1"%2',
-    [ErrorCode.ExpectedIntegerIndex]: 'Expected a number of array index',
+    [ErrorCode.ExpectedIntegerIndex]: 'Expected array index to be a number',
 };
 
 export class SyntaxError extends Error {
@@ -82,6 +83,13 @@ export class SyntaxError extends Error {
         this.code = code;
         this.args = args;
     }
+}
+export function throwErrorIf(
+    condition: boolean,
+    code: number,
+    ...args: string[]
+): void {
+    if (condition) throwErrorWithContext(undefined, code, ...args);
 }
 
 export function throwError(code: number, ...args: string[]): void {

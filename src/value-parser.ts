@@ -29,6 +29,7 @@ import {
     asInteger,
     asPercent,
     asDegree,
+    isArray,
     isAngle,
     isLength,
     isNumber,
@@ -403,7 +404,10 @@ class Stream {
                     if (m) {
                         const resolvedValue = this.options?.aliasResolver(m[1]);
                         if (typeof resolvedValue !== 'string') {
-                            if (isColor(resolvedValue)) {
+                            if (isArray(resolvedValue)) {
+                                const index = Math.round(parseInt(m[2]) / 100);
+                                alias = resolvedValue.get(index);
+                            } else if (isColor(resolvedValue)) {
                                 const index = Math.round(parseInt(m[2]) / 100);
 
                                 alias = scaleColor(resolvedValue)?.get(index);

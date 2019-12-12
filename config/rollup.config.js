@@ -1,5 +1,4 @@
 import resolve from 'rollup-plugin-node-resolve';
-import builtins from 'rollup-plugin-node-builtins';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2';
 import { eslint } from 'rollup-plugin-eslint';
@@ -50,7 +49,6 @@ export default [
             sourcemap: !PRODUCTION,
         },
         plugins: [
-            builtins(),
             resolve({
                 preferBuiltins: true,
             }),
@@ -65,8 +63,9 @@ export default [
             }),
         ],
         watch: {
-            clearScreen: false,
-            exclude: ['node_modules/**'],
+            clearScreen: true,
+            exclude: 'node_modules/**',
+            include: ['src/**', 'examples/**'],
         },
     },
     {
@@ -77,7 +76,6 @@ export default [
             sourcemap: !PRODUCTION,
         },
         plugins: [
-            builtins(),
             resolve({
                 preferBuiltins: true,
             }),

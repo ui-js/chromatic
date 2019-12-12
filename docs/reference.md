@@ -25,7 +25,6 @@ The configuration file can be placed in the root of the project directory, or in
 
 The configuration file can include the following options:
 
--   `groupByCategory`: = `true`. In the output file, group the properties by the token's category. See Category.
 -   `theme`: an array of the themes to consider when generating tokens
 -   `defaultTheme`: if no theme is specified, assume the token refers to this theme
 -   `tokenFileExt` = `"yaml"`: When processing a directory, the file extension of the token files.
@@ -95,30 +94,32 @@ Some types are expressed in specific units:
 The value of a token is defined by an expression. The expression can include
 math operators, aliases refering to other tokens and functions
 
-| Type         | Arguments                                                                                           | Description                        |
-| ------------ | --------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| calc()       | 'any'                                                                                               |                                    |
-| rgb()        | (red: number, green: number, blue: number, alpha?: number])                                         | Return a color value               |
-| rgba()       | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for rgb()                  |
-| hsl()        | (hue: angle, saturation: percentage \| number, lightness: percentage \| lightness, alpha?: number]) | Return a color value               |
-| hsla()       | (red: number, green: number, blue: number, alpha?: number])                                         | Synonym for hsl()                  |
-| hsv()        | 'number                                                                                             | angle, number                      | percentage, number | percentage, number | percentage | none' |  |
-| hwb()        | 'number                                                                                             | angle, number                      | percentage, number | percentage, number | percentage | none' |  |
-| lab()        | 'number                                                                                             | percentage, number, number, number | percentage | none' |  |
-| gray()       | 'number                                                                                             | percentage, number                 | percentage | none' |  |
-| min()        | 'any, any'                                                                                          |                                    |
-| max()        | 'any, any'                                                                                          |                                    |
-| clamp()      | 'any, any, any'                                                                                     |                                    |
-| mix()        | 'color, color, number                                                                               | percentage                         | none, string | none' |  |
-| saturate()   | 'color, number                                                                                      | percentage                         | none' |  |
-| desaturate() | 'color, number                                                                                      | percentage                         | none' |  |
-| lighten()    | 'color, number                                                                                      | percentage                         | none' |  |
-| darken()     | 'color, number                                                                                      | percentage                         | none' |  |
-| rotateHue()  | 'color, angle                                                                                       | number                             | none' |  |
-| complement() | 'color'                                                                                             |                                    |
-| contrast()   | 'color, color                                                                                       | none, color                        | none' |  |
-| tint()       | 'color, number                                                                                      | percentage                         | none' |  |
-| shade()      | 'color, number                                                                                      | percentage                         | none' |  |
+| Function     | Description          |
+| ------------ | -------------------- |
+| calc()       |                      |
+| rgb()        | Return a color value |
+| rgba()       | Synonym for rgb()    |
+| hsl()        | Return a color value |
+| hsla()       | Synonym for hsl()    |
+| hsv()        |                      |
+| hwb()        |                      |
+| lab()        |                      |
+| gray()       |                      |
+| min()        |                      |
+| max()        |                      |
+| clamp()      |                      |
+| mix()        |                      |
+| saturate()   |                      |
+| desaturate() |                      |
+| lighten()    |                      |
+| darken()     |                      |
+| rotateHue()  |                      |
+| complement() |                      |
+| contrast()   |                      |
+| tint()       |                      |
+| shade()      |                      |
+
+See [Functions Reference](functions.md) for more details on each function.
 
 Token value expressions can refer to other tokens. A token does not have to be declared separately to be used as an "alias", and it does not have to be declared before being used. A token alias is indicated by enclosing the token name in '{' and '}'.
 

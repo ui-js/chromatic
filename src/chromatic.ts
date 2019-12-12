@@ -22,13 +22,8 @@ import {
     DEFAULT_FILE_HEADER,
     RenderContext,
 } from './formats';
-import {
-    parseValue,
-    ValueParserOptions,
-    Value,
-    StringValue,
-    isString,
-} from './value-parser';
+import { Value, StringValue, isString } from './value';
+import { parseValue, ValueParserOptions } from './value-parser';
 
 import { GenericFormats } from './formats-generic';
 import { WebFormats } from './formats-web';

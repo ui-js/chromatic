@@ -2,8 +2,8 @@ const marked = require('marked');
 const highlight = require('highlight.js');
 const handlebars = require('handlebars');
 const fs = require('fs');
-import { Color, isColor, isColorArray } from './value-parser';
 
+import { Color, isColor, isColorArray } from './value';
 import { RenderContext, Format } from './formats';
 
 function renderColorSection(context: RenderContext): string {

@@ -1,4 +1,4 @@
-import { Value, ValueType } from './value-parser';
+import { Value, ValueType } from './value';
 
 export interface TokenDefinition {
     value: {

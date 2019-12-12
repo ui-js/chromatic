@@ -1,3 +1,5 @@
+const colorName = require('color-name');
+
 import { throwError, ErrorCode, SyntaxError } from './errors';
 
 export type ValueType =
@@ -59,11 +61,6 @@ export class Value {
     }
 }
 
-// Forward declaration of the Color class
-declare class Color extends Value {
-    constructor(from: object | string);
-}
-
 export type LengthUnit =
     | 'px'
     | 'cm'
@@ -87,35 +84,6 @@ export type AngleUnit = 'deg' | 'grad' | 'rad' | 'degree' | 'turn';
 export type TimeUnit = 's' | 'ms';
 
 export type FrequencyUnit = 'hz' | 'khz';
-
-export function makeValueFrom(from: {
-    type: () => ValueType;
-    [key: string]: any;
-}): Value {
-    switch (from.type()) {
-        case 'color':
-            return new Color(from);
-        case 'frequency':
-            return new Frequency(from.value, from.unit);
-        case 'time':
-            return new Time(from.value, from.unit);
-        case 'angle':
-            return new Angle(from.value, from.unit);
-        case 'string':
-            return new StringValue(from.value);
-        case 'length':
-            return new Length(from.value, from.unit);
-        case 'percentage':
-            return new Percentage(from.value);
-        case 'number':
-            return new NumberValue(from.value);
-        case 'array':
-            return new ArrayValue(from.value.map(makeValueFrom));
-        default:
-            console.error('Unknown value type');
-    }
-    return undefined;
-}
 
 export function roundTo(num: number, precision: number): number {
     return (
@@ -376,6 +344,299 @@ export class ArrayValue extends Value {
     }
 }
 
+export function parseColorName(
+    name: string
+): { r: number; g: number; b: number; a: number } {
+    const color = colorName[name.toLowerCase()];
+    if (color) {
+        return {
+            r: color[0],
+            g: color[1],
+            b: color[2],
+            a: 1,
+        };
+    }
+
+    return undefined;
+}
+
+export function parseHex(
+    hex: string
+): { r: number; g: number; b: number; a: number } {
+    if (!hex) return undefined;
+    if (hex[0] !== '#') return undefined;
+    hex = hex.slice(1);
+    let result;
+    if (hex.length <= 4) {
+        result = {
+            r: parseInt(hex[0] + hex[0], 16),
+            g: parseInt(hex[1] + hex[1], 16),
+            b: parseInt(hex[2] + hex[2], 16),
+        };
+        if (hex.length === 4) {
+            result.a = parseInt(hex[3] + hex[3], 16) / 255;
+        }
+    } else {
+        result = {
+            r: parseInt(hex[0] + hex[1], 16),
+            g: parseInt(hex[2] + hex[3], 16),
+            b: parseInt(hex[4] + hex[5], 16),
+        };
+        if (hex.length === 8) {
+            result.a = parseInt(hex[6] + hex[7], 16) / 255;
+        }
+    }
+    if (result && typeof result.a === 'undefined') result.a = 1.0;
+    return result;
+}
+
+function hueToRgbChannel(t1: number, t2: number, hue: number): number {
+    if (hue < 0) hue += 6;
+    if (hue >= 6) hue -= 6;
+
+    if (hue < 1) return (t2 - t1) * hue + t1;
+    else if (hue < 3) return t2;
+    else if (hue < 4) return (t2 - t1) * (4 - hue) + t1;
+    else return t1;
+}
+
+export function hslToRgb(
+    hue: number,
+    sat: number,
+    light: number
+): { r: number; g: number; b: number } {
+    hue = ((hue + 360) % 360) / 60.0;
+    light = Math.max(0, Math.min(light, 1.0));
+    sat = Math.max(0, Math.min(sat, 1.0));
+    const t2 = light <= 0.5 ? light * (sat + 1) : light + sat - light * sat;
+    const t1 = light * 2 - t2;
+    return {
+        r: Math.round(255 * hueToRgbChannel(t1, t2, hue + 2)),
+        g: Math.round(255 * hueToRgbChannel(t1, t2, hue)),
+        b: Math.round(255 * hueToRgbChannel(t1, t2, hue - 2)),
+    };
+}
+
+export function rgbToHsl(
+    r: number,
+    g: number,
+    b: number
+): { h: number; s: number; l: number } {
+    r = r / 255;
+    g = g / 255;
+    b = b / 255;
+    const min = Math.min(r, g, b);
+    const max = Math.max(r, g, b);
+
+    const delta = max - min;
+    let h: number;
+    let s: number;
+
+    if (max === min) {
+        h = 0;
+    } else if (r === max) {
+        h = (g - b) / delta;
+    } else if (g === max) {
+        h = 2 + (b - r) / delta;
+    } else if (b === max) {
+        h = 4 + (r - g) / delta;
+    }
+
+    h = Math.min(h * 60, 360);
+
+    if (h < 0) {
+        h += 360;
+    }
+
+    const l = (min + max) / 2;
+
+    if (max === min) {
+        s = 0;
+    } else if (l <= 0.5) {
+        s = delta / (max + min);
+    } else {
+        s = delta / (2 - max - min);
+    }
+
+    return { h: h, s: s, l: l };
+}
+
+export class Color extends Value {
+    r?: number; /* [0..255] */
+    g?: number; /* [0..255] */
+    b?: number; /* [0..255] */
+    h?: number; /* [0..360]deg */
+    s?: number;
+    l?: number;
+    a: number; /* [0..1] or [0..100]% */
+    constructor(from: object | string) {
+        super();
+        if (typeof from === 'string') {
+            if (from.toLowerCase() === 'transparent') {
+                [this.r, this.g, this.b, this.a] = [0, 0, 0, 0];
+                [this.h, this.s, this.l] = [0, 0, 0];
+            } else {
+                const rgb = parseHex(from) || parseColorName(from);
+                if (!rgb) throw new Error();
+                Object.assign(this, rgb);
+                Object.assign(this, rgbToHsl(this.r, this.g, this.b));
+            }
+        } else {
+            Object.assign(this, from);
+            // Normalize the RGB/HSL values so that a color value
+            // always has r, g, b, h, s, l and a.
+            if (typeof this.r === 'number') {
+                // RGB data
+                Object.assign(this, rgbToHsl(this.r, this.g, this.b));
+            } else {
+                // HSL data
+                console.assert(typeof this.h === 'number');
+                this.h = (this.h + 360) % 360;
+                this.s = Math.max(0, Math.min(1.0, this.s));
+                this.l = Math.max(0, Math.min(1.0, this.l));
+                Object.assign(this, hslToRgb(this.h, this.s, this.l));
+            }
+        }
+        if (typeof this.a !== 'number') {
+            this.a = 1.0;
+        }
+    }
+    type(): ValueType {
+        return 'color';
+    }
+    opaque(): Color {
+        return new Color({ r: this.r, g: this.g, b: this.b });
+    }
+    luma(): number {
+        // Source: https://www.w3.org/TR/WCAG20/#relativeluminancedef
+        let r = this.r / 255.0;
+        let g = this.g / 255.0;
+        let b = this.b / 255.0;
+        r = r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4);
+        g = g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4);
+        b = b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4);
+
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+    hex(): string {
+        let hexString = (
+            (1 << 24) +
+            (clampByte(this.r) << 16) +
+            (clampByte(this.g) << 8) +
+            clampByte(this.b)
+        )
+            .toString(16)
+            .slice(1);
+
+        if (this.a < 1.0) {
+            hexString += ('00' + Math.round(this.a * 255).toString(16)).slice(
+                -2
+            );
+        }
+
+        // Compress hex from hex-6 or hex-8 to hex-3 or hex-4 if possible
+        if (
+            hexString[0] === hexString[1] &&
+            hexString[2] === hexString[3] &&
+            hexString[4] === hexString[5] &&
+            hexString[6] === hexString[7]
+        ) {
+            hexString =
+                hexString[0] +
+                hexString[2] +
+                hexString[4] +
+                (this.a < 1.0 ? hexString[6] : '');
+        }
+
+        return '#' + hexString;
+    }
+    rgb(): string {
+        return `rgb(${roundTo(this.r, 2)}, ${roundTo(this.g, 2)}, ${roundTo(
+            this.b,
+            2
+        )}${this.a < 1.0 ? ', ' + roundTo(100 * this.a, 2) + '%' : ''})`;
+    }
+    hsl(): string {
+        return `hsl(${this.h}deg, ${this.s}%, ${this.l}%, ${
+            this.a < 1.0 ? ', ' + roundTo(100 * this.a, 2) + '%' : ''
+        })`;
+    }
+    css(): string {
+        if (this.r === 0 && this.g === 0 && this.b === 0 && this.a === 0)
+            return 'transparent';
+        if (this.a < 1) {
+            return this.rgb();
+        }
+        return this.hex();
+    }
+    canonicalScalar(): number {
+        return this.luma();
+    }
+    equals(v: Value): boolean {
+        return (
+            isColor(v) &&
+            this.r === v.r &&
+            this.g === v.g &&
+            this.b === v.b &&
+            this.a === v.a
+        );
+    }
+}
+
+export function makeValueFrom(from: {
+    type: () => ValueType;
+    [key: string]: any;
+}): Value {
+    switch (from.type()) {
+        case 'color':
+            return new Color(from);
+        case 'frequency':
+            return new Frequency(from.value, from.unit);
+        case 'time':
+            return new Time(from.value, from.unit);
+        case 'angle':
+            return new Angle(from.value, from.unit);
+        case 'string':
+            return new StringValue(from.value);
+        case 'length':
+            return new Length(from.value, from.unit);
+        case 'percentage':
+            return new Percentage(from.value);
+        case 'number':
+            return new NumberValue(from.value);
+        case 'array':
+            return new ArrayValue(from.value.map(makeValueFrom));
+        default:
+            console.error('Unknown value type');
+    }
+    return undefined;
+}
+export function isColor(arg: Value): arg is Color {
+    return arg instanceof Color;
+}
+
+/**
+ * Convert a value to a color object.
+ *
+ * @param {object|string} value - hex string, color name or object with partial
+ *
+ */
+
+export function asColor(value: object | string): Color {
+    if (!value) return undefined;
+    let result: Color;
+    try {
+        result = new Color(value);
+    } catch (_err) {
+        result = undefined;
+    }
+    return result;
+}
+
+export function isColorArray(arg: Value): arg is ArrayValue {
+    return arg instanceof ArrayValue && arg.value.every(x => isColor(x));
+}
+
 export function isNumber(arg: Value): arg is NumberValue {
     return arg instanceof NumberValue;
 }
@@ -418,10 +679,6 @@ export function isFrequency(arg: Value): arg is Frequency {
 
 export function isArray(arg: Value): arg is ArrayValue {
     return arg instanceof ArrayValue;
-}
-
-export function isColorArray(arg: Value): arg is ArrayValue {
-    return arg instanceof ArrayValue && arg.value.every(x => isColor(x));
 }
 
 export function isZero(arg: Value): arg is NumberValue {

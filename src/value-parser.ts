@@ -2,14 +2,6 @@ import { throwErrorWithContext, ErrorCode, SyntaxError } from './errors';
 import { terminal } from './terminal';
 import { getSuggestion } from './utils';
 import {
-    COLOR_ARGUMENTS_FUNCTIONS,
-    COLOR_FUNCTION_ARGUMENTS,
-    COLOR_FUNCTIONS,
-    scaleColor,
-    asColor,
-    isColor,
-} from './color-value';
-import {
     Value,
     Frequency,
     FrequencyUnit,
@@ -26,11 +18,13 @@ import {
     NumberValue,
     ArrayValue,
     compareValue,
+    asColor,
     asInteger,
     asPercent,
     asDegree,
     isArray,
     isAngle,
+    isColor,
     isLength,
     isNumber,
     isFrequency,
@@ -43,6 +37,12 @@ import {
     scaleLength,
     promoteToMulti,
 } from './value';
+import {
+    COLOR_ARGUMENTS_FUNCTIONS,
+    COLOR_FUNCTION_ARGUMENTS,
+    COLOR_FUNCTIONS,
+    scaleColor,
+} from './color-functions';
 
 // @todo: convert frequency and time (1/s -> Hz)
 // @todo: have a base-font-size property in the tokenfile as well (under global: )

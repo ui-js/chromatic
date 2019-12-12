@@ -1,4 +1,4 @@
-import { Value } from './value-parser';
+import { Value } from './value';
 
 export const DefaultFormatters = {
     nameFormatters: {

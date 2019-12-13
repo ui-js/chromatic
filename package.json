@@ -1,6 +1,6 @@
 {
     "name": "@arnog/chromatic",
-    "version": "0.6.0",
+    "version": "0.7.0",
     "description": "A build system for managing cross-platform design systems using design tokens.",
     "keywords": [
         "design tokens",

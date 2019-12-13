@@ -3,12 +3,28 @@ const highlight = require('highlight.js');
 const handlebars = require('handlebars');
 const fs = require('fs');
 
-import { Color, isColor, isColorArray } from './value';
+import { Color, isColor, isColorArray, roundTo } from './value';
+import { getSimilarColors, deltaE } from './color-functions';
 import { RenderContext, Format } from './formats';
 
 function renderColorSection(context: RenderContext): string {
     let result = '';
     const handlebarsContext = { colors: [], colorRamps: [], group: '' };
+    const allColors: { name: string; color: Color }[] = [];
+    context.themes.forEach(theme => {
+        theme.tokens.forEach(token => {
+            if (isColor(token.tokenValue))
+                allColors.push({
+                    name:
+                        token.tokenId +
+                        (theme.theme === '_' || theme.theme === ''
+                            ? ''
+                            : '.' + theme.theme),
+                    color: token.tokenValue,
+                });
+        });
+    });
+
     context.themes.forEach(theme => {
         handlebarsContext.group =
             context.themes.length === 1
@@ -27,7 +43,7 @@ function renderColorSection(context: RenderContext): string {
                     opaqueColor = new Color(color);
                     opaqueColor.a = 1.0;
                 }
-
+                const similarColors = getSimilarColors(color, allColors);
                 handlebarsContext.colors.push({
                     name: token.tokenId,
                     value: token.tokenValue,
@@ -36,8 +52,18 @@ function renderColorSection(context: RenderContext): string {
                     comment: token.tokenDefinition.comment ?? '',
                     cls,
                     opaqueColor: opaqueColor?.css(),
+                    similarColors: similarColors
+                        ? similarColors.map(x => {
+                              return {
+                                  name: x.name,
+                                  css: x.color.css(),
+                                  deltaE: roundTo(x.deltaE, 2),
+                              };
+                          })
+                        : null,
                 });
             } else if (isColorArray(token.tokenValue)) {
+                let previousColor;
                 handlebarsContext.colorRamps.push({
                     name: token.tokenId,
                     source: token.tokenValue.getSource(),
@@ -50,12 +76,19 @@ function renderColorSection(context: RenderContext): string {
                             opaqueColor = new Color(color);
                             opaqueColor.a = 1.0;
                         }
+                        const deltaEWithPrevious =
+                            previousColor && deltaE(color, previousColor);
+                        previousColor = color;
                         return {
                             name: i === 0 ? '50' : i * 100,
                             cls,
                             value: color,
                             css: color.css(),
                             opaqueColor: opaqueColor?.css(),
+                            deltaE:
+                                deltaEWithPrevious < 2
+                                    ? roundTo(deltaEWithPrevious, 2)
+                                    : undefined,
                         };
                     }),
                 });

@@ -1,8 +1,8 @@
 const chroma = require('chroma-js');
 import {
     NumberValue,
-    StringValue,
     Color,
+    StringValue,
     Value,
     clampByte,
     ArrayValue,
@@ -18,6 +18,8 @@ import {
     asString,
     hslToRgb,
 } from './value';
+import { getSuggestion } from './utils';
+import { throwError, ErrorCode } from './errors';
 
 function asDecimalByte(value: Value): number {
     if (isPercentage(value)) {
@@ -27,12 +29,21 @@ function asDecimalByte(value: Value): number {
     return Math.round(value.value);
 }
 
+/**
+ * L: 0..100
+ * a: -128..128
+ * b: -128..128
+ */
+
 function labToRgb(
     L: number,
     aStar: number,
     bStar: number
 ): { r: number; g: number; b: number } {
-    let y = (100 * L + 16) / 116;
+    L = Math.max(0, Math.min(100, L));
+    aStar = Math.max(-128, Math.min(128, aStar));
+    bStar = Math.max(-128, Math.min(128, bStar));
+    let y = (L + 16) / 116;
     let x = aStar / 500 + y;
     let z = y - bStar / 200;
 
@@ -55,14 +66,22 @@ function labToRgb(
     };
 }
 
+/**
+ * r: 0..255
+ * g: 0..255
+ * b: 0..255
+ * L: 0..100
+ * a: -128..128
+ * b: -128..128
+ */
 function rgbToLab(
     r: number,
     g: number,
     b: number
 ): { L: number; a: number; b: number } {
-    r = r / 255;
-    g = g / 255;
-    b = b / 255;
+    r = clampByte(r) / 255;
+    g = clampByte(g) / 255;
+    b = clampByte(b) / 255;
 
     r = r > 0.04045 ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
     g = g > 0.04045 ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
@@ -76,7 +95,7 @@ function rgbToLab(
     y = y > 0.008856 ? Math.pow(y, 1 / 3) : 7.787 * y + 16 / 116;
     z = z > 0.008856 ? Math.pow(z, 1 / 3) : 7.787 * z + 16 / 116;
 
-    return { L: (116 * y - 16) / 100, a: 500 * (x - y), b: 200 * (y - z) };
+    return { L: 116 * y - 16, a: 500 * (x - y), b: 200 * (y - z) };
 }
 
 function hwbToRgb(
@@ -133,6 +152,112 @@ function mixColor(c1: Value, c2: Value, weight: Value, model?: Value): Color {
             a: alpha,
         });
     }
+}
+
+function getHPrimeFn(x, y): number {
+    if (x === 0 && y === 0) return 0;
+    const hueAngle = (Math.atan2(x, y) * 180) / Math.PI;
+    return hueAngle >= 0 ? hueAngle : hueAngle + 360;
+}
+
+/** Measure the distance between two colors.
+ * Value of less than 2 are not perceptible
+ *
+ *  Uses the CIE-2000 algorithm which correct for perceptual uniformity.
+ *  http://en.wikipedia.org/wiki/Color_difference#CIEDE2000
+ */
+
+export function deltaE(c1: Color, c2: Color): number {
+    const kSubL = 1;
+    const kSubC = 1;
+    const kSubH = 1;
+
+    const x1 = rgbToLab(c1.r, c1.g, c1.b);
+    const x2 = rgbToLab(c2.r, c2.g, c2.b);
+
+    const deltaLPrime = x2.L - x1.L;
+    const LBar = (x1.L + x2.L) / 2;
+
+    const C1 = Math.sqrt(x1.a * x1.a + x1.b * x1.b);
+    const C2 = Math.sqrt(x2.a * x2.a + x2.b * x2.b);
+    const CBar = (C1 + C2) / 2;
+
+    const aPrime =
+        1 -
+        Math.sqrt(Math.pow(CBar, 7) / (Math.pow(CBar, 7) + Math.pow(25, 7)));
+    const aPrime1 = x1.a + (x1.a / 2) * aPrime;
+    const aPrime2 = x2.a + (x2.a / 2) * aPrime;
+
+    const CPrime1 = Math.sqrt(aPrime1 * aPrime1 + x1.b * x1.b);
+    const CPrime2 = Math.sqrt(aPrime2 * aPrime2 + x1.b * x2.b);
+    const CBarPrime = (CPrime1 + CPrime2) / 2;
+    const deltaCPrime = CPrime2 - CPrime1;
+    const LBarPrime = Math.pow(LBar - 50, 2);
+    const S_L = 1 + (0.015 * LBarPrime) / Math.sqrt(20 + LBarPrime);
+    const S_C = 1 + 0.045 * CBarPrime;
+
+    const hPrime1 = getHPrimeFn(x1.b, aPrime1);
+    const hPrime2 = getHPrimeFn(x2.b, aPrime2);
+
+    const deltahPrime =
+        C1 === 0 || C2 === 0
+            ? 0
+            : Math.abs(hPrime1 - hPrime2) <= 180
+            ? hPrime2 - hPrime1
+            : hPrime2 <= hPrime1
+            ? hPrime2 - hPrime1 + 360
+            : hPrime2 - hPrime1 - 360;
+    const deltaHPrime =
+        2 *
+        Math.sqrt(CPrime1 * CPrime2) *
+        Math.sin((deltahPrime * Math.PI) / 180 / 2);
+    const HBarPrime =
+        Math.abs(hPrime1 - hPrime2) > 180
+            ? (hPrime1 + hPrime2 + 360) / 2
+            : (hPrime1 + hPrime2) / 2;
+    const T =
+        1 -
+        0.17 * Math.cos((Math.PI / 180) * (HBarPrime - 30)) +
+        0.24 * Math.cos((Math.PI / 180) * (2 * HBarPrime)) +
+        0.32 * Math.cos((Math.PI / 180) * (3 * HBarPrime + 6)) -
+        0.2 * Math.cos((Math.PI / 180) * (4 * HBarPrime - 63));
+    const S_H = 1 + 0.015 * CBarPrime * T;
+    const R_T =
+        -2 *
+        Math.sqrt(
+            Math.pow(CBarPrime, 7) / (Math.pow(CBarPrime, 7) + Math.pow(25, 7))
+        ) *
+        Math.sin(
+            (Math.PI / 180) *
+                (60 * Math.exp(-Math.pow((HBarPrime - 275) / 25, 2)))
+        );
+    const lightness = deltaLPrime / (kSubL * S_L);
+    const chroma = deltaCPrime / (kSubC * S_C);
+    const hue = deltaHPrime / (kSubH * S_H);
+
+    return Math.sqrt(
+        lightness * lightness + chroma * chroma + hue * hue + R_T * chroma * hue
+    );
+}
+
+export function getSimilarColors(
+    target: Color,
+    colors: { name: string; color: Color }[]
+): { name: string; color: Color; deltaE: number }[] {
+    const result = [];
+
+    colors.forEach(x => {
+        const diff = deltaE(target, x.color);
+        if (diff > 0 && diff < 2) {
+            result.push({
+                name: x.name,
+                color: x.color,
+                deltaE: diff,
+            });
+        }
+    });
+    result.sort((a, b) => a.deltaE - b.deltaE);
+    return result.length === 0 ? null : result;
 }
 
 export function scaleColor(
@@ -229,7 +354,7 @@ export const COLOR_ARGUMENTS_FUNCTIONS = [
     'hsl',
     'hsla',
     'hwb',
-    'grey',
+    'gray',
     'lab',
 ];
 
@@ -308,14 +433,42 @@ export const COLOR_FUNCTIONS = {
     lab: (l: Value, a: Value, b: Value, alpha?: Value): Color => {
         return new Color({
             a: asDecimalRatio(alpha, 1.0),
-            ...labToRgb(asPercent(l), asDecimalRatio(a), asDecimalRatio(b)),
+            ...labToRgb(
+                100 * asPercent(l),
+                asDecimalRatio(a),
+                asDecimalRatio(b)
+            ),
         });
     },
     gray: (g: Value, alpha: Value): Color => {
         return new Color({
             a: asDecimalRatio(alpha, 1.0),
-            ...labToRgb(asPercent(g), 0, 0),
+            ...labToRgb(100 * asPercent(g), 0, 0),
         });
+    },
+    filter: (c: Color, filterValue: StringValue): Color => {
+        const filterName = asString(filterValue, 'none').toLowerCase();
+        switch (filterName) {
+            case 'none':
+                return c;
+
+            case 'grayscale':
+                const lab = rgbToLab(c.r, c.g, c.b);
+                return new Color({
+                    a: c.a,
+                    ...labToRgb(lab.L, 0, 0),
+                });
+
+            default:
+                throwError(
+                    ErrorCode.InvalidArgument,
+                    'filter()',
+                    `"${filterName}"`,
+                    getSuggestion(filterName, ['none', 'grayscale'])
+                );
+        }
+
+        return c;
     },
     mix: (c1: Value, c2: Value, weight: Value, model?: Value): Color => {
         // @todo: support additional color models. See color-convert npm module.
@@ -365,6 +518,13 @@ export const COLOR_FUNCTIONS = {
                 ),
                 alpha,
             });
+        } else {
+            throwError(
+                ErrorCode.InvalidArgument,
+                'mix()',
+                `"${modelName}"`,
+                getSuggestion(modelName, ['hsl', 'lab', 'rgb'])
+            );
         }
     },
     saturate: (c: Value, v: Value): Color => {

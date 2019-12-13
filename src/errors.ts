@@ -16,6 +16,7 @@ export enum ErrorCode {
     MissingArgument,
     ExpectedArgument,
     TooManyArguments,
+    InvalidArgument,
 
     ExpectedOperand,
     InvalidOperand,
@@ -53,6 +54,7 @@ const ERRORS = {
     [ErrorCode.ExpectedArgument]:
         'Expected argument %1 of `%2` to be of type `%3`',
     [ErrorCode.TooManyArguments]: 'Too many arguments for function `%1(%2)`',
+    [ErrorCode.InvalidArgument]: 'Invalid argument `%2` for function `%1`%3',
 
     [ErrorCode.ExpectedOperand]: 'Expected operand',
     [ErrorCode.InvalidOperand]: 'Invalid operand',

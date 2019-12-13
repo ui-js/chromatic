@@ -3,6 +3,7 @@
 {{#if header}}
 <!-- {{ header }} -->
 {{/if}}
+
 <head>
   <meta charset="utf-8">
   <title></title>
@@ -18,18 +19,21 @@
   <meta name="theme-color" content="#fafafa">
   <style>
     body {
-      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
       --monospace-font: "Source Code", "Plex", "Fira Code", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
     }
+
     .color-chips {
       display: flex;
       flex-wrap: wrap;
     }
+
     .color-chip {
       position: relative;
       width: 200px;
       margin: 20px;
     }
+
     .color-chip__swatch {
       border-radius: 8px;
       padding: 8px;
@@ -39,7 +43,9 @@
       box-sizing: border-box;
       color: #fff
     }
-    .color-chip__swatch h3,  .color-chip__swatch h4 {
+
+    .color-chip__swatch h3,
+    .color-chip__swatch h4 {
       padding: 0;
       margin: 0;
       margin-left: -8px;
@@ -48,38 +54,105 @@
       padding-bottom: 4px;
       overflow-wrap: break-word;
     }
+
     .color-chip__swatch h3 {
       font-size: 1.2rem;
       font-weight: 700;
       opacity: .8;
     }
+
     .color-chip__swatch h4 {
       font-size: 1rem;
       font-weight: normal;
       margin-bottom: 1.2rem;
       font-family: var(--monospace-font);
     }
+
     .color-chip__swatch.frame {
       border: 1px solid #ddd
     }
+
     .color-chip__swatch.light {
       color: #333;
     }
-    .color-chip p, .color-ramp p {
+
+    .color-chip p,
+    .color-ramp p {
       margin: 0;
       padding-top: .5rem;
       font-size: .86rem;
       line-height: 1.2;
       color: #777;
     }
+
     .color-chip__swatch-container {
       position: relative;
       width: 100%;
       min-height: 100px;
 
       border-radius: 8px;
-
     }
+
+    .color-chip__similar-colors h4 {
+      color: #777;
+      margin: 0;
+      margin-top: 1em;
+      border-top: 1px solid #777;
+      padding-top: .5em;
+    }
+
+    .color-chip__similar-colors ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    .color-chip__similar-colors li {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style-type: none;
+      padding-top: .25em;
+      padding-bottom: .25em;
+      width: 100%;
+    }
+
+    .color-chip__similar-colors li .deltaE {
+      display: none;
+      position: absolute;
+      right: 0;
+      color: #777;
+      padding: .7em;
+      background: white;
+      border-radius: 2em;
+      border: 1px solid #ddd;
+    }
+
+    .color-chip__similar-colors .small-color-chip {
+      display: flex;
+      align-items: center;
+    }
+
+    .color-chip__similar-colors li:hover .deltaE,
+    .color-chip__similar-colors li.isActive .deltaE {
+      display: block;
+    }
+
+    .color-chip__similar-colors .small-color-chip__color {
+      display: inline-block;
+      min-width: 2em;
+      height: 2em;
+      border-radius: 2em;
+      margin-right: .5em;
+    }
+
+
+
+    .color-chip__similar-colors {
+      width: 100%;
+    }
+
+
     .checkerboard-bg {
       background-image: linear-gradient(45deg, #777 25%, transparent 25%), linear-gradient(-45deg, #777 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #777 75%), linear-gradient(-45deg, transparent 75%, #777 75%);
       background-size: 20px 20px;
@@ -90,18 +163,22 @@
       display: flex;
       flex-wrap: wrap;
     }
+
     .color-ramp {
       min-width: 226px;
       margin-left: 20px;
       margin-right: 20px;
       margin-bottom: 20px;
     }
+
     .color-ramp .checkerboard-bg {
       border-radius: 4px;
       margin-top: 8px;
     }
+
     .color-ramp__item {
-      border: 1px solid rgba(0,0,0,.12);
+      position: relative;
+      border: 1px solid rgba(0, 0, 0, .12);
       border-top-color: transparent;
       color: #fff;
       padding: 10px 15px 11px;
@@ -111,21 +188,31 @@
       justify-content: space-between;
       align-items: center;
       min-width: 200px;
-
     }
+
     .color-ramp__item:first-of-type {
-      border-top-color: rgba(0,0,0,.12);
+      border-top-color: rgba(0, 0, 0, .12);
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
     }
+
     .color-ramp__item:last-of-type {
       border-bottom-left-radius: 4px;
       border-bottom-right-radius: 4px;
     }
+
     .color-ramp__item.light {
       color: #333;
     }
-    .color-ramp__item h3, .color-ramp__item h4 {
+
+    .color-ramp__item .warning-sign {
+      line-height: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .color-ramp__item h3,
+    .color-ramp__item h4 {
       margin: 0;
       padding: 0;
       overflow-wrap: break-word;
@@ -136,12 +223,14 @@
       margin-top: -2px;
       padding-bottom: 2px;
     }
+
     .color-ramp__item h3 {
       font-size: 1rem;
       font-weight: 700;
       margin-left: -8px;
       margin-right: 16px;
     }
+
     .color-ramp__item h4 {
       font-family: var(--monospace-font);
       font-size: .8rem;
@@ -149,6 +238,28 @@
       margin-left: 16px;
       margin-right: -8px;
     }
+
+    .color-ramp__item:hover .deltaE,
+    .color-ramp__item.isActive .deltaE {
+      display: block;
+    }
+
+    .color-ramp__item .deltaE {
+      display: none;
+      position: absolute;
+      right: 0;
+      padding: .7em;
+
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 2em;
+      border: 1px solid #777;
+
+      background: #333;
+      color: #ddd;
+    }
+
+
     .value-source {
       font-weight: bold;
       font-family: var(--monospace-font);
@@ -159,19 +270,19 @@
 
 <body>
 
-{{#if color-section }}
+  {{#if color-section }}
   <section id='color'>
-  <h2>Colors</h2>
-  {{{ color-section }}}
+    <h2>Colors</h2>
+    {{{ color-section }}}
   </section>
-{{/if }}
+  {{/if }}
 
 
 
   <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
   <script>
     window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;
-    ga('create', 'UA-XXXXX-Y', 'auto'); ga('set','transport','beacon'); ga('send', 'pageview')
+    ga('create', 'UA-XXXXX-Y', 'auto'); ga('set', 'transport', 'beacon'); ga('send', 'pageview')
   </script>
   <script src="https://www.google-analytics.com/analytics.js" async></script>
 </body>

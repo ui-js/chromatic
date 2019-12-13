@@ -1,38 +1,54 @@
-
 {{#if group}} <h3>{{ group }}</h3> {{/if}}
 
-<div class='color-ramps'>  
-{{#each colorRamps}}
-<div class="color-ramp">
-    <h3>{{name}}</h3>
-    <div class="checkerboard-bg">
-    {{#each values}}
-    <div class="color-ramp__item {{cls}}" style='background-color:{{css}}'>
-        <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{name}}</h3>
-        <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{css}}</h4>
+<div class='color-ramps'>
+    {{#each colorRamps}}
+    <div class="color-ramp">
+        <h3>{{name}}</h3>
+        <div class="checkerboard-bg">
+            {{#each values}}
+            <div class="color-ramp__item {{cls}}" style='background-color:{{css}}'>
+                <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}' {{/if}}>{{name}}</h3>
+                {{#if deltaE }}<span class='warning-sign'>&#x26A0;</span>{{/if}}
+                <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}' {{/if}}>{{css}}</h4>
+                {{#if deltaE }}<span class='deltaE'>&delta;E {{deltaE}}</span>{{/if}}
+            </div>
+            {{/each}}
+        </div>
+        <p class="value-source">{{source}}</p>
     </div>
     {{/each}}
-    </div>
-    <p class="value-source">{{source}}</p>
-</div>
-{{/each}}
 </div>
 
-<div class='color-chips'>  
+<div class='color-chips'>
     {{#each colors}}
     <div class="color-chip">
-    <div class='color-chip__swatch-container checkerboard-bg'>
-        <div class='color-chip__swatch {{cls}}' style='background-color:{{css}}'>
-        <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{name}}</h3>
-        <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}'{{/if}}>{{css}}</h4>
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch {{cls}}' style='background-color:{{css}}'>
+                <h3 {{#if opaqueColor}}style='background:{{opaqueColor}}' {{/if}}>{{name}}</h3>
+                <h4 {{#if opaqueColor}}style='background:{{opaqueColor}}' {{/if}}>{{css}}</h4>
+            </div>
         </div>
-    </div>
-    {{#if source}}
-    <p class='value-source'>{{source}}</p>
-    {{/if}}
-    {{#if comment}}
-    <p class='color-chip__comment'>{{{comment}}}</p>
-    {{/if}}
+        {{#if source}}
+        <p class='value-source'>{{source}}</p>
+        {{/if}}
+        {{#if comment}}
+        <p class='color-chip__comment'>{{{comment}}}</p>
+        {{/if}}
+        {{#if similarColors}}
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors</h4>
+            <ul>
+                {{#each similarColors}}
+                <li><span class='small-color-chip'>
+                        <span style='background:{{css}}' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>{{name}}</span>
+                    </span>
+                    <span class='deltaE'>&delta;E {{deltaE}}</span>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+        {{/if}}
     </div>
     {{/each}}
 </div>

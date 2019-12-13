@@ -26,6 +26,12 @@ tokens:
     hsl-with-grad: 'hsla(19grad 100% 73.9% .5)'
     hsl-with-rad: 'hsla(0.2985rad 100% 73.9% .5)'
 
+    lab-color-conversion_0066ce: 'lab(44%, 16, -60)'
+    lab-color-conversion_000: 'lab(0, 0, 0)'
+    lab-color-conversion_fff: 'lab(100%, 0, 0)'
+    lab-color-conversion_777: 'lab(50%, 0, 0)'
+    lab-color-conversion_ff89ff: 'lab(100%, 128, -128)'
+    lab-color-conversion-clamped_ff89ff: 'lab(200%, 200, -200)'
     hwb: 'hwb(17deg 48% 0%)'
     hsv: 'hsv(259.6deg, 48.9%, 85.9%)' # #9370db
     hsv-with-unicode-deg: 'hsv(259.6° 48.9% 85.9%)' # #9370db
@@ -67,3 +73,4 @@ tokens:
         color-plus-percent: '#fa7 + 10%'
         color-plus-color: '#fa7 + #123'
         color-plus-dimen: '#fa7 + 12px'
+        mix-invalid-argument: 'mix(#fa7, #000, .5, "lob")'

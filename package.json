@@ -31,7 +31,7 @@
         "jest": "^24.9.0",
         "lint-staged": "^9.5.0",
         "prettier": "^1.19.1",
-        "rollup": "^1.27.11",
+        "rollup": "^1.27.12",
         "rollup-plugin-commonjs": "^10.1.0",
         "rollup-plugin-copy": "^3.1.0",
         "rollup-plugin-eslint": "^7.0.0",

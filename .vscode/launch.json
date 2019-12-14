@@ -27,8 +27,8 @@
             "skipFiles": ["<node_internals>/**"],
             "program": "${workspaceFolder}/bin/chromatic",
             "args": [
-                // "./test/tokens/../../examples/advanced/tokens.yaml",
-                "test/tokens/basic-example/tokens.yaml",
+                "./test/tokens/../../examples/advanced/tokens.yaml",
+                // "test/tokens/basic-example/tokens.yaml",
                 "--format",
                 "html",
                 "--verbose",

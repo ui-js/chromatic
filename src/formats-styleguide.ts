@@ -4,7 +4,7 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 
 import { Color, isColor, isColorArray, roundTo } from './value';
-import { getSimilarColors, deltaE } from './color-functions';
+import { getSimilarColors, getDeltaE, filterColor } from './color-functions';
 import { RenderContext, Format } from './formats';
 
 function renderColorSection(context: RenderContext): string {
@@ -44,23 +44,103 @@ function renderColorSection(context: RenderContext): string {
                     opaqueColor.a = 1.0;
                 }
                 const similarColors = getSimilarColors(color, allColors);
+                const similarProtanopiaColors = getSimilarColors(
+                    color,
+                    allColors,
+                    'protanopia'
+                );
+                const similarDeuteranopiaColors = getSimilarColors(
+                    color,
+                    allColors,
+                    'deuteranopia'
+                )?.filter(x => !similarColors?.includes(x));
+                const similarTritanopiaColors = getSimilarColors(
+                    color,
+                    allColors,
+                    'tritanopia'
+                );
+                const similarColorsColorDeficient = [];
+                [
+                    ...(similarDeuteranopiaColors ?? []),
+                    ...(similarTritanopiaColors ?? []),
+                    ...(similarProtanopiaColors ?? []),
+                ].forEach(x => {
+                    // Add to the list if it's not:
+                    // 1/ already in the list and
+                    // 2/ not in the "normal" similar colors
+                    // We want this list to only include colors that are similar
+                    // for people with color deficiency
+                    if (
+                        similarColorsColorDeficient.findIndex(
+                            y => y.name === x.name
+                        ) < 0
+                    ) {
+                        if (
+                            !similarColors ||
+                            similarColors.findIndex(y => y.name === x.name) < 0
+                        ) {
+                            similarColorsColorDeficient.push(x);
+                        }
+                    }
+                });
                 handlebarsContext.colors.push({
                     name: token.tokenId,
                     value: token.tokenValue,
                     source: color.getSource(),
                     css: color.css(),
+                    protanopiaCss: filterColor(color, 'protanopia').css(),
+                    deuteranopiaCss: filterColor(color, 'deuteranopia').css(),
+                    tritanopiaCss: filterColor(color, 'tritanopia').css(),
                     comment: token.tokenDefinition.comment ?? '',
                     cls,
                     opaqueColor: opaqueColor?.css(),
-                    similarColors: similarColors
-                        ? similarColors.map(x => {
-                              return {
-                                  name: x.name,
-                                  css: x.color.css(),
-                                  deltaE: roundTo(x.deltaE, 2),
-                              };
-                          })
-                        : null,
+                    similarColors: {
+                        normal: similarColors
+                            ? similarColors.map(x => {
+                                  return {
+                                      name: x.name,
+                                      css: x.color.css(),
+                                      deltaE: roundTo(x.deltaE, 2),
+                                  };
+                              })
+                            : null,
+                        colorDeficient: similarColorsColorDeficient
+                            ? similarColorsColorDeficient.map(x => {
+                                  return {
+                                      name: x.name,
+                                      css: x.color.css(),
+                                      deltaE: roundTo(x.deltaE, 2),
+                                  };
+                              })
+                            : null,
+                        protanopia: similarProtanopiaColors
+                            ? similarProtanopiaColors.map(x => {
+                                  return {
+                                      name: x.name,
+                                      css: x.color.css(),
+                                      deltaE: roundTo(x.deltaE, 2),
+                                  };
+                              })
+                            : null,
+                        deuteranopia: similarDeuteranopiaColors
+                            ? similarDeuteranopiaColors.map(x => {
+                                  return {
+                                      name: x.name,
+                                      css: x.color.css(),
+                                      deltaE: roundTo(x.deltaE, 2),
+                                  };
+                              })
+                            : null,
+                        tritanopia: similarTritanopiaColors
+                            ? similarTritanopiaColors.map(x => {
+                                  return {
+                                      name: x.name,
+                                      css: x.color.css(),
+                                      deltaE: roundTo(x.deltaE, 2),
+                                  };
+                              })
+                            : null,
+                    },
                 });
             } else if (isColorArray(token.tokenValue)) {
                 let previousColor;
@@ -77,7 +157,7 @@ function renderColorSection(context: RenderContext): string {
                             opaqueColor.a = 1.0;
                         }
                         const deltaEWithPrevious =
-                            previousColor && deltaE(color, previousColor);
+                            previousColor && getDeltaE(color, previousColor);
                         previousColor = color;
                         return {
                             name: i === 0 ? '50' : i * 100,

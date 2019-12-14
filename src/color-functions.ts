@@ -21,6 +21,10 @@ import {
 import { getSuggestion } from './utils';
 import { throwError, ErrorCode } from './errors';
 
+function clampUnit(x: number): number {
+    return x < 0 ? 0 : x > 1 ? 1 : x;
+}
+
 function asDecimalByte(value: Value): number {
     if (isPercentage(value)) {
         return Math.round((255 * value.value) / 100);
@@ -98,6 +102,36 @@ function rgbToLab(
     return { L: 116 * y - 16, a: 500 * (x - y), b: 200 * (y - z) };
 }
 
+function rgbToXyz(
+    r: number,
+    g: number,
+    b: number
+): { x: number; y: number; z: number } {
+    return {
+        x: 0.430574 * r + 0.34155 * g + 0.178325 * b,
+        y: 0.222015 * r + 0.706655 * g + 0.07133 * b,
+        z: 0.020183 * r + 0.129553 * g + 0.93918 * b,
+    };
+}
+
+function xyzToRgb(
+    x: number,
+    y: number,
+    z: number
+): { r: number; g: number; b: number } {
+    return {
+        r: 3.063218 * x - 1.393325 * y - 0.475802 * z,
+        g: -0.969243 * x + 1.875966 * y + 0.041555 * z,
+        b: 0.067871 * x - 0.228834 * y + 1.069251 * z,
+    };
+}
+
+const colorDeficiencyTable = {
+    protanopia: { cpu: 0.735, cpv: 0.265, am: 1.273463, ayi: -0.073894 },
+    deuteranopia: { cpu: 1.14, cpv: -0.14, am: 0.968437, ayi: 0.003331 },
+    tritanopia: { cpu: 0.171, cpv: -0.003, am: 0.062921, ayi: 0.292119 },
+};
+
 function hwbToRgb(
     hue: number,
     white: number,
@@ -160,14 +194,16 @@ function getHPrimeFn(x, y): number {
     return hueAngle >= 0 ? hueAngle : hueAngle + 360;
 }
 
-/** Measure the distance between two colors.
- * Value of less than 2 are not perceptible
+/**
+ * Measure the distance between two colors.
+ * Colors that have a deltaE of less than 2 are difficult to distinguish.
  *
  *  Uses the CIE-2000 algorithm which correct for perceptual uniformity.
  *  http://en.wikipedia.org/wiki/Color_difference#CIEDE2000
+ *  http://www2.ece.rochester.edu/~gsharma/ciede2000/ciede2000noteCRNA.pdf
  */
 
-export function deltaE(c1: Color, c2: Color): number {
+export function getDeltaE(c1: Color, c2: Color): number {
     const kSubL = 1;
     const kSubC = 1;
     const kSubH = 1;
@@ -189,7 +225,7 @@ export function deltaE(c1: Color, c2: Color): number {
     const aPrime2 = x2.a + (x2.a / 2) * aPrime;
 
     const CPrime1 = Math.sqrt(aPrime1 * aPrime1 + x1.b * x1.b);
-    const CPrime2 = Math.sqrt(aPrime2 * aPrime2 + x1.b * x2.b);
+    const CPrime2 = Math.sqrt(aPrime2 * aPrime2 + x2.b * x2.b);
     const CBarPrime = (CPrime1 + CPrime2) / 2;
     const deltaCPrime = CPrime2 - CPrime1;
     const LBarPrime = Math.pow(LBar - 50, 2);
@@ -240,24 +276,113 @@ export function deltaE(c1: Color, c2: Color): number {
     );
 }
 
+export function filterColor(c: Color, filter: string): Color {
+    // https://ixora.io/projects/colorblindness/color-blindness-simulation-research/
+    // https://github.com/hx2A/ColorBlindness/blob/master/src/colorblind/ColorUtilities.java
+    switch (filter) {
+        case 'none':
+            return c;
+
+        case 'grayscale':
+            const lab = rgbToLab(c.r, c.g, c.b);
+            return new Color({
+                a: c.a,
+                ...labToRgb(lab.L, 0, 0),
+            });
+
+        case 'protanopia':
+        case 'deuteranopia':
+        case 'tritanopia': {
+            const gamma = 2.2;
+            // (x, y, z) in [0..1]^3
+            const { x, y, z } = rgbToXyz(
+                Math.pow(c.r / 255, gamma),
+                Math.pow(c.g / 255, gamma),
+                Math.pow(c.b / 255, gamma)
+            );
+            const u = x + y + z != 0 ? x / (x + y + z) : 0;
+            const v = x + y + z != 0 ? y / (x + y + z) : 0;
+            const nx = (y * 0.312713) / 0.329016;
+            const nz = (y * 0.358271) / 0.329016;
+
+            let clm: number;
+            if (u < colorDeficiencyTable[filter].cpu) {
+                clm =
+                    (colorDeficiencyTable[filter].cpv - v) /
+                    (colorDeficiencyTable[filter].cpu - u);
+            } else {
+                clm =
+                    (v - colorDeficiencyTable[filter].cpv) /
+                    (u - colorDeficiencyTable[filter].cpu);
+            }
+            const clyi = v - u * clm;
+            const dU =
+                (colorDeficiencyTable[filter].ayi - clyi) /
+                (clm - colorDeficiencyTable[filter].am);
+            const dV = clm * dU + clyi;
+
+            const xPrime = (dU * y) / dV;
+            const zPrime = ((1 - (dU + dV)) * y) / dV;
+
+            const dX = nx - xPrime;
+            const dZ = nz - zPrime;
+            const { r: dr, g: dg, b: db } = xyzToRgb(dX, 0, dZ);
+            let { r: rPrime, g: gPrime, b: bPrime } = xyzToRgb(
+                xPrime,
+                y,
+                zPrime
+            );
+            const deltaR = rPrime ? ((rPrime < 0 ? 0 : 1) - rPrime) / dr : 0;
+            const deltaG = gPrime ? ((gPrime < 0 ? 0 : 1) - gPrime) / dg : 0;
+            const deltaB = bPrime ? ((bPrime < 0 ? 0 : 1) - bPrime) / db : 0;
+
+            const adjustment = Math.max(
+                deltaR > 1 || deltaR < 0 ? 0 : deltaR,
+                deltaG > 1 || deltaG < 0 ? 0 : deltaG,
+                deltaB > 1 || deltaB < 0 ? 0 : deltaB
+            );
+            rPrime += adjustment * dr;
+            gPrime += adjustment * dg;
+            bPrime += adjustment * db;
+            return new Color({
+                r: 255 * Math.pow(clampUnit(rPrime), 1 / gamma),
+                g: 255 * Math.pow(clampUnit(gPrime), 1 / gamma),
+                b: 255 * Math.pow(clampUnit(bPrime), 1 / gamma),
+            });
+        }
+    }
+    return undefined;
+}
+
 export function getSimilarColors(
     target: Color,
-    colors: { name: string; color: Color }[]
+    colors: { name: string; color: Color }[],
+    filter?: string
 ): { name: string; color: Color; deltaE: number }[] {
     const result = [];
 
+    const filteredTarget = filterColor(target, filter);
+
     colors.forEach(x => {
-        const diff = deltaE(target, x.color);
-        if (diff > 0 && diff < 2) {
-            result.push({
-                name: x.name,
-                color: x.color,
-                deltaE: diff,
-            });
+        if (!target.equals(x.color)) {
+            // Use an increased threshold (6) when applying a filter.
+            // Seems to produce more accurate results for
+            // confusing colors for color deficient people.
+            const diff = filter
+                ? getDeltaE(filteredTarget, filterColor(x.color, filter)) / 3
+                : getDeltaE(target, x.color);
+            if (diff < 2) {
+                result.push({
+                    name: x.name,
+                    color: x.color,
+                    deltaE: diff,
+                });
+            }
         }
     });
-    result.sort((a, b) => a.deltaE - b.deltaE);
-    return result.length === 0 ? null : result;
+    return result.length === 0
+        ? null
+        : result.sort((a, b) => a.deltaE - b.deltaE);
 }
 
 export function scaleColor(
@@ -301,7 +426,7 @@ export function scaleColor(
             l:
                 c2.h >= 180
                     ? c2.l - 0.35
-                    : c2.l - 0.15 + 0.15 * Math.sin(3 * Math.PI * (c2.h / 360)),
+                    : c2.l - 0.2 + 0.1 * Math.sin(4 * Math.PI * (c2.h / 360)),
         });
         n = asInteger(arg2, 10);
         const mode = new StringValue('rgb');
@@ -381,6 +506,7 @@ export const COLOR_FUNCTION_ARGUMENTS = {
     rotateHue: 'color, angle|number|none',
     complement: 'color',
     contrast: 'color, color|none, color|none',
+    filter: 'color, string',
 
     tint: 'color, number|percentage|none',
     shade: 'color, number|percentage|none',
@@ -448,27 +574,26 @@ export const COLOR_FUNCTIONS = {
     },
     filter: (c: Color, filterValue: StringValue): Color => {
         const filterName = asString(filterValue, 'none').toLowerCase();
-        switch (filterName) {
-            case 'none':
-                return c;
-
-            case 'grayscale':
-                const lab = rgbToLab(c.r, c.g, c.b);
-                return new Color({
-                    a: c.a,
-                    ...labToRgb(lab.L, 0, 0),
-                });
-
-            default:
-                throwError(
-                    ErrorCode.InvalidArgument,
-                    'filter()',
-                    `"${filterName}"`,
-                    getSuggestion(filterName, ['none', 'grayscale'])
-                );
+        const result = filterColor(
+            c,
+            asString(filterValue, 'none').toLowerCase()
+        );
+        if (!result) {
+            throwError(
+                ErrorCode.InvalidArgument,
+                'filter()',
+                `"${filterName}"`,
+                getSuggestion(filterName, [
+                    'none',
+                    'grayscale',
+                    'protanopia',
+                    'deuteranopia',
+                    'tritanopia',
+                ])
+            );
         }
 
-        return c;
+        return result;
     },
     mix: (c1: Value, c2: Value, weight: Value, model?: Value): Color => {
         // @todo: support additional color models. See color-convert npm module.

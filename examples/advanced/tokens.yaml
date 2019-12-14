@@ -1,10 +1,10 @@
 tokens:
     red: 'scale(hsl(4deg, 90%, 50%))'
-    orange: 'scale(hsl(35deg, 100%, 60%))'
-    yellow: 'scale(hsl(50deg, 100%, 62%))'
+    orange: 'scale(hsl(30deg, 100%, 60%))'
+    yellow: 'scale(hsl(46deg, 100%, 60%))'
     lime: 'scale(hsl(90deg, 79%, 39%))'
     green: 'scale(hsl(130deg, 70%, 43%))'
-    teal: 'scale(hsl(180deg, 80%, 50%))'
+    teal: 'scale(hsl(180deg, 80%, 45%))'
     blue: 'scale(hsl(210deg, 90%, 50%))'
     indigo: 'scale(hsl(260deg, 60%, 50%))'
     purple: 'scale(hsl(280deg, 80%, 50%))'
@@ -42,6 +42,13 @@ tokens:
             comment: 'Use for problems that do not prevent the task to complete'
         success: '{green-600}'
 
+    color-blind:
+        tritan-1: '#FAFF00'
+        tritan-2: '#FDF4F8'
+        protan-1: '#3B7398'
+        protan-2: '#D81B60'
+        deuteran-1: '#32F3D9'
+        deuteran-2: '#F1CFEC'
 groups:
     semantic:
         comment: 'These color values are used to convey a meaning'

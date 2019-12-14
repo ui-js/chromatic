@@ -524,10 +524,10 @@ Object {
     \\"volcano-300\\": \\"#fff176\\",
     \\"volcano-400\\": \\"#ffee58\\",
     \\"volcano-500\\": \\"#ffeb3b\\",
-    \\"volcano-600\\": \\"#ffe23b\\",
-    \\"volcano-700\\": \\"#ffd83b\\",
-    \\"volcano-800\\": \\"#ffcc3b\\",
-    \\"volcano-900\\": \\"#ffb93a\\",
+    \\"volcano-600\\": \\"#ffde33\\",
+    \\"volcano-700\\": \\"#ffd22b\\",
+    \\"volcano-800\\": \\"#ffc121\\",
+    \\"volcano-900\\": \\"#ffa711\\",
     \\"page-background\\": \\"#f9f9f9\\",
     \\"page-background.dark\\": \\"#262626\\",
     \\"text-color\\": \\"#111\\",
@@ -576,10 +576,10 @@ $volcano-200: \\"#fff59d\\" !default;
 $volcano-300: \\"#fff176\\" !default;
 $volcano-400: \\"#ffee58\\" !default;
 $volcano-500: \\"#ffeb3b\\" !default;
-$volcano-600: \\"#ffe23b\\" !default;
-$volcano-700: \\"#ffd83b\\" !default;
-$volcano-800: \\"#ffcc3b\\" !default;
-$volcano-900: \\"#ffb93a\\" !default;
+$volcano-600: \\"#ffde33\\" !default;
+$volcano-700: \\"#ffd22b\\" !default;
+$volcano-800: \\"#ffc121\\" !default;
+$volcano-900: \\"#ffa711\\" !default;
 //Indicate a completed task.
 $semantic-success: \\"#607f35\\" !default;
 //Indicate a problem that does not prevent a task from being completed.
@@ -930,28 +930,28 @@ Object {
                 <h4 >#f21c0d</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#e81a0c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#e5190c'>
                 <h3 >600</h3>
                 
-                <h4 >#e81a0c</h4>
+                <h4 >#e5190c</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#df170c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#d7170b'>
                 <h3 >700</h3>
                 
-                <h4 >#df170c</h4>
+                <h4 >#d7170b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#d2140b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#c6130a'>
                 <h3 >800</h3>
                 
-                <h4 >#d2140b</h4>
+                <h4 >#c6130a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#bf0f09'>
+            <div class=\\"color-ramp__item \\" style='background-color:#ab0e08'>
                 <h3 >900</h3>
                 
-                <h4 >#bf0f09</h4>
+                <h4 >#ab0e08</h4>
                 
             </div>
         </div>
@@ -960,134 +960,134 @@ Object {
     <div class=\\"color-ramp\\">
         <h3>orange</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#fff5e7'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff3e7'>
                 <h3 >50</h3>
                 
-                <h4 >#fff5e7</h4>
+                <h4 >#fff3e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe6c2'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffe0c2'>
                 <h3 >100</h3>
                 
-                <h4 >#ffe6c2</h4>
+                <h4 >#ffe0c2</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffd599'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fc9'>
                 <h3 >200</h3>
                 
-                <h4 >#ffd599</h4>
+                <h4 >#fc9</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffc470'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffb870'>
                 <h3 >300</h3>
                 
-                <h4 >#ffc470</h4>
+                <h4 >#ffb870</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffb752'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffa852'>
                 <h3 >400</h3>
                 
-                <h4 >#ffb752</h4>
+                <h4 >#ffa852</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#fa3'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#f93'>
                 <h3 >500</h3>
                 
-                <h4 >#fa3</h4>
+                <h4 >#f93</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ff9f31'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fe8a2b'>
                 <h3 >600</h3>
                 
-                <h4 >#ff9f31</h4>
+                <h4 >#fe8a2b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ff942e'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fd7b24'>
                 <h3 >700</h3>
                 
-                <h4 >#ff942e</h4>
+                <h4 >#fd7b24</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#ff852b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fc671a'>
                 <h3 >800</h3>
                 
-                <h4 >#ff852b</h4>
+                <h4 >#fc671a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#ff6e26'>
+            <div class=\\"color-ramp__item \\" style='background-color:#f9480a'>
                 <h3 >900</h3>
                 
-                <h4 >#ff6e26</h4>
+                <h4 >#f9480a</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(35deg, 100%, 60%))</p>
+        <p class=\\"value-source\\">scale(hsl(30deg, 100%, 60%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>yellow</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#fffbe8'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff9e7'>
                 <h3 >50</h3>
                 
-                <h4 >#fffbe8</h4>
+                <h4 >#fff9e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#fff5c5'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff1c2'>
                 <h3 >100</h3>
                 
-                <h4 >#fff5c5</h4>
+                <h4 >#fff1c2</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffef9e'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffe799'>
                 <h3 >200</h3>
                 
-                <h4 >#ffef9e</h4>
+                <h4 >#ffe799</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe977'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffdd70'>
                 <h3 >300</h3>
                 
-                <h4 >#ffe977</h4>
+                <h4 >#ffdd70</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe45a'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffd652'>
                 <h3 >400</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#ffe45a</h4>
-                <span class='deltaE'>&delta;E 1.99</span>
+                
+                <h4 >#ffd652</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffdf3d'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffcf33'>
                 <h3 >500</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#ffdf3d</h4>
-                <span class='deltaE'>&delta;E 1.76</span>
+                
+                <h4 >#ffcf33</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffd53d'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffc02b'>
                 <h3 >600</h3>
                 
-                <h4 >#ffd53d</h4>
+                <h4 >#ffc02b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffcc3c'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffb224'>
                 <h3 >700</h3>
                 
-                <h4 >#ffcc3c</h4>
+                <h4 >#ffb224</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffbf3c'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ff9f1a'>
                 <h3 >800</h3>
                 
-                <h4 >#ffbf3c</h4>
+                <h4 >#ff9f1a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffab3b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#ff810a'>
                 <h3 >900</h3>
                 
-                <h4 >#ffab3b</h4>
+                <h4 >#ff810a</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(50deg, 100%, 62%))</p>
+        <p class=\\"value-source\\">scale(hsl(46deg, 100%, 60%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>lime</h3>
@@ -1128,29 +1128,29 @@ Object {
                 <h4 >#63b215</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#61b212'>
+            <div class=\\"color-ramp__item \\" style='background-color:#5ba612'>
                 <h3 >600</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#61b212</h4>
-                <span class='deltaE'>&delta;E 0.21</span>
+                
+                <h4 >#5ba612</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#5fb10f'>
+            <div class=\\"color-ramp__item \\" style='background-color:#54990f'>
                 <h3 >700</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#5fb10f</h4>
-                <span class='deltaE'>&delta;E 0.35</span>
+                
+                <h4 >#54990f</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#5db10b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#4a890b'>
                 <h3 >800</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#5db10b</h4>
-                <span class='deltaE'>&delta;E 0.2</span>
+                
+                <h4 >#4a890b</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#59b005'>
+            <div class=\\"color-ramp__item \\" style='background-color:#3a7005'>
                 <h3 >900</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#59b005</h4>
-                <span class='deltaE'>&delta;E 0.49</span>
+                
+                <h4 >#3a7005</h4>
+                
             </div>
         </div>
         <p class=\\"value-source\\">scale(hsl(90deg, 79%, 39%))</p>
@@ -1194,28 +1194,28 @@ Object {
                 <h4 >#21ba3a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#1daf3a'>
+            <div class=\\"color-ramp__item \\" style='background-color:#1da736'>
                 <h3 >600</h3>
                 
-                <h4 >#1daf3a</h4>
+                <h4 >#1da736</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#1aa43b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#199533'>
                 <h3 >700</h3>
                 
-                <h4 >#1aa43b</h4>
+                <h4 >#199533</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#15963c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#137c2e'>
                 <h3 >800</h3>
                 
-                <h4 >#15963c</h4>
+                <h4 >#137c2e</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#0e803c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#0b5726'>
                 <h3 >900</h3>
                 
-                <h4 >#0e803c</h4>
+                <h4 >#0b5726</h4>
                 
             </div>
         </div>
@@ -1224,68 +1224,68 @@ Object {
     <div class=\\"color-ramp\\">
         <h3>teal</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#e3fcfc'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#e3f9f9'>
                 <h3 >50</h3>
                 
-                <h4 >#e3fcfc</h4>
+                <h4 >#e3f9f9</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#baf8f8'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#b9f1f1'>
                 <h3 >100</h3>
                 
-                <h4 >#baf8f8</h4>
+                <h4 >#b9f1f1</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#8cf3f3'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#8be7e7'>
                 <h3 >200</h3>
                 
-                <h4 >#8cf3f3</h4>
+                <h4 >#8be7e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#5eeeee'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#5ddddd'>
                 <h3 >300</h3>
                 
-                <h4 >#5eeeee</h4>
+                <h4 >#5ddddd</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#3ceaea'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#3ad6d6'>
                 <h3 >400</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#3ceaea</h4>
-                <span class='deltaE'>&delta;E 1.85</span>
+                
+                <h4 >#3ad6d6</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#19e6e6'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#17cfcf'>
                 <h3 >500</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#19e6e6</h4>
-                <span class='deltaE'>&delta;E 1.29</span>
+                
+                <h4 >#17cfcf</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#16cece'>
+            <div class=\\"color-ramp__item \\" style='background-color:#14b7b7'>
                 <h3 >600</h3>
                 
-                <h4 >#16cece</h4>
+                <h4 >#14b7b7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#14b6b6'>
+            <div class=\\"color-ramp__item \\" style='background-color:#129f9f'>
                 <h3 >700</h3>
                 
-                <h4 >#14b6b6</h4>
+                <h4 >#129f9f</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#119696'>
+            <div class=\\"color-ramp__item \\" style='background-color:#0e7f7f'>
                 <h3 >800</h3>
                 
-                <h4 >#119696</h4>
+                <h4 >#0e7f7f</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#0b6565'>
+            <div class=\\"color-ramp__item \\" style='background-color:#094e4e'>
                 <h3 >900</h3>
                 
-                <h4 >#0b6565</h4>
+                <h4 >#094e4e</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(180deg, 80%, 50%))</p>
+        <p class=\\"value-source\\">scale(hsl(180deg, 80%, 45%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>blue</h3>
@@ -1562,6 +1562,21 @@ Object {
             </div>
         </div>
         <p class='value-source'>hsl({primary-hue}, 100%, 40%)</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#005cb8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>cta-button-background-hover</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#3b7398' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.protan-1</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
@@ -1571,6 +1586,21 @@ Object {
             </div>
         </div>
         <p class='value-source'>{primary}</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#005cb8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>cta-button-background-hover</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#3b7398' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.protan-1</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
@@ -1580,6 +1610,16 @@ Object {
             </div>
         </div>
         <p class='value-source'>darken({cta-button-background}, 20%)</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#005cb8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>cta-button-background-hover</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
@@ -1589,24 +1629,185 @@ Object {
             </div>
         </div>
         <p class='value-source'>darken({cta-button-background}, 10%)</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#06c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>primary</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#06c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>cta-button-background</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#0052a3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>cta-button-background-active</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
-            <div class='color-chip__swatch ' style='background-color:#e81a0c'>
+            <div class='color-chip__swatch ' style='background-color:#e5190c'>
                 <h3 >semantic.error</h3>
-                <h4 >#e81a0c</h4>
+                <h4 >#e5190c</h4>
             </div>
         </div>
         <p class='value-source'>{red-600}</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d81b60' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.protan-2</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
-            <div class='color-chip__swatch ' style='background-color:#1daf3a'>
+            <div class='color-chip__swatch ' style='background-color:#1da736'>
                 <h3 >semantic.success</h3>
-                <h4 >#1daf3a</h4>
+                <h4 >#1da736</h4>
             </div>
         </div>
         <p class='value-source'>{green-600}</p>
+        <div class='color-chip__similar-colors'>
+        </div>
+    </div>
+    <div class=\\"color-chip\\">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#faff00'>
+                <h3 >color-blind.tritan-1</h3>
+                <h4 >#faff00</h4>
+            </div>
+        </div>
+        <p class='value-source'>#FAFF00</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#fdf4f8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.tritan-2</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class=\\"color-chip\\">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#fdf4f8'>
+                <h3 >color-blind.tritan-2</h3>
+                <h4 >#fdf4f8</h4>
+            </div>
+        </div>
+        <p class='value-source'>#FDF4F8</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#faff00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.tritan-1</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class=\\"color-chip\\">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#3b7398'>
+                <h3 >color-blind.protan-1</h3>
+                <h4 >#3b7398</h4>
+            </div>
+        </div>
+        <p class='value-source'>#3B7398</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#06c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>primary</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#06c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>cta-button-background</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d81b60' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.protan-2</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class=\\"color-chip\\">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#d81b60'>
+                <h3 >color-blind.protan-2</h3>
+                <h4 >#d81b60</h4>
+            </div>
+        </div>
+        <p class='value-source'>#D81B60</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#e5190c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>semantic.error</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#3b7398' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.protan-1</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class=\\"color-chip\\">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#32f3d9'>
+                <h3 >color-blind.deuteran-1</h3>
+                <h4 >#32f3d9</h4>
+            </div>
+        </div>
+        <p class='value-source'>#32F3D9</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f1cfec' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.deuteran-2</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class=\\"color-chip\\">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#f1cfec'>
+                <h3 >color-blind.deuteran-2</h3>
+                <h4 >#f1cfec</h4>
+            </div>
+        </div>
+        <p class='value-source'>#F1CFEC</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#32f3d9' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>color-blind.deuteran-1</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
 </div> <h3>Base</h3> 
 
@@ -1650,28 +1851,28 @@ Object {
                 <h4 >#f21c0d</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#e81a0c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#e5190c'>
                 <h3 >600</h3>
                 
-                <h4 >#e81a0c</h4>
+                <h4 >#e5190c</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#df170c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#d7170b'>
                 <h3 >700</h3>
                 
-                <h4 >#df170c</h4>
+                <h4 >#d7170b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#d2140b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#c6130a'>
                 <h3 >800</h3>
                 
-                <h4 >#d2140b</h4>
+                <h4 >#c6130a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#bf0f09'>
+            <div class=\\"color-ramp__item \\" style='background-color:#ab0e08'>
                 <h3 >900</h3>
                 
-                <h4 >#bf0f09</h4>
+                <h4 >#ab0e08</h4>
                 
             </div>
         </div>
@@ -1680,134 +1881,134 @@ Object {
     <div class=\\"color-ramp\\">
         <h3>orange</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#fff5e7'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff3e7'>
                 <h3 >50</h3>
                 
-                <h4 >#fff5e7</h4>
+                <h4 >#fff3e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe6c2'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffe0c2'>
                 <h3 >100</h3>
                 
-                <h4 >#ffe6c2</h4>
+                <h4 >#ffe0c2</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffd599'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fc9'>
                 <h3 >200</h3>
                 
-                <h4 >#ffd599</h4>
+                <h4 >#fc9</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffc470'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffb870'>
                 <h3 >300</h3>
                 
-                <h4 >#ffc470</h4>
+                <h4 >#ffb870</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffb752'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffa852'>
                 <h3 >400</h3>
                 
-                <h4 >#ffb752</h4>
+                <h4 >#ffa852</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#fa3'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#f93'>
                 <h3 >500</h3>
                 
-                <h4 >#fa3</h4>
+                <h4 >#f93</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ff9f31'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fe8a2b'>
                 <h3 >600</h3>
                 
-                <h4 >#ff9f31</h4>
+                <h4 >#fe8a2b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ff942e'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fd7b24'>
                 <h3 >700</h3>
                 
-                <h4 >#ff942e</h4>
+                <h4 >#fd7b24</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#ff852b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fc671a'>
                 <h3 >800</h3>
                 
-                <h4 >#ff852b</h4>
+                <h4 >#fc671a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#ff6e26'>
+            <div class=\\"color-ramp__item \\" style='background-color:#f9480a'>
                 <h3 >900</h3>
                 
-                <h4 >#ff6e26</h4>
+                <h4 >#f9480a</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(35deg, 100%, 60%))</p>
+        <p class=\\"value-source\\">scale(hsl(30deg, 100%, 60%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>yellow</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#fffbe8'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff9e7'>
                 <h3 >50</h3>
                 
-                <h4 >#fffbe8</h4>
+                <h4 >#fff9e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#fff5c5'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff1c2'>
                 <h3 >100</h3>
                 
-                <h4 >#fff5c5</h4>
+                <h4 >#fff1c2</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffef9e'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffe799'>
                 <h3 >200</h3>
                 
-                <h4 >#ffef9e</h4>
+                <h4 >#ffe799</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe977'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffdd70'>
                 <h3 >300</h3>
                 
-                <h4 >#ffe977</h4>
+                <h4 >#ffdd70</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe45a'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffd652'>
                 <h3 >400</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#ffe45a</h4>
-                <span class='deltaE'>&delta;E 1.99</span>
+                
+                <h4 >#ffd652</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffdf3d'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffcf33'>
                 <h3 >500</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#ffdf3d</h4>
-                <span class='deltaE'>&delta;E 1.76</span>
+                
+                <h4 >#ffcf33</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffd53d'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffc02b'>
                 <h3 >600</h3>
                 
-                <h4 >#ffd53d</h4>
+                <h4 >#ffc02b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffcc3c'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffb224'>
                 <h3 >700</h3>
                 
-                <h4 >#ffcc3c</h4>
+                <h4 >#ffb224</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffbf3c'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ff9f1a'>
                 <h3 >800</h3>
                 
-                <h4 >#ffbf3c</h4>
+                <h4 >#ff9f1a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffab3b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#ff810a'>
                 <h3 >900</h3>
                 
-                <h4 >#ffab3b</h4>
+                <h4 >#ff810a</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(50deg, 100%, 62%))</p>
+        <p class=\\"value-source\\">scale(hsl(46deg, 100%, 60%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>lime</h3>
@@ -1848,29 +2049,29 @@ Object {
                 <h4 >#63b215</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#61b212'>
+            <div class=\\"color-ramp__item \\" style='background-color:#5ba612'>
                 <h3 >600</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#61b212</h4>
-                <span class='deltaE'>&delta;E 0.21</span>
+                
+                <h4 >#5ba612</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#5fb10f'>
+            <div class=\\"color-ramp__item \\" style='background-color:#54990f'>
                 <h3 >700</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#5fb10f</h4>
-                <span class='deltaE'>&delta;E 0.35</span>
+                
+                <h4 >#54990f</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#5db10b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#4a890b'>
                 <h3 >800</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#5db10b</h4>
-                <span class='deltaE'>&delta;E 0.2</span>
+                
+                <h4 >#4a890b</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#59b005'>
+            <div class=\\"color-ramp__item \\" style='background-color:#3a7005'>
                 <h3 >900</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#59b005</h4>
-                <span class='deltaE'>&delta;E 0.49</span>
+                
+                <h4 >#3a7005</h4>
+                
             </div>
         </div>
         <p class=\\"value-source\\">scale(hsl(90deg, 79%, 39%))</p>
@@ -1914,28 +2115,28 @@ Object {
                 <h4 >#21ba3a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#1daf3a'>
+            <div class=\\"color-ramp__item \\" style='background-color:#1da736'>
                 <h3 >600</h3>
                 
-                <h4 >#1daf3a</h4>
+                <h4 >#1da736</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#1aa43b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#199533'>
                 <h3 >700</h3>
                 
-                <h4 >#1aa43b</h4>
+                <h4 >#199533</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#15963c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#137c2e'>
                 <h3 >800</h3>
                 
-                <h4 >#15963c</h4>
+                <h4 >#137c2e</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#0e803c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#0b5726'>
                 <h3 >900</h3>
                 
-                <h4 >#0e803c</h4>
+                <h4 >#0b5726</h4>
                 
             </div>
         </div>
@@ -1944,68 +2145,68 @@ Object {
     <div class=\\"color-ramp\\">
         <h3>teal</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#e3fcfc'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#e3f9f9'>
                 <h3 >50</h3>
                 
-                <h4 >#e3fcfc</h4>
+                <h4 >#e3f9f9</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#baf8f8'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#b9f1f1'>
                 <h3 >100</h3>
                 
-                <h4 >#baf8f8</h4>
+                <h4 >#b9f1f1</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#8cf3f3'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#8be7e7'>
                 <h3 >200</h3>
                 
-                <h4 >#8cf3f3</h4>
+                <h4 >#8be7e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#5eeeee'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#5ddddd'>
                 <h3 >300</h3>
                 
-                <h4 >#5eeeee</h4>
+                <h4 >#5ddddd</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#3ceaea'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#3ad6d6'>
                 <h3 >400</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#3ceaea</h4>
-                <span class='deltaE'>&delta;E 1.85</span>
+                
+                <h4 >#3ad6d6</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#19e6e6'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#17cfcf'>
                 <h3 >500</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#19e6e6</h4>
-                <span class='deltaE'>&delta;E 1.29</span>
+                
+                <h4 >#17cfcf</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#16cece'>
+            <div class=\\"color-ramp__item \\" style='background-color:#14b7b7'>
                 <h3 >600</h3>
                 
-                <h4 >#16cece</h4>
+                <h4 >#14b7b7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#14b6b6'>
+            <div class=\\"color-ramp__item \\" style='background-color:#129f9f'>
                 <h3 >700</h3>
                 
-                <h4 >#14b6b6</h4>
+                <h4 >#129f9f</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#119696'>
+            <div class=\\"color-ramp__item \\" style='background-color:#0e7f7f'>
                 <h3 >800</h3>
                 
-                <h4 >#119696</h4>
+                <h4 >#0e7f7f</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#0b6565'>
+            <div class=\\"color-ramp__item \\" style='background-color:#094e4e'>
                 <h3 >900</h3>
                 
-                <h4 >#0b6565</h4>
+                <h4 >#094e4e</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(180deg, 80%, 50%))</p>
+        <p class=\\"value-source\\">scale(hsl(180deg, 80%, 45%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>blue</h3>
@@ -2276,13 +2477,23 @@ Object {
 <div class='color-chips'>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
-            <div class='color-chip__swatch light' style='background-color:#ffb752'>
+            <div class='color-chip__swatch light' style='background-color:#ffa852'>
                 <h3 >semantic.warning</h3>
-                <h4 >#ffb752</h4>
+                <h4 >#ffa852</h4>
             </div>
         </div>
         <p class='value-source'>{orange-400}</p>
         <p class='color-chip__comment'>Use for problems that do not prevent the task to complete</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f93' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>semantic.warning.dark</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
 </div> <h3>dark</h3> 
 
@@ -2326,28 +2537,28 @@ Object {
                 <h4 >#f21c0d</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#e81a0c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#e5190c'>
                 <h3 >600</h3>
                 
-                <h4 >#e81a0c</h4>
+                <h4 >#e5190c</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#df170c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#d7170b'>
                 <h3 >700</h3>
                 
-                <h4 >#df170c</h4>
+                <h4 >#d7170b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#d2140b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#c6130a'>
                 <h3 >800</h3>
                 
-                <h4 >#d2140b</h4>
+                <h4 >#c6130a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#bf0f09'>
+            <div class=\\"color-ramp__item \\" style='background-color:#ab0e08'>
                 <h3 >900</h3>
                 
-                <h4 >#bf0f09</h4>
+                <h4 >#ab0e08</h4>
                 
             </div>
         </div>
@@ -2356,134 +2567,134 @@ Object {
     <div class=\\"color-ramp\\">
         <h3>orange</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#fff5e7'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff3e7'>
                 <h3 >50</h3>
                 
-                <h4 >#fff5e7</h4>
+                <h4 >#fff3e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe6c2'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffe0c2'>
                 <h3 >100</h3>
                 
-                <h4 >#ffe6c2</h4>
+                <h4 >#ffe0c2</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffd599'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fc9'>
                 <h3 >200</h3>
                 
-                <h4 >#ffd599</h4>
+                <h4 >#fc9</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffc470'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffb870'>
                 <h3 >300</h3>
                 
-                <h4 >#ffc470</h4>
+                <h4 >#ffb870</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffb752'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffa852'>
                 <h3 >400</h3>
                 
-                <h4 >#ffb752</h4>
+                <h4 >#ffa852</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#fa3'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#f93'>
                 <h3 >500</h3>
                 
-                <h4 >#fa3</h4>
+                <h4 >#f93</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ff9f31'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fe8a2b'>
                 <h3 >600</h3>
                 
-                <h4 >#ff9f31</h4>
+                <h4 >#fe8a2b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ff942e'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fd7b24'>
                 <h3 >700</h3>
                 
-                <h4 >#ff942e</h4>
+                <h4 >#fd7b24</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#ff852b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#fc671a'>
                 <h3 >800</h3>
                 
-                <h4 >#ff852b</h4>
+                <h4 >#fc671a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#ff6e26'>
+            <div class=\\"color-ramp__item \\" style='background-color:#f9480a'>
                 <h3 >900</h3>
                 
-                <h4 >#ff6e26</h4>
+                <h4 >#f9480a</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(35deg, 100%, 60%))</p>
+        <p class=\\"value-source\\">scale(hsl(30deg, 100%, 60%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>yellow</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#fffbe8'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff9e7'>
                 <h3 >50</h3>
                 
-                <h4 >#fffbe8</h4>
+                <h4 >#fff9e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#fff5c5'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#fff1c2'>
                 <h3 >100</h3>
                 
-                <h4 >#fff5c5</h4>
+                <h4 >#fff1c2</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffef9e'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffe799'>
                 <h3 >200</h3>
                 
-                <h4 >#ffef9e</h4>
+                <h4 >#ffe799</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe977'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffdd70'>
                 <h3 >300</h3>
                 
-                <h4 >#ffe977</h4>
+                <h4 >#ffdd70</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffe45a'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffd652'>
                 <h3 >400</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#ffe45a</h4>
-                <span class='deltaE'>&delta;E 1.99</span>
+                
+                <h4 >#ffd652</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffdf3d'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffcf33'>
                 <h3 >500</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#ffdf3d</h4>
-                <span class='deltaE'>&delta;E 1.76</span>
+                
+                <h4 >#ffcf33</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffd53d'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffc02b'>
                 <h3 >600</h3>
                 
-                <h4 >#ffd53d</h4>
+                <h4 >#ffc02b</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffcc3c'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ffb224'>
                 <h3 >700</h3>
                 
-                <h4 >#ffcc3c</h4>
+                <h4 >#ffb224</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffbf3c'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#ff9f1a'>
                 <h3 >800</h3>
                 
-                <h4 >#ffbf3c</h4>
+                <h4 >#ff9f1a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#ffab3b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#ff810a'>
                 <h3 >900</h3>
                 
-                <h4 >#ffab3b</h4>
+                <h4 >#ff810a</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(50deg, 100%, 62%))</p>
+        <p class=\\"value-source\\">scale(hsl(46deg, 100%, 60%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>lime</h3>
@@ -2524,29 +2735,29 @@ Object {
                 <h4 >#63b215</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#61b212'>
+            <div class=\\"color-ramp__item \\" style='background-color:#5ba612'>
                 <h3 >600</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#61b212</h4>
-                <span class='deltaE'>&delta;E 0.21</span>
+                
+                <h4 >#5ba612</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#5fb10f'>
+            <div class=\\"color-ramp__item \\" style='background-color:#54990f'>
                 <h3 >700</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#5fb10f</h4>
-                <span class='deltaE'>&delta;E 0.35</span>
+                
+                <h4 >#54990f</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#5db10b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#4a890b'>
                 <h3 >800</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#5db10b</h4>
-                <span class='deltaE'>&delta;E 0.2</span>
+                
+                <h4 >#4a890b</h4>
+                
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#59b005'>
+            <div class=\\"color-ramp__item \\" style='background-color:#3a7005'>
                 <h3 >900</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#59b005</h4>
-                <span class='deltaE'>&delta;E 0.49</span>
+                
+                <h4 >#3a7005</h4>
+                
             </div>
         </div>
         <p class=\\"value-source\\">scale(hsl(90deg, 79%, 39%))</p>
@@ -2590,28 +2801,28 @@ Object {
                 <h4 >#21ba3a</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#1daf3a'>
+            <div class=\\"color-ramp__item \\" style='background-color:#1da736'>
                 <h3 >600</h3>
                 
-                <h4 >#1daf3a</h4>
+                <h4 >#1da736</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#1aa43b'>
+            <div class=\\"color-ramp__item \\" style='background-color:#199533'>
                 <h3 >700</h3>
                 
-                <h4 >#1aa43b</h4>
+                <h4 >#199533</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#15963c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#137c2e'>
                 <h3 >800</h3>
                 
-                <h4 >#15963c</h4>
+                <h4 >#137c2e</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#0e803c'>
+            <div class=\\"color-ramp__item \\" style='background-color:#0b5726'>
                 <h3 >900</h3>
                 
-                <h4 >#0e803c</h4>
+                <h4 >#0b5726</h4>
                 
             </div>
         </div>
@@ -2620,68 +2831,68 @@ Object {
     <div class=\\"color-ramp\\">
         <h3>teal</h3>
         <div class=\\"checkerboard-bg\\">
-            <div class=\\"color-ramp__item light\\" style='background-color:#e3fcfc'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#e3f9f9'>
                 <h3 >50</h3>
                 
-                <h4 >#e3fcfc</h4>
+                <h4 >#e3f9f9</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#baf8f8'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#b9f1f1'>
                 <h3 >100</h3>
                 
-                <h4 >#baf8f8</h4>
+                <h4 >#b9f1f1</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#8cf3f3'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#8be7e7'>
                 <h3 >200</h3>
                 
-                <h4 >#8cf3f3</h4>
+                <h4 >#8be7e7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#5eeeee'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#5ddddd'>
                 <h3 >300</h3>
                 
-                <h4 >#5eeeee</h4>
+                <h4 >#5ddddd</h4>
                 
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#3ceaea'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#3ad6d6'>
                 <h3 >400</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#3ceaea</h4>
-                <span class='deltaE'>&delta;E 1.85</span>
+                
+                <h4 >#3ad6d6</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#19e6e6'>
+            <div class=\\"color-ramp__item light\\" style='background-color:#17cfcf'>
                 <h3 >500</h3>
-                <span class='warning-sign'>&#x26A0;</span>
-                <h4 >#19e6e6</h4>
-                <span class='deltaE'>&delta;E 1.29</span>
+                
+                <h4 >#17cfcf</h4>
+                
             </div>
-            <div class=\\"color-ramp__item light\\" style='background-color:#16cece'>
+            <div class=\\"color-ramp__item \\" style='background-color:#14b7b7'>
                 <h3 >600</h3>
                 
-                <h4 >#16cece</h4>
+                <h4 >#14b7b7</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#14b6b6'>
+            <div class=\\"color-ramp__item \\" style='background-color:#129f9f'>
                 <h3 >700</h3>
                 
-                <h4 >#14b6b6</h4>
+                <h4 >#129f9f</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#119696'>
+            <div class=\\"color-ramp__item \\" style='background-color:#0e7f7f'>
                 <h3 >800</h3>
                 
-                <h4 >#119696</h4>
+                <h4 >#0e7f7f</h4>
                 
             </div>
-            <div class=\\"color-ramp__item \\" style='background-color:#0b6565'>
+            <div class=\\"color-ramp__item \\" style='background-color:#094e4e'>
                 <h3 >900</h3>
                 
-                <h4 >#0b6565</h4>
+                <h4 >#094e4e</h4>
                 
             </div>
         </div>
-        <p class=\\"value-source\\">scale(hsl(180deg, 80%, 50%))</p>
+        <p class=\\"value-source\\">scale(hsl(180deg, 80%, 45%))</p>
     </div>
     <div class=\\"color-ramp\\">
         <h3>blue</h3>
@@ -2952,13 +3163,23 @@ Object {
 <div class='color-chips'>
     <div class=\\"color-chip\\">
         <div class='color-chip__swatch-container checkerboard-bg'>
-            <div class='color-chip__swatch light' style='background-color:#fa3'>
+            <div class='color-chip__swatch light' style='background-color:#f93'>
                 <h3 >semantic.warning</h3>
-                <h4 >#fa3</h4>
+                <h4 >#f93</h4>
             </div>
         </div>
         <p class='value-source'>{orange-500}</p>
         <p class='color-chip__comment'>Use for problems that do not prevent the task to complete</p>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffa852' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>semantic.warning</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
   </section>

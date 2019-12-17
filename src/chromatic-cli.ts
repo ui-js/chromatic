@@ -1,7 +1,11 @@
+const pkg = require('./package.json');
+require('please-upgrade-node')(pkg);
+
 import { chromatic } from './chromatic';
 import { terminal } from './terminal';
 const fs = require('fs-extra');
 const path = require('path');
+const updateNotifier = require('update-notifier');
 
 const chokidar = require('chokidar');
 
@@ -173,6 +177,10 @@ function example(argv): void {
         console.log(err.message);
     }
 }
+
+// Display an update message if a more recent version of the package is
+// available.
+updateNotifier({ pkg, shouldNotifyInNpmScript: true }).notify();
 
 require('yargs')
     .usage('Usage: $0 file(s) [options]')

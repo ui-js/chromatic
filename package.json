@@ -1,7 +1,10 @@
 {
-    "name": "@arnog/chromatic",
+    "name": "@ui-js/chromatic",
     "version": "0.8.0",
     "description": "A build system for managing cross-platform design systems using design tokens.",
+    "publishConfig": {
+        "access": "public"
+    },
     "keywords": [
         "design tokens",
         "design system",
@@ -54,14 +57,16 @@
         "highlight.js": "^9.17.1",
         "json5": "^2.1.1",
         "marked": "^0.8.0",
+        "please-upgrade-node": "^3.2.0",
         "resolve-from": "^5.0.0",
         "string-similarity": "^3.0.0",
+        "update-notifier": "^4.0.0",
         "yaml": "^1.7.2",
         "yargs": "^15.0.2"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/arnog/chromatic.git"
+        "url": "https://github.com/ui-js/chromatic.git"
     },
     "bin": {
         "chromatic": "./bin/chromatic"

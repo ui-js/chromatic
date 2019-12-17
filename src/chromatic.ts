@@ -77,6 +77,15 @@ interface Config extends ValueParserOptions {
     };
 }
 
+/**
+ * The parameters that can be specified in a token file, or overriden
+ * as an options
+ */
+interface Settings {
+    colorSimilarityThreshold: number;
+    colorDeficiencySimilariryThreshold: number;
+}
+
 /** The set of options that can be passed to the chromatic() function
  * or to the CLI tool
  */

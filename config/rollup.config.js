@@ -59,6 +59,7 @@ export default [
                 targets: [
                     { src: 'src/templates', dest: 'bin' },
                     { src: 'examples', dest: 'bin' },
+                    { src: 'package.json', dest: 'bin' },
                 ],
             }),
         ],

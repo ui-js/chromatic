@@ -112,7 +112,7 @@ export class Percentage extends Value {
             const v1 = promoteToMulti(this);
             const v2 = promoteToMulti(v);
             return [...Object.keys(v1.value), ...Object.keys(v2.value)].every(
-                x => v1.value[x] === v2.value[x]
+                (x) => v1.value[x] === v2.value[x]
             );
         }
 
@@ -167,9 +167,10 @@ export class Length extends Value {
                 this.unit = unit;
             }
         } else if (typeof unit === 'undefined') {
-            const nonZeroKeys: LengthUnit[] = Object.keys(from).filter(
-                x => typeof from[x] === 'number' && from[x] !== 0
-            ) as LengthUnit[];
+            const nonZeroKeys: LengthUnit[] =
+                Object.keys(from).filter(
+                    (x) => typeof from[x] === 'number' && from[x] !== 0
+                ) as LengthUnit[];
             if (nonZeroKeys.length === 0) {
                 // Everything's zero, return the canonical zero length: 0px
                 this.value = 0;
@@ -206,7 +207,7 @@ export class Length extends Value {
             // It's a multi-unit length, with multiple units
             // Attempt to simplify it
             let pxSum = 0;
-            units.forEach(x => {
+            units.forEach((x) => {
                 const inPx = asPx(this.value[x], x as LengthUnit);
                 if (!isNaN(inPx)) {
                     pxSum += inPx;
@@ -231,7 +232,7 @@ export class Length extends Value {
 
         return (
             'calc(' +
-            units.map(x => Number(result[x]).toString() + x).join(' + ') +
+            units.map((x) => Number(result[x]).toString() + x).join(' + ') +
             ')'
         );
     }
@@ -324,7 +325,7 @@ export class ArrayValue extends Value {
     value: Value[];
     constructor(from: Value[]) {
         super();
-        this.value = from.map(x => makeValueFrom(x));
+        this.value = from.map((x) => makeValueFrom(x));
     }
     get(index: number): Value {
         return this.value[index];
@@ -333,7 +334,7 @@ export class ArrayValue extends Value {
         return 'array';
     }
     css(): string {
-        return '[' + this.value.map(x => x.css()).join(', ') + ']';
+        return '[' + this.value.map((x) => x.css()).join(', ') + ']';
     }
     equals(v: Value): boolean {
         return (
@@ -634,7 +635,7 @@ export function asColor(value: object | string): Color {
 }
 
 export function isColorArray(arg: Value): arg is ArrayValue {
-    return arg instanceof ArrayValue && arg.value.every(x => isColor(x));
+    return arg instanceof ArrayValue && arg.value.every((x) => isColor(x));
 }
 
 export function isNumber(arg: Value): arg is NumberValue {
@@ -737,7 +738,7 @@ function asPx(
     if (typeof value !== 'number') {
         console.assert(unit === 'multi');
         let pxSum = value['px'] ?? 0;
-        Object.keys(value).forEach(x => {
+        Object.keys(value).forEach((x) => {
             const inPx = asPx(this.value[x], x as LengthUnit, baseUnits);
             if (isNaN(inPx)) return NaN;
             pxSum += pxSum;
@@ -817,7 +818,7 @@ export function scaleLength(arg1: Length, arg2?: Value): ArrayValue {
     }[scaleName];
     if (typeof scale === 'undefined') {
         // Try to parse the scale as "p:q"
-        scale = scaleName.split(':').map(x => parseFloat(x));
+        scale = scaleName.split(':').map((x) => parseFloat(x));
         if (isNaN(scale[0]) || isNaN(scale[1])) {
             throw new SyntaxError(ErrorCode.InvalidOperand);
         }

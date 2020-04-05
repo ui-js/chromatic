@@ -11,8 +11,8 @@ function renderColorSection(context: RenderContext): string {
     let result = '';
     const handlebarsContext = { colors: [], colorRamps: [], group: '' };
     const allColors: { name: string; color: Color }[] = [];
-    context.themes.forEach(theme => {
-        theme.tokens.forEach(token => {
+    context.themes.forEach((theme) => {
+        theme.tokens.forEach((token) => {
             if (isColor(token.tokenValue))
                 allColors.push({
                     name:
@@ -25,7 +25,7 @@ function renderColorSection(context: RenderContext): string {
         });
     });
 
-    context.themes.forEach(theme => {
+    context.themes.forEach((theme) => {
         handlebarsContext.group =
             context.themes.length === 1
                 ? ''
@@ -33,7 +33,7 @@ function renderColorSection(context: RenderContext): string {
                 ? 'Base'
                 : theme.theme;
         handlebarsContext.colors = [];
-        theme.tokens.forEach(token => {
+        theme.tokens.forEach((token) => {
             if (isColor(token.tokenValue)) {
                 const color = token.tokenValue as Color;
                 let cls = color.luma() >= 1.0 ? 'frame ' : '';
@@ -53,7 +53,7 @@ function renderColorSection(context: RenderContext): string {
                     color,
                     allColors,
                     'deuteranopia'
-                )?.filter(x => !similarColors?.includes(x));
+                )?.filter((x) => !similarColors?.includes(x));
                 const similarTritanopiaColors = getSimilarColors(
                     color,
                     allColors,
@@ -64,7 +64,7 @@ function renderColorSection(context: RenderContext): string {
                     ...(similarDeuteranopiaColors ?? []),
                     ...(similarTritanopiaColors ?? []),
                     ...(similarProtanopiaColors ?? []),
-                ].forEach(x => {
+                ].forEach((x) => {
                     // Add to the list if it's not:
                     // 1/ already in the list and
                     // 2/ not in the "normal" similar colors
@@ -72,12 +72,13 @@ function renderColorSection(context: RenderContext): string {
                     // for people with color deficiency
                     if (
                         similarColorsColorDeficient.findIndex(
-                            y => y.name === x.name
+                            (y) => y.name === x.name
                         ) < 0
                     ) {
                         if (
                             !similarColors ||
-                            similarColors.findIndex(y => y.name === x.name) < 0
+                            similarColors.findIndex((y) => y.name === x.name) <
+                                0
                         ) {
                             similarColorsColorDeficient.push(x);
                         }
@@ -96,7 +97,7 @@ function renderColorSection(context: RenderContext): string {
                     opaqueColor: opaqueColor?.css(),
                     similarColors: {
                         normal: similarColors
-                            ? similarColors.map(x => {
+                            ? similarColors.map((x) => {
                                   return {
                                       name: x.name,
                                       css: x.color.css(),
@@ -105,7 +106,7 @@ function renderColorSection(context: RenderContext): string {
                               })
                             : null,
                         colorDeficient: similarColorsColorDeficient
-                            ? similarColorsColorDeficient.map(x => {
+                            ? similarColorsColorDeficient.map((x) => {
                                   return {
                                       name: x.name,
                                       css: x.color.css(),
@@ -114,7 +115,7 @@ function renderColorSection(context: RenderContext): string {
                               })
                             : null,
                         protanopia: similarProtanopiaColors
-                            ? similarProtanopiaColors.map(x => {
+                            ? similarProtanopiaColors.map((x) => {
                                   return {
                                       name: x.name,
                                       css: x.color.css(),
@@ -123,7 +124,7 @@ function renderColorSection(context: RenderContext): string {
                               })
                             : null,
                         deuteranopia: similarDeuteranopiaColors
-                            ? similarDeuteranopiaColors.map(x => {
+                            ? similarDeuteranopiaColors.map((x) => {
                                   return {
                                       name: x.name,
                                       css: x.color.css(),
@@ -132,7 +133,7 @@ function renderColorSection(context: RenderContext): string {
                               })
                             : null,
                         tritanopia: similarTritanopiaColors
-                            ? similarTritanopiaColors.map(x => {
+                            ? similarTritanopiaColors.map((x) => {
                                   return {
                                       name: x.name,
                                       css: x.color.css(),

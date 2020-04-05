@@ -97,10 +97,10 @@ const FUNCTION_ARGUMENTS = {
 function validateArguments(fn: string, args: any[]): void {
     const expectedArguments = FUNCTION_ARGUMENTS[fn]
         ?.split(',')
-        .map(x => x.trim());
+        .map((x) => x.trim());
     if (expectedArguments) {
         expectedArguments.forEach((x: string, i: number) => {
-            const types = x.split('|').map(x => x.trim());
+            const types = x.split('|').map((x) => x.trim());
 
             if (!types.includes('none') && !args[i]) {
                 throw new SyntaxError(
@@ -209,7 +209,7 @@ class Stream {
             assertLength(rhs);
             if (rhs.unit === 'multi') {
                 const multiLength = {};
-                Object.keys(rhs.value as MultiLength).forEach(unit => {
+                Object.keys(rhs.value as MultiLength).forEach((unit) => {
                     multiLength[unit] = opFn(lhs.value, rhs.value[unit]);
                 });
                 return new Length(multiLength);
@@ -221,7 +221,7 @@ class Stream {
                 return new Length(opFn(lhs.value, rhs.value), lhs.unit);
             }
             const multiLength = {};
-            Object.keys(lhs.value as MultiLength).forEach(unit => {
+            Object.keys(lhs.value as MultiLength).forEach((unit) => {
                 multiLength[unit] = opFn(lhs.value[unit], rhs.value);
             });
             return new Length(multiLength);
@@ -255,7 +255,7 @@ class Stream {
         [
             ...Object.keys(lhsMulti.value as MultiLength),
             ...Object.keys(rhsMulti.value as MultiLength),
-        ].forEach(unit => {
+        ].forEach((unit) => {
             if (typeof rhsMulti.value[unit] === 'undefined') {
                 multiLength[unit] = lhsMulti.value[unit];
             } else if (typeof lhsMulti.value[unit] === 'undefined') {

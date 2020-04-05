@@ -21,10 +21,10 @@ export const terminal = {
     },
     autoFormat: (m: string): string => {
         return m
-            .replace(/("(.*)")/g, x => {
+            .replace(/("(.*)")/g, (x) => {
                 return terminal.string(x.slice(1, -1));
             })
-            .replace(/(`(.*)`)/g, x => {
+            .replace(/(`(.*)`)/g, (x) => {
                 return terminal.keyword(x);
             });
     },

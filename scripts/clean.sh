@@ -9,3 +9,4 @@ cd "$(dirname "$0")/.."
 
 rm -rf "./bin"
 rm -rf "./build"
+rm -rf "./coverage"

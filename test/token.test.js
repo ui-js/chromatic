@@ -26,7 +26,7 @@ const testFiles = {
     errors: 'handles syntax errors',
 };
 
-Object.keys(testFiles).forEach(x => {
+Object.keys(testFiles).forEach((x) => {
     it(testFiles[x], () => {
         expect(c(x)).toMatchSnapshot();
     });

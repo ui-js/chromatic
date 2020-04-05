@@ -363,7 +363,7 @@ export function getSimilarColors(
 
     const filteredTarget = filterColor(target, filter);
 
-    colors.forEach(x => {
+    colors.forEach((x) => {
         if (!target.equals(x.color)) {
             // Use an increased threshold (6) when applying a filter.
             // Seems to produce more accurate results for
@@ -468,7 +468,7 @@ export function scaleColor(
         .correctLightness()
         .colors(n + 1);
 
-    return new ArrayValue(colors.map(x => new Color(x)));
+    return new ArrayValue(colors.map((x) => new Color(x)));
 }
 
 /* Functions that take a "color" argument list */

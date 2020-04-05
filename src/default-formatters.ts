@@ -15,7 +15,7 @@ export const DefaultFormatters = {
                     /[A-Z]{2,}(?=[A-Z][a-z0-9]*|\b)|[A-Z]?[a-z0-9]*|[A-Z]|[0-9]+/g
                 )
                 .filter(Boolean)
-                .map(x => x.toLowerCase())
+                .map((x) => x.toLowerCase())
                 .join('-'),
         uppercase: (name: string, theme: string): string =>
             (name + !theme ? '' : '.' + theme).toUpperCase(),
@@ -45,7 +45,7 @@ export const DefaultFormatters = {
          * This is useful for JSON lists for example.
          */
 
-        'remove-last-comma': function(context): string {
+        'remove-last-comma': function (context): string {
             const lines = context.fn(this).split('\n');
             const lastCommaLine = lines.reduce(
                 (acc, v, idx) => (/,$/.test(v) ? idx : acc),
@@ -65,7 +65,7 @@ export const DefaultFormatters = {
          * {{comment property "//}} -> "// value of property"
          */
 
-        comment: function(s: string, format = '/* */'): string {
+        comment: function (s: string, format = '/* */'): string {
             if (typeof s !== 'string') {
                 return this.comment;
             }

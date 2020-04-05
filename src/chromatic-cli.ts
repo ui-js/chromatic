@@ -13,7 +13,7 @@ function logResult(result: { [file: string]: string }): void {
     console.log(
         Object.keys(result)
             .map(
-                x =>
+                (x) =>
                     (x === 'stderr' ? terminal.error() : terminal.success()) +
                     '>>>> ' +
                     terminal.path(x) +
@@ -30,14 +30,14 @@ function build(argv): void {
         // `echo "foo" | chromatic`
         process.stdin.setEncoding('utf-8');
         let input = '';
-        process.stdin.on('readable', function() {
+        process.stdin.on('readable', function () {
             let chunk: string;
             while ((chunk = process.stdin.read())) {
                 input += chunk;
             }
         });
 
-        process.stdin.on('end', function() {
+        process.stdin.on('end', function () {
             logResult(chromatic(input, argv));
         });
     } else {
@@ -197,7 +197,7 @@ require('yargs')
     .command(
         'example [example-directory]',
         'Create example directory',
-        yargs => {
+        (yargs) => {
             yargs.positional('example-directory', {
                 describe: 'Example output directory',
                 type: 'string',
@@ -211,7 +211,7 @@ require('yargs')
         () => {
             return;
         },
-        yargs => yargs.help()
+        (yargs) => yargs.help()
     )
 
     .help('h')

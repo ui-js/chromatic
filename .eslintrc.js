@@ -11,7 +11,7 @@ module.exports = {
         'plugin:prettier/recommended',
     ],
     parserOptions: {
-        "project": "./tsconfig.json",
+        project: './tsconfig.json',
         // Configure the parser with the tsconfig file in the root project
         // (not the one in the local workspace)
         // tsconfigRootDir: path.resolve(__dirname, './src/'),

@@ -177,7 +177,7 @@ function error(m: string | string[]): void {
     if (typeof m === 'string') m = [m];
 
     // If there are any carriage returns, break them up in separate array elements
-    const msg = '\n' + [].concat(...m.map(x => x.split('\n'))).join('\n    ');
+    const msg = '\n' + [].concat(...m.map((x) => x.split('\n'))).join('\n    ');
 
     gConfig.console?.error(terminal.autoFormat(msg));
 
@@ -196,7 +196,7 @@ function log(m: string): void {
 function mergeObject(object: object, source: object): object {
     if (object === source) return;
     if (!source) return;
-    Object.keys(source).forEach(key => {
+    Object.keys(source).forEach((key) => {
         if (Array.isArray(source[key])) {
             if (!object[key]) object[key] = [];
             object[key] = [...object[key], ...source[key]];
@@ -240,7 +240,7 @@ function normalizeToken(
         result.value['_'] = undefined;
     }
 
-    Object.keys(result.value).forEach(theme => {
+    Object.keys(result.value).forEach((theme) => {
         if (!gThemes.includes(theme)) {
             gThemes.push(theme);
         }
@@ -361,7 +361,7 @@ function processTokenGroup(
     if (!gGroups.has(groupPath)) {
         gGroups.set(groupPath, {});
     }
-    Object.keys(tokens).forEach(token => {
+    Object.keys(tokens).forEach((token) => {
         const tokenPath = (groupPath ? groupPath + '.' : '') + token;
         throwErrorIf(
             !/^[a-zA-Z_-][a-zA-Z0-9_-]*$/.test(token),
@@ -495,7 +495,7 @@ function processPath(f: string): void {
     // 3. Process group declarations
     //
     if (tokenFile?.groups) {
-        Object.keys(tokenFile.groups).forEach(group => {
+        Object.keys(tokenFile.groups).forEach((group) => {
             if (gGroups.has(group)) {
                 const info = gGroups.get(group);
                 info.name = tokenFile.groups[group].name ?? info.name;
@@ -554,11 +554,11 @@ function processPath(f: string): void {
 function areThemesValid(): boolean {
     // Filter out themes
     if (gConfig.themes?.length > 0) {
-        gThemes = gThemes.filter(x => gConfig.themes.includes(x));
+        gThemes = gThemes.filter((x) => gConfig.themes.includes(x));
     }
 
     // Check
-    gThemes.forEach(theme => {
+    gThemes.forEach((theme) => {
         let count = 0;
         gTokenDefinitions.forEach((entry, _token) => {
             if (typeof entry.value[theme] !== 'undefined') {
@@ -585,7 +585,7 @@ function areThemesValid(): boolean {
 function getFormat(formatName: string): Format {
     const result: Format = {
         fileHeader: DEFAULT_FILE_HEADER,
-        formatFilename: function({
+        formatFilename: function ({
             theme,
             basename,
         }: {
@@ -639,7 +639,7 @@ function getFormat(formatName: string): Format {
     // - passed in as options to chromatic()
     // - in a format definition
 
-    Object.keys(result.handlebarsHelpers).forEach(helper => {
+    Object.keys(result.handlebarsHelpers).forEach((helper) => {
         handlebars.registerHelper(helper, result.handlebarsHelpers[helper]);
     });
 
@@ -653,7 +653,7 @@ function renderFile(
 ): string {
     const tokens = [];
     gTokenDefinitions.forEach((def, token) => {
-        Object.keys(def.value).forEach(tokenTheme => {
+        Object.keys(def.value).forEach((tokenTheme) => {
             if (themes.includes(tokenTheme)) {
                 tokens.push(
                     tokenTheme === '_' ? token : token + '.' + tokenTheme
@@ -679,7 +679,7 @@ function renderFile(
                     tokenId,
                     tokenDefinition,
                     themes: themes
-                        .map(theme => {
+                        .map((theme) => {
                             const qualifiedToken =
                                 tokenId + (theme === '_' ? '' : '.' + theme);
                             return {
@@ -688,7 +688,7 @@ function renderFile(
                                 tokenValue: gTokenValues.get(qualifiedToken),
                             };
                         })
-                        .filter(x => x.tokenValue),
+                        .filter((x) => x.tokenValue),
                 };
             }),
         });
@@ -700,7 +700,7 @@ function renderFile(
     const tokensByTheme = {};
     gTokenDefinitions.forEach((def, tokenId) => {
         if (Object.keys(def.value).length > 1) {
-            Object.keys(def.value).forEach(theme => {
+            Object.keys(def.value).forEach((theme) => {
                 if (!tokensByTheme[theme]) tokensByTheme[theme] = [];
                 const qualifiedToken =
                     tokenId + (theme === '_' ? '' : '.' + theme);
@@ -730,7 +730,7 @@ function renderFile(
     return format.render({
         filepath,
         fileHeader: format.fileHeader,
-        themes: Object.keys(tokensByTheme).map(theme => {
+        themes: Object.keys(tokensByTheme).map((theme) => {
             return {
                 theme,
                 isDefaultTheme: theme === '_',
@@ -759,7 +759,7 @@ function render(
 
     if (gConfig.splitOutput) {
         // Output one file per theme
-        gThemes.forEach(theme => {
+        gThemes.forEach((theme) => {
             outputPath = path.format({
                 dir: pathRecord.dir,
                 name: format.formatFilename({
@@ -845,7 +845,7 @@ function build(
     // except in strings. Store the result in gTokenValues.
     try {
         gTokenDefinitions.forEach((def, token) => {
-            Object.keys(def.value).forEach(theme => {
+            Object.keys(def.value).forEach((theme) => {
                 const qualifiedToken =
                     token + (theme === '_' ? '' : '.' + theme);
                 const value =
@@ -877,7 +877,7 @@ function build(
             if (isString(value)) {
                 value.value = value.value.replace(
                     /{[a-zA-Z0-9\._-]+}/g,
-                    match => {
+                    (match) => {
                         const alias = match.slice(1, -1);
                         if (gTokenValues.has(alias)) {
                             return gTokenValues.get(alias).css();
@@ -896,7 +896,7 @@ function build(
 
         // 2.3 Calculate missing values for each theme
         gTokenDefinitions.forEach((def, token) => {
-            gThemes.forEach(theme => {
+            gThemes.forEach((theme) => {
                 if (theme !== '_' && typeof def.value[theme] === 'undefined') {
                     const qualifiedToken = token + '.' + theme;
                     const value =
@@ -922,7 +922,7 @@ function build(
         // Since the expression to calculate value depends on a token that does
         // have a theme variant, primary also needs to have a theme variant
         gTokenDefinitions.forEach((_def, token) => {
-            gThemes.forEach(theme => {
+            gThemes.forEach((theme) => {
                 if (theme !== '_') {
                     const qualifiedToken = token + '.' + theme;
                     if (
@@ -987,7 +987,7 @@ function build(
                         } else {
                             themesMessage =
                                 'for themes ' +
-                                gThemes.map(x => '"' + x + '"').join(', ');
+                                gThemes.map((x) => '"' + x + '"').join(', ');
                         }
                     }
                     log(
@@ -996,7 +996,7 @@ function build(
                         )} format ${themesMessage}`
                     );
                 }
-                Object.keys(content).forEach(file => {
+                Object.keys(content).forEach((file) => {
                     writeOutputFile(content[file], file);
                 });
             }
@@ -1096,7 +1096,7 @@ export function chromatic(
         const fileExt = options?.output && path.extname(options?.output);
         if (fileExt) {
             const matchingExtensions = Object.keys(gConfig.formats).filter(
-                x =>
+                (x) =>
                     gConfig.formats[x].ext === fileExt ||
                     gConfig.formats[gConfig.formats[x]?.extends]?.ext
             );

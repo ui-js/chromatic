@@ -59,6 +59,7 @@ $ npx chromatic tokens.yaml -o tokens.scss
 ```
 
 ```scss
+
 ```
 
 Note that you do not need to setup a configuration file in order to get started. However, a configuration file can be used for more complex setups and to customize the output. You can even define your own output formats. More on this later.
@@ -90,6 +91,7 @@ tokens:
 ```
 
 ```scss
+
 ```
 
 ## Scales and Nested Tokens
@@ -142,6 +144,7 @@ $ npx chromatic --config ./config/chromatic.yaml tokens.yaml ./build/tokens.scss
 ```
 
 ```scss
+
 ```
 
 ---

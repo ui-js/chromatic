@@ -167,10 +167,9 @@ export class Length extends Value {
                 this.unit = unit;
             }
         } else if (typeof unit === 'undefined') {
-            const nonZeroKeys: LengthUnit[] =
-                Object.keys(from).filter(
-                    (x) => typeof from[x] === 'number' && from[x] !== 0
-                ) as LengthUnit[];
+            const nonZeroKeys: LengthUnit[] = Object.keys(from).filter(
+                (x) => typeof from[x] === 'number' && from[x] !== 0
+            ) as LengthUnit[];
             if (nonZeroKeys.length === 0) {
                 // Everything's zero, return the canonical zero length: 0px
                 this.value = 0;

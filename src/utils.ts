@@ -2,7 +2,7 @@ const stringSimilarity = require('string-similarity');
 
 export function findClosestKey(
     key: string,
-    o: object | Map<string, any> | string[]
+    o: Record<string, unknown> | Map<string, unknown> | string[]
 ): string {
     if (!key || !o) return '';
     let keys: string[];
@@ -20,7 +20,7 @@ export function findClosestKey(
 
 export function getSuggestion(
     key: string,
-    o: object | Map<string, any> | string[]
+    o: Record<string, unknown> | Map<string, unknown> | string[]
 ): string {
     const alt = findClosestKey(key, o);
     return alt ? `. Did you mean "${alt}"?` : '';

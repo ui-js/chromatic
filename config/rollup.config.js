@@ -23,7 +23,6 @@ const TYPESCRIPT_OPTIONS = {
 };
 
 const TERSER_OPTIONS = {
-    sourcemap: false,
     compress: {
         drop_console: false,
         drop_debugger: true,

@@ -75,16 +75,17 @@ interface Config extends ValueParserOptions {
         error: (m: string) => void;
         log: (m: string) => void;
     };
+    [key: string]: unknown;
 }
 
 /**
- * The parameters that can be specified in a token file, or overriden
- * as an options
+ * The parameters that can be specified in a token file, or overridden
+ * as an option
  */
-interface Settings {
-    colorSimilarityThreshold: number;
-    colorDeficiencySimilariryThreshold: number;
-}
+// interface Settings {
+//     colorSimilarityThreshold: number;
+//     colorDeficiencySimilariryThreshold: number;
+// }
 
 /** The set of options that can be passed to the chromatic() function
  * or to the CLI tool
@@ -193,17 +194,26 @@ function log(m: string): void {
 /**
  * Merge "source" into object by doing a deep copy of enumerable properties.
  */
-function mergeObject(object: object, source: object): object {
+function mergeObject(
+    object: Record<string, unknown>,
+    source: Record<string, unknown>
+): Record<string, unknown> {
     if (object === source) return;
     if (!source) return;
     Object.keys(source).forEach((key) => {
         if (Array.isArray(source[key])) {
             if (!object[key]) object[key] = [];
-            object[key] = [...object[key], ...source[key]];
+            object[key] = [
+                ...(object[key] as unknown[]),
+                ...(source[key] as unknown[]),
+            ];
         } else if (typeof source[key] === 'object') {
             // Object literal
             if (!object[key]) object[key] = {};
-            mergeObject(object[key], source[key]);
+            mergeObject(
+                object[key] as Record<string, unknown>,
+                source[key] as Record<string, unknown>
+            );
         } else if (typeof source[key] !== 'undefined') {
             object[key] = source[key];
         }
@@ -350,7 +360,7 @@ function evaluateTokenExpression(
 function processTokenGroup(
     tokenFile: TokenFile,
     groupPath: string,
-    tokens: object
+    tokens: Record<string, string | TokenDefinition | TokenGroup>
 ): void {
     throwErrorIf(
         Array.isArray(tokens),
@@ -372,11 +382,15 @@ function processTokenGroup(
         try {
             const normalizedToken = normalizeToken(
                 tokenFile.theme ?? gConfig.defaultTheme,
-                tokens[token]
+                tokens[token] as string | TokenDefinition
             );
             if (!normalizedToken) {
                 // If it's not a token, it's a group of tokens
-                processTokenGroup(tokenFile, tokenPath, tokens[token]);
+                processTokenGroup(
+                    tokenFile,
+                    tokenPath,
+                    tokens[token] as TokenGroup
+                );
             } else {
                 if (!gTokenDefinitions.has(tokenPath)) {
                     gTokenDefinitions.set(tokenPath, normalizedToken);

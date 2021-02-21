@@ -23,6 +23,7 @@ export interface TokenDefinition {
 
     /* When this token has been deprecated, what replaces it, or when will it be removed. */
     deprecated?: string;
+    [key: string]: unknown;
 }
 
 export interface TokenGroupInfo {
@@ -104,6 +105,7 @@ export interface Format {
     handlebarsHelpers?: { [helper: string]: (...args: any[]) => string };
 
     render?: (context: RenderContext) => string;
+    [key: string]: unknown;
 }
 
 export const DEFAULT_FILE_HEADER = `

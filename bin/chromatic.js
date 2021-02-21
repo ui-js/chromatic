@@ -401,7 +401,7 @@ class StringValue extends Value {
 class ArrayValue extends Value {
     constructor(from) {
         super();
-        this.value = from.map((x) => makeValueFrom(x));
+        this.value = from.map(makeValueFrom);
     }
     get(index) {
         return this.value[index];
@@ -1082,7 +1082,10 @@ function filterColor(c, filter) {
             return c;
         case 'grayscale':
             const lab = rgbToLab(c.r, c.g, c.b);
-            return new Color(Object.assign({ a: c.a }, labToRgb(lab.L, 0, 0)));
+            return new Color({
+                a: c.a,
+                ...labToRgb(lab.L, 0, 0),
+            });
         case 'protanopia':
         case 'deuteranopia':
         case 'tritanopia': {
@@ -1266,13 +1269,22 @@ const COLOR_FUNCTIONS = {
         });
     },
     hwb: (h, w, b, a) => {
-        return new Color(Object.assign({ a: asDecimalRatio(a, 1.0) }, hwbToRgb(asDegree(h), asPercent(w), asPercent(b))));
+        return new Color({
+            a: asDecimalRatio(a, 1.0),
+            ...hwbToRgb(asDegree(h), asPercent(w), asPercent(b)),
+        });
     },
     lab: (l, a, b, alpha) => {
-        return new Color(Object.assign({ a: asDecimalRatio(alpha, 1.0) }, labToRgb(100 * asPercent(l), asDecimalRatio(a), asDecimalRatio(b))));
+        return new Color({
+            a: asDecimalRatio(alpha, 1.0),
+            ...labToRgb(100 * asPercent(l), asDecimalRatio(a), asDecimalRatio(b)),
+        });
     },
     gray: (g, alpha) => {
-        return new Color(Object.assign({ a: asDecimalRatio(alpha, 1.0) }, labToRgb(100 * asPercent(g), 0, 0)));
+        return new Color({
+            a: asDecimalRatio(alpha, 1.0),
+            ...labToRgb(100 * asPercent(g), 0, 0),
+        });
     },
     filter: (c, filterValue) => {
         const filterName = asString(filterValue, 'none').toLowerCase();
@@ -1320,7 +1332,10 @@ const COLOR_FUNCTIONS = {
         else if (modelName === 'lab') {
             const { L: L1, a: a1, b: b1 } = rgbToLab(color1.r, color1.g, color1.b);
             const { L: L2, a: a2, b: b2 } = rgbToLab(color2.r, color2.g, color2.b);
-            return new Color(Object.assign(Object.assign({}, labToRgb(L1 + (L2 - L1) * w, a1 + (a2 - a1) * w, b1 + (b2 - b1) * w)), { alpha }));
+            return new Color({
+                ...labToRgb(L1 + (L2 - L1) * w, a1 + (a2 - a1) * w, b1 + (b2 - b1) * w),
+                a: alpha,
+            });
         }
         else {
             throwError(ErrorCode.InvalidArgument, 'mix()', `"${modelName}"`, getSuggestion(modelName, ['hsl', 'lab', 'rgb']));
@@ -1438,21 +1453,34 @@ const COLOR_FUNCTIONS = {
 };
 
 let FUNCTIONS = {};
-FUNCTIONS = Object.assign({ calc: (x) => x, min: (a, b) => {
+FUNCTIONS = {
+    calc: (x) => x,
+    min: (a, b) => {
         return compareValue(a, b) < 0 ? a : b;
-    }, max: (a, b) => {
+    },
+    max: (a, b) => {
         return compareValue(a, b) < 0 ? b : a;
-    }, clamp(a, b, c) {
+    },
+    clamp(a, b, c) {
         return compareValue(b, a) < 0 ? a : compareValue(b, c) > 0 ? c : b;
-    }, scale: (arg1, arg2, arg3, arg4) => {
+    },
+    scale: (arg1, arg2, arg3, arg4) => {
         if (isColor(arg1)) {
             return scaleColor(arg1, arg2, arg3, arg4);
         }
         else if (isLength(arg1)) {
             return scaleLength(arg1, arg2);
         }
-    } }, COLOR_FUNCTIONS);
-const FUNCTION_ARGUMENTS = Object.assign({ calc: 'any', min: 'any, any', max: 'any, any', clamp: 'any, any, any' }, COLOR_FUNCTION_ARGUMENTS);
+    },
+    ...COLOR_FUNCTIONS,
+};
+const FUNCTION_ARGUMENTS = {
+    calc: 'any',
+    min: 'any, any',
+    max: 'any, any',
+    clamp: 'any, any, any',
+    ...COLOR_FUNCTION_ARGUMENTS,
+};
 function validateArguments(fn, args) {
     var _a;
     const expectedArguments = (_a = FUNCTION_ARGUMENTS[fn]) === null || _a === void 0 ? void 0 : _a.split(',').map((x) => x.trim());
@@ -2198,7 +2226,7 @@ const StyleGuideFormat = {
         },
         html: {
             ext: '.html',
-            render: (context) => context.renderTemplate(fs$2.readFileSync(__dirname + '/templates/html-file.hbs', 'utf-8'), Object.assign(Object.assign({}, context), { 'color-section': renderColorSection(context) })),
+            render: (context) => context.renderTemplate(fs$2.readFileSync(__dirname + '/templates/html-file.hbs', 'utf-8'), { ...context, 'color-section': renderColorSection(context) }),
         },
     },
 };
@@ -2256,7 +2284,10 @@ function mergeObject(object, source) {
         if (Array.isArray(source[key])) {
             if (!object[key])
                 object[key] = [];
-            object[key] = [...object[key], ...source[key]];
+            object[key] = [
+                ...object[key],
+                ...source[key],
+            ];
         }
         else if (typeof source[key] === 'object') {
             if (!object[key])
@@ -2278,7 +2309,7 @@ function normalizeToken(defaultTheme, entry) {
         result.value._ = entry;
     }
     else {
-        result = Object.assign({}, entry);
+        result = { ...entry };
     }
     if (typeof result.value === 'string') {
         result.value = { _: result.value };
@@ -2302,7 +2333,9 @@ function evaluateTokenExpression(qualifiedToken, expression, theme) {
     try {
         throwErrorIf(gRecursiveEvaluationStack.includes(qualifiedToken), ErrorCode.CircularDefinition, qualifiedToken);
         gRecursiveEvaluationStack.push(qualifiedToken);
-        const result = parseValue(expression, Object.assign(Object.assign({}, gConfig), { aliasResolver: (identifier) => {
+        const result = parseValue(expression, {
+            ...gConfig,
+            aliasResolver: (identifier) => {
                 var _a, _b, _c, _d, _e;
                 let aliasValue;
                 if (theme) {
@@ -2325,7 +2358,8 @@ function evaluateTokenExpression(qualifiedToken, expression, theme) {
                     }
                 }
                 return (aliasValue !== null && aliasValue !== void 0 ? aliasValue : getSuggestion(identifier, gTokenDefinitions));
-            } }));
+            },
+        });
         gRecursiveEvaluationStack.pop();
         return result;
     }
@@ -2514,7 +2548,7 @@ function getFormat(formatName) {
         formatFilename: function ({ theme, basename, }) {
             return basename + (!theme ? '' : '-' + theme);
         },
-        handlebarsHelpers: Object.assign({}, gConfig.handlebarsHelpers),
+        handlebarsHelpers: { ...gConfig.handlebarsHelpers },
         render: (_context) => 'Expected a render() function in the Format definition.',
     };
     throwErrorIf(!gConfig.formats[formatName], ErrorCode.UnknownFormat, formatName, getSuggestion(formatName, gConfig.formats));

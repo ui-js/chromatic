@@ -45,7 +45,9 @@ export const DefaultFormatters = {
          * This is useful for JSON lists for example.
          */
 
-        'remove-last-comma': function (context): string {
+        'remove-last-comma': function (context: {
+            fn: (arg0: any) => string;
+        }): string {
             const lines = context.fn(this).split('\n');
             const lastCommaLine = lines.reduce(
                 (acc, v, idx) => (/,$/.test(v) ? idx : acc),

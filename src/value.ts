@@ -59,6 +59,7 @@ export class Value {
             this.canonicalScalar() == v.canonicalScalar()
         );
     }
+    [key: string]: unknown;
 }
 
 export type LengthUnit =
@@ -324,7 +325,7 @@ export class ArrayValue extends Value {
     value: Value[];
     constructor(from: Value[]) {
         super();
-        this.value = from.map((x) => makeValueFrom(x));
+        this.value = from.map(makeValueFrom);
     }
     get(index: number): Value {
         return this.value[index];
@@ -461,7 +462,17 @@ export function rgbToHsl(
     return { h: h, s: s, l: l };
 }
 
-export class Color extends Value {
+export interface ColorInterface {
+    r?: number /* [0..255] */;
+    g?: number /* [0..255] */;
+    b?: number /* [0..255] */;
+    h?: number /* [0..360]deg */;
+    s?: number;
+    l?: number;
+    a?: number /* [0..1] or [0..100]% */;
+}
+
+export class Color extends Value implements ColorInterface {
     r?: number; /* [0..255] */
     g?: number; /* [0..255] */
     b?: number; /* [0..255] */
@@ -469,7 +480,7 @@ export class Color extends Value {
     s?: number;
     l?: number;
     a: number; /* [0..1] or [0..100]% */
-    constructor(from: object | string) {
+    constructor(from: ColorInterface | string) {
         super();
         if (typeof from === 'string') {
             if (from.toLowerCase() === 'transparent') {
@@ -585,27 +596,30 @@ export class Color extends Value {
 
 export function makeValueFrom(from: {
     type: () => ValueType;
-    [key: string]: any;
+    [key: string]: unknown;
 }): Value {
     switch (from.type()) {
         case 'color':
-            return new Color(from);
+            return new Color(from as ColorInterface);
         case 'frequency':
-            return new Frequency(from.value, from.unit);
+            return new Frequency(
+                from.value as number,
+                from.unit as FrequencyUnit
+            );
         case 'time':
-            return new Time(from.value, from.unit);
+            return new Time(from.value as number, from.unit as TimeUnit);
         case 'angle':
-            return new Angle(from.value, from.unit);
+            return new Angle(from.value as number, from.unit as AngleUnit);
         case 'string':
-            return new StringValue(from.value);
+            return new StringValue(from.value as string);
         case 'length':
-            return new Length(from.value, from.unit);
+            return new Length(from.value, from.unit as LengthUnit);
         case 'percentage':
-            return new Percentage(from.value);
+            return new Percentage(from.value as number);
         case 'number':
-            return new NumberValue(from.value);
+            return new NumberValue(from.value as number);
         case 'array':
-            return new ArrayValue(from.value.map(makeValueFrom));
+            return new ArrayValue((from.value as unknown[]).map(makeValueFrom));
         default:
             console.error('Unknown value type');
     }
@@ -622,7 +636,7 @@ export function isColor(arg: Value): arg is Color {
  *
  */
 
-export function asColor(value: object | string): Color {
+export function asColor(value: Record<string, unknown> | string): Color {
     if (!value) return undefined;
     let result: Color;
     try {

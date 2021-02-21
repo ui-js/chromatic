@@ -641,7 +641,7 @@ export const COLOR_FUNCTIONS = {
                     a1 + (a2 - a1) * w,
                     b1 + (b2 - b1) * w
                 ),
-                alpha,
+                a: alpha,
             });
         } else {
             throwError(

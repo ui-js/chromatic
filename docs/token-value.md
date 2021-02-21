@@ -2,27 +2,29 @@
 
 A token value can contain:
 
--   A simple value such as `12px` or`#9370db`
--   An alias, a reference to another token: `{brand.color}`
--   An expression, a set of literals, operators and function calls that evaluate to a single value.
+- A simple value such as `12px` or`#9370db`
+- An alias, a reference to another token: `{brand.color}`
+- An expression, a set of literals, operators and function calls that evaluate
+  to a single value.
 
 For example:
 
 ```yaml
 tokens:
-    primary-background: 'darken(lab(54.975%, 36.8, -50.097))'
+  primary-background: 'darken(lab(54.975%, 36.8, -50.097))'
 ```
 
 ## Aliases
 
-Aliases reference the value of another token. They are enclosed in curly brackets and include a dot-separated 'path' to the token they reference.
+Aliases reference the value of another token. They are enclosed in curly
+brackets and include a dot-separated 'path' to the token they reference.
 
 ```yaml
 tokens:
-    brand:
-        primary: 'LightGoldenRodYellow'
-        secondary: 'DarkTurquoise'
-    background: '{brand.primary}'
+  brand:
+    primary: 'LightGoldenRodYellow'
+    secondary: 'DarkTurquoise'
+  background: '{brand.primary}'
 ```
 
 ## Literals
@@ -30,25 +32,30 @@ tokens:
 The following types of literals can be used:
 
 | Type        |               |                                                    |
-| ----------- | ------------- | -------------------------------------------------- |
+| ----------- | ------------- | -------------------------------------------------- | ---- | --- | ----- | --- | --- | ---- | ----- |
 | **number**  | `3.54`        | A floating point, unitless, number                 |
-| **angle**   | `12deg`       | Units: `deg|grad|rad|turn`                         |
+| **angle**   | `12deg`       | Units: `deg                                        | grad | rad | turn` |
 | **percent** | `25%`         | A number followed by a `%`                         |
 | **color**   | `#fc374a`     | A set of 3, 4, 6 or 8 hex digits preceded by a `#` |
-| **length**  | `3em`         | Relative units: `em|ex|ch|rem|vw|vh|vmin|vmax`     |
-|             | `3px`         | Absolute units: `cm|mm|Q|in|pc|pt|px`              |
+| **length**  | `3em`         | Relative units: `em                                | ex   | ch  | rem   | vw  | vh  | vmin | vmax` |
+|             | `3px`         | Absolute units: `cm                                | mm   | Q   | in    | pc  | pt  | px`  |
 | **string**  | `"Helvetica"` | Enclosed in double-quotes                          |
 
-Some arithmetic operations can be performed between literals, if their types are compatibl. For example, you can't divide a color by a length, but you can multiply a number by a length.
+Some arithmetic operations can be performed between literals, if their types are
+compatibl. For example, you can't divide a color by a length, but you can
+multiply a number by a length.
 
-Relative units cannot be evaluated (since their value is not known until rendering time). However, although `rem` is a relative unit, its value can be 'fixed' by defining the `base-font-size` property in the configuration file, in pixels.
+Relative units cannot be evaluated (since their value is not known until
+rendering time). However, although `rem` is a relative unit, its value can be
+'fixed' by defining the `base-font-size` property in the configuration file, in
+pixels.
 
 ```yaml
 tokens:
-    length: '36pt + 5px'
-    angle: '.5turn - 10deg'
-    percent: '(100 / 3)%'
-    string: '"The answer is " + (84 / 2)'
+  length: '36pt + 5px'
+  angle: '.5turn - 10deg'
+  percent: '(100 / 3)%'
+  string: '"The answer is " + (84 / 2)'
 ```
 
 ## Functions

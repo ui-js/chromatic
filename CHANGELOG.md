@@ -2,4 +2,5 @@
 
 ### Features
 
--   feat(scale): Added typographic scale. `scale(12pt)` will return an array of font-sizes. See
+- feat(scale): Added typographic scale. `scale(12pt)` will return an array of
+  font-sizes. See

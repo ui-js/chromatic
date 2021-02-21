@@ -1,76 +1,76 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Basic",
-            "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/bin/chromatic",
-            "args": [
-                // "./test/tokens/../../examples/advanced/tokens.yaml",
-                "./test/tokens/colors.yaml",
-                "--format",
-                "yaml",
-                "--header=''",
-                "--verbose",
-                "--ignore-errors"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Style Guide",
-            "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/bin/chromatic",
-            "args": [
-                "./test/tokens/../../examples/advanced/tokens.yaml",
-                // "test/tokens/basic-example/tokens.yaml",
-                "--format",
-                "html",
-                "--verbose",
-                "--ignore-errors",
-                "-o",
-                "build/style-guide.html"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Test",
-            "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/bin/chromatic",
-            "args": ["test/tokens/length.yaml", "--verbose", "--ignore-errors"],
-            "env": {
-                // "TEST": "true"
-            }
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Readme",
-            "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/bin/chromatic",
-            "args": ["test/tokens/readme.yaml", "--format='sass'", "--verbose"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Onboarding",
-            "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/bin/chromatic",
-            "args": ["--verbose"]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Piping",
-            "skipFiles": ["<node_internals>/**"],
-            "program": "${workspaceFolder}/bin/chromatic",
-            "args": ["--verbose"]
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Basic",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": [
+        // "./test/tokens/../../examples/advanced/tokens.yaml",
+        "./test/tokens/colors.yaml",
+        "--format",
+        "yaml",
+        "--header=''",
+        "--verbose",
+        "--ignore-errors"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Style Guide",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": [
+        "./test/tokens/../../examples/advanced/tokens.yaml",
+        // "test/tokens/basic-example/tokens.yaml",
+        "--format",
+        "html",
+        "--verbose",
+        "--ignore-errors",
+        "-o",
+        "build/style-guide.html"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Test",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": ["test/tokens/length.yaml", "--verbose", "--ignore-errors"],
+      "env": {
+        // "TEST": "true"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Readme",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": ["test/tokens/readme.yaml", "--format='sass'", "--verbose"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Onboarding",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": ["--verbose"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Piping",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": ["--verbose"]
+    }
+  ]
 }

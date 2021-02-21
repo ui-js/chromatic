@@ -10,21 +10,21 @@ automatically in Chromatic.
 
 Create a color with the specified color model. The arguments are:
 
--   `red`, `green`, `blue`: 0..255
--   `alpha`: a percentage (e.g. `80%`) or a number 0..1 (e.g. `0.80`). Optional.
--   `hue`: an angle (e.g. `230deg`)
--   `saturation`, `lightness`, `value`, `whiteness`, blackness
--   `l`, `a`, `b`: L: 0..1, a,b: -128..128
+- `red`, `green`, `blue`: 0..255
+- `alpha`: a percentage (e.g. `80%`) or a number 0..1 (e.g. `0.80`). Optional.
+- `hue`: an angle (e.g. `230deg`)
+- `saturation`, `lightness`, `value`, `whiteness`, blackness
+- `l`, `a`, `b`: L: 0..1, a,b: -128..128
 
 ### **`filter`**`(color, filter)`
 
 Apply a simple filter to a color. The filter can be one of:
 
--   `"none"`: return the inpuyt color, unchanged
--   `"grayscale"`: return a grayscale version of the input color
--   `"deuteranopia"`: green color deficiency (6% of male population)
--   `"protanopia"`: red color deficiency (2% of male population)
--   `"tritanopia"`: blue color deficiency
+- `"none"`: return the inpuyt color, unchanged
+- `"grayscale"`: return a grayscale version of the input color
+- `"deuteranopia"`: green color deficiency (6% of male population)
+- `"protanopia"`: red color deficiency (2% of male population)
+- `"tritanopia"`: blue color deficiency
 
 ###
 

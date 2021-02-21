@@ -8,85 +8,85 @@ import copy from 'rollup-plugin-copy';
 process.env.BUILD = process.env.BUILD || 'development';
 const PRODUCTION = process.env.BUILD === 'production';
 const BUILD_ID =
-    Date.now().toString(36).slice(-2) +
-    Math.floor(Math.random() * 0x186a0).toString(36);
+  Date.now().toString(36).slice(-2) +
+  Math.floor(Math.random() * 0x186a0).toString(36);
 
 const TYPESCRIPT_OPTIONS = {
-    typescript: require('typescript'),
-    // objectHashIgnoreUnknownHack: true,
-    clean: PRODUCTION,
-    tsconfigOverride: {
-        compilerOptions: {
-            declaration: false,
-        },
+  typescript: require('typescript'),
+  // objectHashIgnoreUnknownHack: true,
+  clean: PRODUCTION,
+  tsconfigOverride: {
+    compilerOptions: {
+      declaration: false,
     },
+  },
 };
 
 const TERSER_OPTIONS = {
-    compress: {
-        drop_console: false,
-        drop_debugger: true,
-        ecma: 8, // Use "5" to support older browsers
-        module: true,
-        warnings: true,
-        passes: 2,
-        global_defs: {
-            ENV: JSON.stringify(process.env.BUILD),
-            VERSION: JSON.stringify(pkg.version || '0.0'),
-            BUILD_ID: JSON.stringify(BUILD_ID),
-        },
+  compress: {
+    drop_console: false,
+    drop_debugger: true,
+    ecma: 8, // Use "5" to support older browsers
+    module: true,
+    warnings: true,
+    passes: 2,
+    global_defs: {
+      ENV: JSON.stringify(process.env.BUILD),
+      VERSION: JSON.stringify(pkg.version || '0.0'),
+      BUILD_ID: JSON.stringify(BUILD_ID),
     },
+  },
 };
 export default [
-    {
-        input: 'src/chromatic-cli.ts',
-        output: {
-            file: 'bin/chromatic',
-            format: 'cjs',
-            banner: '#!/usr/bin/env node',
-            sourcemap: !PRODUCTION,
-        },
-        plugins: [
-            resolve({
-                preferBuiltins: true,
-            }),
-            PRODUCTION && eslint(),
-            typescript(TYPESCRIPT_OPTIONS),
-            PRODUCTION && terser(TERSER_OPTIONS),
-            copy({
-                targets: [
-                    { src: 'src/templates', dest: 'bin' },
-                    { src: 'examples', dest: 'bin' },
-                    { src: 'package.json', dest: 'bin' },
-                ],
-            }),
-        ],
-        watch: {
-            clearScreen: true,
-            exclude: 'node_modules/**',
-            include: ['src/**', 'examples/**'],
-        },
+  {
+    input: 'src/chromatic-cli.ts',
+    output: {
+      file: 'bin/chromatic',
+      format: 'cjs',
+      banner: '#!/usr/bin/env node',
+      sourcemap: !PRODUCTION,
     },
-    {
-        input: 'src/chromatic.ts',
-        output: {
-            file: 'bin/chromatic.js',
-            format: 'cjs',
-            sourcemap: !PRODUCTION,
-        },
-        plugins: [
-            resolve({
-                preferBuiltins: true,
-            }),
-            PRODUCTION && eslint(),
-            typescript(TYPESCRIPT_OPTIONS),
-            PRODUCTION && terser(TERSER_OPTIONS),
+    plugins: [
+      resolve({
+        preferBuiltins: true,
+      }),
+      PRODUCTION && eslint(),
+      typescript(TYPESCRIPT_OPTIONS),
+      PRODUCTION && terser(TERSER_OPTIONS),
+      copy({
+        targets: [
+          { src: 'src/templates', dest: 'bin' },
+          { src: 'examples', dest: 'bin' },
+          { src: 'package.json', dest: 'bin' },
         ],
-        watch: {
-            clearScreen: false,
-            exclude: ['node_modules/**'],
-        },
+      }),
+    ],
+    watch: {
+      clearScreen: true,
+      exclude: 'node_modules/**',
+      include: ['src/**', 'examples/**'],
     },
+  },
+  {
+    input: 'src/chromatic.ts',
+    output: {
+      file: 'bin/chromatic.js',
+      format: 'cjs',
+      sourcemap: !PRODUCTION,
+    },
+    plugins: [
+      resolve({
+        preferBuiltins: true,
+      }),
+      PRODUCTION && eslint(),
+      typescript(TYPESCRIPT_OPTIONS),
+      PRODUCTION && terser(TERSER_OPTIONS),
+    ],
+    watch: {
+      clearScreen: false,
+      exclude: ['node_modules/**'],
+    },
+  },
 ];
 
 /*

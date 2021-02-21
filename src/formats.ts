@@ -1,111 +1,111 @@
 import { Value, ValueType } from './value';
 
 export interface TokenDefinition {
-    value: {
-        /* Value for the base theme */
-        _?: string;
+  value: {
+    /* Value for the base theme */
+    _?: string;
 
-        /* Value for the other themes */
-        [theme: string]: string;
-    };
+    /* Value for the other themes */
+    [theme: string]: string;
+  };
 
-    /** Type hint. The type is usually inferred from the value. */
-    type?: ValueType;
+  /** Type hint. The type is usually inferred from the value. */
+  type?: ValueType;
 
-    /* Single line, plain text recommended */
-    /* Output in the generated files */
+  /* Single line, plain text recommended */
+  /* Output in the generated files */
 
-    comment?: string;
+  comment?: string;
 
-    /* Multiple lines or paragraphs. Markdown recommended */
-    /* Output in the generated documentation */
-    remarks?: string;
+  /* Multiple lines or paragraphs. Markdown recommended */
+  /* Output in the generated documentation */
+  remarks?: string;
 
-    /* When this token has been deprecated, what replaces it, or when will it be removed. */
-    deprecated?: string;
-    [key: string]: unknown;
+  /* When this token has been deprecated, what replaces it, or when will it be removed. */
+  deprecated?: string;
+  [key: string]: unknown;
 }
 
 export interface TokenGroupInfo {
-    name?: string;
-    comment?: string;
-    remarks?: string;
+  name?: string;
+  comment?: string;
+  remarks?: string;
 }
 
 export interface RenderContext {
-    /** The path of this output file*/
-    filepath: string;
+  /** The path of this output file*/
+  filepath: string;
 
-    /** Header for this file. May be multiple lines. */
-    fileHeader: string;
+  /** Header for this file. May be multiple lines. */
+  fileHeader: string;
 
-    /** For each token group, */
-    groups: {
-        /** ID, for example: "brand.marketing" */
-        groupId: string;
-        /** Info, such as comments, etc.. about the group */
-        groupInfo: TokenGroupInfo;
-        /** Array of tokens in this group */
-        tokens: {
-            /** ID, such as "semantic.error" */
-            tokenId: string;
-            /** Info, such as comments, etc... about the token */
-            tokenDefinition: TokenDefinition;
-            /** Array of themes supported by the token */
-            themes: {
-                theme: string;
-                /** Token with theme, for example "semantic.error.dark" */
-                tokenName: string;
-                /** The Value for this token/theme */
-                tokenValue: Value;
-            }[];
-        }[];
-    }[];
-
-    /** For each themes */
-    themes: {
+  /** For each token group, */
+  groups: {
+    /** ID, for example: "brand.marketing" */
+    groupId: string;
+    /** Info, such as comments, etc.. about the group */
+    groupInfo: TokenGroupInfo;
+    /** Array of tokens in this group */
+    tokens: {
+      /** ID, such as "semantic.error" */
+      tokenId: string;
+      /** Info, such as comments, etc... about the token */
+      tokenDefinition: TokenDefinition;
+      /** Array of themes supported by the token */
+      themes: {
         theme: string;
-        isDefaultTheme: boolean; // True if theme === '_', but stored as a
-        // boolean here for ease of access in handlerbars templates
-        tokens: {
-            /** ID, such as "semantic.error" */
-            tokenId: string;
-            /** Info, such as comments, etc... about the token */
-            tokenDefinition: TokenDefinition;
-            /** Token with theme, for example "semantic.error.dark" */
-            tokenName: string;
-            /** The Value for this token/theme */
-            tokenValue: Value;
-        }[];
+        /** Token with theme, for example "semantic.error.dark" */
+        tokenName: string;
+        /** The Value for this token/theme */
+        tokenValue: Value;
+      }[];
     }[];
-    renderTemplate: (template: string, context: any) => string;
+  }[];
+
+  /** For each themes */
+  themes: {
+    theme: string;
+    isDefaultTheme: boolean; // True if theme === '_', but stored as a
+    // boolean here for ease of access in handlerbars templates
+    tokens: {
+      /** ID, such as "semantic.error" */
+      tokenId: string;
+      /** Info, such as comments, etc... about the token */
+      tokenDefinition: TokenDefinition;
+      /** Token with theme, for example "semantic.error.dark" */
+      tokenName: string;
+      /** The Value for this token/theme */
+      tokenValue: Value;
+    }[];
+  }[];
+  renderTemplate: (template: string, context: any) => string;
 }
 
 export interface Format {
-    /** The name of a format this format is an extension  of (inherits from) */
-    extends?: string;
+  /** The name of a format this format is an extension  of (inherits from) */
+  extends?: string;
 
-    /** Preferred file extension for the generated file(s) for this format,
-     * for example ".txt"
-     */
-    ext?: string;
+  /** Preferred file extension for the generated file(s) for this format,
+   * for example ".txt"
+   */
+  ext?: string;
 
-    formatFilename?: ({
-        theme,
-        basename,
-    }: {
-        theme: string;
-        basename: string;
-    }) => string;
+  formatFilename?: ({
+    theme,
+    basename,
+  }: {
+    theme: string;
+    basename: string;
+  }) => string;
 
-    /** Header included at the begining of generated files,
-     * such as a warning about not modifying the file or a copyright notice */
-    fileHeader?: string;
+  /** Header included at the begining of generated files,
+   * such as a warning about not modifying the file or a copyright notice */
+  fileHeader?: string;
 
-    handlebarsHelpers?: { [helper: string]: (...args: any[]) => string };
+  handlebarsHelpers?: { [helper: string]: (...args: any[]) => string };
 
-    render?: (context: RenderContext) => string;
-    [key: string]: unknown;
+  render?: (context: RenderContext) => string;
+  [key: string]: unknown;
 }
 
 export const DEFAULT_FILE_HEADER = `

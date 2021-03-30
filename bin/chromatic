@@ -131,17 +131,17 @@ const DefaultFormatters = {
         lowercase: (name, theme) => (name + !theme ? '' : '.' + theme).toLowerCase(),
     },
     handlebarsHelpers: {
-        uppercase: (s) => s.toUpperCase(),
-        sanitizeCssPropertyName: (s) => s.replace(/[^a-zA-Z0-9_-]/g, '-'),
-        cssValue: (v) => { var _a; return (_a = v === null || v === void 0 ? void 0 : v.css()) !== null && _a !== void 0 ? _a : '[MISSING VALUE]'; },
+        'uppercase': (s) => s.toUpperCase(),
+        'sanitizeCssPropertyName': (s) => s.replace(/[^a-zA-Z0-9_-]/g, '-'),
+        'cssValue': (v) => { var _a; return (_a = v === null || v === void 0 ? void 0 : v.css()) !== null && _a !== void 0 ? _a : '[MISSING VALUE]'; },
         'remove-last-comma': function (context) {
             const lines = context.fn(this).split('\n');
             const lastCommaLine = lines.reduce((acc, v, idx) => (/,$/.test(v) ? idx : acc), -1);
             return lines
-                .map((line, idx) => idx !== lastCommaLine ? line : line.slice(0, -1))
+                .map((line, idx) => (idx !== lastCommaLine ? line : line.slice(0, -1)))
                 .join('\n');
         },
-        comment: function (s, format = '/* */') {
+        'comment': function (s, format = '/* */') {
             var _a, _b;
             if (typeof s !== 'string') {
                 return this.comment;
@@ -165,9 +165,7 @@ const DefaultFormatters = {
                 open = format.slice(prefix.length);
                 close = '';
             }
-            return (prefix +
-                open +
-                s.split('\n').join((close !== null && close !== void 0 ? close : '') + '\n' + prefix + open));
+            return (prefix + open + s.split('\n').join((close !== null && close !== void 0 ? close : '') + '\n' + prefix + open));
         },
     },
 };
@@ -206,13 +204,11 @@ class Value {
         this.source = source;
     }
     equals(v) {
-        return (this.type() === v.type() &&
-            this.canonicalScalar() == v.canonicalScalar());
+        return (this.type() === v.type() && this.canonicalScalar() == v.canonicalScalar());
     }
 }
 function roundTo(num, precision) {
-    return (Math.round(num * Math.pow(10, precision) + 1e-14) /
-        Math.pow(10, precision));
+    return (Math.round(num * Math.pow(10, precision) + 1e-14) / Math.pow(10, precision));
 }
 class Percentage extends Value {
     constructor(from) {
@@ -327,9 +323,7 @@ class Length extends Value {
         return 'length';
     }
     canonicalScalar() {
-        return this.unit === 'multi'
-            ? NaN
-            : asPx(this.value, this.unit);
+        return this.unit === 'multi' ? NaN : asPx(this.value, this.unit);
     }
 }
 class Time extends Value {
@@ -815,10 +809,10 @@ function scaleLength(arg1, arg2) {
     }
     const scaleName = asString(arg2, 'pentatonic').toLowerCase();
     let scale = {
-        tritonic: [2, 3],
-        tetratonic: [2, 4],
-        pentatonic: [2, 5],
-        golden: [1.618, 1],
+        'tritonic': [2, 3],
+        'tetratonic': [2, 4],
+        'pentatonic': [2, 5],
+        'golden': [1.618, 1],
         'golden ditonic': [1.618, 2],
     }[scaleName];
     if (typeof scale === 'undefined') {
@@ -861,9 +855,7 @@ const terminal = {
         return gUseColor ? chalk.bold.green('✔︎   ' + m) : '✔︎   ' + m;
     },
     error: (m = '') => {
-        return gUseColor
-            ? chalk.hex(tcRed)(chalk.bold('✘   ' + m))
-            : '✘   ' + m;
+        return gUseColor ? chalk.hex(tcRed)(chalk.bold('✘   ' + m)) : '✘   ' + m;
     },
     warning: (m = '') => {
         return gUseColor
@@ -892,12 +884,8 @@ const terminal = {
     link: (m) => {
         return gUseColor
             ? '\n▷   ' +
-                chalk.hex(tcPurple)('https://github.com/arnog/chromatic/docs/errors/' +
-                    m +
-                    '.md')
-            : '\n▷   https://github.com/arnog/chromatic/docs/errors/' +
-                m +
-                '.md';
+                chalk.hex(tcPurple)('https://github.com/arnog/chromatic/docs/errors/' + m + '.md')
+            : '\n▷   https://github.com/arnog/chromatic/docs/errors/' + m + '.md';
     },
 };
 
@@ -998,8 +986,7 @@ function mixColor(c1, c2, weight, model) {
         return color1;
     const w = asDecimalRatio(weight, 0.5);
     let alpha = typeof color2.a === 'number' ? color2.a : 1.0;
-    alpha =
-        alpha + ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
+    alpha = alpha + ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
     if (modelName === 'rgb') {
         return new Color({
             r: color1.r + (color2.r - color1.r) * w,
@@ -1034,8 +1021,7 @@ function getDeltaE(c1, c2) {
     const C1 = Math.sqrt(x1.a * x1.a + x1.b * x1.b);
     const C2 = Math.sqrt(x2.a * x2.a + x2.b * x2.b);
     const CBar = (C1 + C2) / 2;
-    const aPrime = 1 -
-        Math.sqrt(Math.pow(CBar, 7) / (Math.pow(CBar, 7) + Math.pow(25, 7)));
+    const aPrime = 1 - Math.sqrt(Math.pow(CBar, 7) / (Math.pow(CBar, 7) + Math.pow(25, 7)));
     const aPrime1 = x1.a + (x1.a / 2) * aPrime;
     const aPrime2 = x2.a + (x2.a / 2) * aPrime;
     const CPrime1 = Math.sqrt(aPrime1 * aPrime1 + x1.b * x1.b);
@@ -1068,8 +1054,7 @@ function getDeltaE(c1, c2) {
     const S_H = 1 + 0.015 * CBarPrime * T;
     const R_T = -2 *
         Math.sqrt(Math.pow(CBarPrime, 7) / (Math.pow(CBarPrime, 7) + Math.pow(25, 7))) *
-        Math.sin((Math.PI / 180) *
-            (60 * Math.exp(-Math.pow((HBarPrime - 275) / 25, 2))));
+        Math.sin((Math.PI / 180) * (60 * Math.exp(-Math.pow((HBarPrime - 275) / 25, 2))));
     const lightness = deltaLPrime / (kSubL * S_L);
     const chroma = deltaCPrime / (kSubC * S_C);
     const hue = deltaHPrime / (kSubH * S_H);
@@ -1310,8 +1295,7 @@ const COLOR_FUNCTIONS = {
         const w = asDecimalRatio(weight, 0.5);
         let alpha = typeof color2.a === 'number' ? color2.a : 1.0;
         alpha =
-            alpha +
-                ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
+            alpha + ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
         if (modelName === 'rgb') {
             return new Color({
                 r: color1.r + (color2.r - color1.r) * w,
@@ -1728,9 +1712,7 @@ class Stream {
                                 alias = (_c = scaleColor(resolvedValue)) === null || _c === void 0 ? void 0 : _c.get(index);
                             }
                             else if (isLength(resolvedValue)) {
-                                const index = m[2] === '50'
-                                    ? 0
-                                    : Math.round(parseInt(m[2]) / 100);
+                                const index = m[2] === '50' ? 0 : Math.round(parseInt(m[2]) / 100);
                                 alias = (_d = scaleLength(resolvedValue)) === null || _d === void 0 ? void 0 : _d.get(index);
                             }
                         }
@@ -2031,42 +2013,42 @@ function parseValue(expression, options = {}) {
     return result;
 }
 
-const fs = require('fs');
+const fs$4 = require('fs');
 const GenericFormats = {
     formats: {
-        yaml: {
+        'yaml': {
             ext: '.yaml',
-            render: (context) => context.renderTemplate(fs.readFileSync(__dirname + '/templates/yaml.hbs', 'utf-8'), context),
+            render: (context) => context.renderTemplate(fs$4.readFileSync(__dirname + '/templates/yaml.hbs', 'utf-8'), context),
         },
-        json: {
+        'json': {
             ext: '.json',
-            render: (context) => context.renderTemplate(fs.readFileSync(__dirname + '/templates/json.hbs', 'utf-8'), context),
+            render: (context) => context.renderTemplate(fs$4.readFileSync(__dirname + '/templates/json.hbs', 'utf-8'), context),
             handlebarsHelpers: {},
         },
         'data-dump': {
             ext: '.yaml',
-            render: (context) => context.renderTemplate(fs.readFileSync(__dirname + '/templates/data-dump.hbs', 'utf-8'), context),
+            render: (context) => context.renderTemplate(fs$4.readFileSync(__dirname + '/templates/data-dump.hbs', 'utf-8'), context),
         },
     },
 };
 
-const fs$1 = require('fs');
+const fs$3 = require('fs');
 const WebFormats = {
     formats: {
         sass: {
             ext: '.scss',
-            render: (context) => context.renderTemplate(fs$1.readFileSync(__dirname + '/templates/sass.hbs', 'utf-8'), context),
+            render: (context) => context.renderTemplate(fs$3.readFileSync(__dirname + '/templates/sass.hbs', 'utf-8'), context),
         },
         css: {
             ext: '.css',
-            render: (context) => context.renderTemplate(fs$1.readFileSync(__dirname + '/templates/css.hbs', 'utf-8'), context),
+            render: (context) => context.renderTemplate(fs$3.readFileSync(__dirname + '/templates/css.hbs', 'utf-8'), context),
         },
     },
 };
 
 const marked = require('marked');
 const highlight = require('highlight.js');
-const handlebars = require('handlebars');
+const handlebars$1 = require('handlebars');
 const fs$2 = require('fs');
 function renderColorSection(context) {
     let result = '';
@@ -2116,8 +2098,7 @@ function renderColorSection(context) {
                 ].forEach((x) => {
                     if (similarColorsColorDeficient.findIndex((y) => y.name === x.name) < 0) {
                         if (!similarColors ||
-                            similarColors.findIndex((y) => y.name === x.name) <
-                                0) {
+                            similarColors.findIndex((y) => y.name === x.name) < 0) {
                             similarColorsColorDeficient.push(x);
                         }
                     }
@@ -2213,7 +2194,7 @@ function renderColorSection(context) {
                 });
             }
         });
-        result += handlebars.compile(fs$2.readFileSync(__dirname + '/templates/html-colors.hbs', 'utf-8'))(handlebarsContext);
+        result += handlebars$1.compile(fs$2.readFileSync(__dirname + '/templates/html-colors.hbs', 'utf-8'))(handlebarsContext);
     });
     return result;
 }
@@ -2223,7 +2204,7 @@ const StyleGuideFormat = {
             ext: '.html',
             render: renderColorSection,
         },
-        html: {
+        'html': {
             ext: '.html',
             render: (context) => context.renderTemplate(fs$2.readFileSync(__dirname + '/templates/html-file.hbs', 'utf-8'), { ...context, 'color-section': renderColorSection(context) }),
         },
@@ -2244,12 +2225,12 @@ marked.setOptions({
 const { cosmiconfigSync } = require('cosmiconfig');
 const configParser = cosmiconfigSync('chromatic');
 const glob = require('glob');
-const fs$3 = require('fs-extra');
-const path = require('path');
+const fs$1 = require('fs-extra');
+const path$1 = require('path');
 const yaml = require('yaml');
 const json5 = require('json5');
 const resolveFrom = require('resolve-from');
-const handlebars$1 = require('handlebars');
+const handlebars = require('handlebars');
 const gConfig = {};
 let gWatching = false;
 let gIgnoreErrors = false;
@@ -2356,7 +2337,7 @@ function evaluateTokenExpression(qualifiedToken, expression, theme) {
                         aliasValue = evaluateTokenExpression(identifier, (_e = gTokenDefinitions.get(qualifiedToken)) === null || _e === void 0 ? void 0 : _e.value['_'], theme);
                     }
                 }
-                return (aliasValue !== null && aliasValue !== void 0 ? aliasValue : getSuggestion(identifier, gTokenDefinitions));
+                return aliasValue !== null && aliasValue !== void 0 ? aliasValue : getSuggestion(identifier, gTokenDefinitions);
             },
         });
         gRecursiveEvaluationStack.pop();
@@ -2407,18 +2388,18 @@ function processTokenGroup(tokenFile, groupPath, tokens) {
 }
 function processPath(f) {
     const errors = [];
-    f = path.resolve(path.normalize(f));
+    f = path$1.resolve(path$1.normalize(f));
     if (gProcessedFiles.includes(f))
         return;
     gProcessedFiles.push(f);
-    if (fs$3.lstatSync(f).isDirectory()) {
+    if (fs$1.lstatSync(f).isDirectory()) {
         glob.sync(f + '/**/*' + gConfig.tokenFileExt).forEach(processPath);
         return;
     }
     let tokenFile;
     try {
-        const content = fs$3.readFileSync(f, 'utf8');
-        if (/^\.json/.test(path.extname(f))) {
+        const content = fs$1.readFileSync(f, 'utf8');
+        if (/^\.json/.test(path$1.extname(f))) {
             tokenFile = json5.parse(content);
         }
         else {
@@ -2436,7 +2417,7 @@ function processPath(f) {
             tokenFile.import.forEach((x) => {
                 let resolvedPath = f;
                 try {
-                    resolvedPath = resolveFrom(path.parse(f).dir, x);
+                    resolvedPath = resolveFrom(path$1.parse(f).dir, x);
                     processPath(resolvedPath);
                 }
                 catch (err) {
@@ -2448,9 +2429,7 @@ function processPath(f) {
                                 : `\nTo import as a file, use a relative path: "./${x}"`));
                     }
                     else if (err.code === 'ENOENT') {
-                        errors.push('→ ' +
-                            terminal.path(resolvedPath) +
-                            '\nFile not found.');
+                        errors.push('→ ' + terminal.path(resolvedPath) + '\nFile not found.');
                     }
                     else {
                         errors.push(err.message);
@@ -2470,7 +2449,7 @@ function processPath(f) {
             tokenFile['includes']) &&
         !tokenFile.import) {
         log(terminal.warning() +
-            terminal.path(path.relative('', f)) +
+            terminal.path(path$1.relative('', f)) +
             `\n${terminal.warning('Warning:')} use the \`"import"\` property to import other token files`);
     }
     if (tokenFile === null || tokenFile === void 0 ? void 0 : tokenFile.groups) {
@@ -2504,13 +2483,13 @@ function processPath(f) {
     if (gConfig.verbose && errors.length === 0) {
         log(terminal.success() +
             '← ' +
-            terminal.path(process.env.TEST ? path.basename(f) : path.relative('', f)));
+            terminal.path(process.env.TEST ? path$1.basename(f) : path$1.relative('', f)));
     }
     if (errors.length > 0) {
         error([
             terminal.error() +
                 '← ' +
-                terminal.path(process.env.TEST ? path.basename(f) : path.relative('', f)),
+                terminal.path(process.env.TEST ? path$1.basename(f) : path$1.relative('', f)),
             ...errors,
         ]);
     }
@@ -2558,7 +2537,7 @@ function getFormat(formatName) {
     }
     mergeObject(result, gConfig.formats[formatName]);
     Object.keys(result.handlebarsHelpers).forEach((helper) => {
-        handlebars$1.registerHelper(helper, result.handlebarsHelpers[helper]);
+        handlebars.registerHelper(helper, result.handlebarsHelpers[helper]);
     });
     return result;
 }
@@ -2631,7 +2610,7 @@ function renderFile(format, themes, filepath) {
             };
         }),
         groups: tokensByGroup,
-        renderTemplate: (template, context) => handlebars$1.compile(template.replace(/\r\n/g, '\n'))(context),
+        renderTemplate: (template, context) => handlebars.compile(template.replace(/\r\n/g, '\n'))(context),
     });
 }
 function render(baseOutputPath, format) {
@@ -2640,12 +2619,12 @@ function render(baseOutputPath, format) {
     let outputPath = '';
     if (!areThemesValid())
         return;
-    const pathRecord = (_a = (baseOutputPath && path.parse(baseOutputPath))) !== null && _a !== void 0 ? _a : {
+    const pathRecord = (_a = (baseOutputPath && path$1.parse(baseOutputPath))) !== null && _a !== void 0 ? _a : {
         name: 'tokens',
     };
     if (gConfig.splitOutput) {
         gThemes.forEach((theme) => {
-            outputPath = path.format({
+            outputPath = path$1.format({
                 dir: pathRecord.dir,
                 name: format.formatFilename({
                     theme: theme,
@@ -2657,7 +2636,7 @@ function render(baseOutputPath, format) {
         });
     }
     else {
-        outputPath = path.format({
+        outputPath = path$1.format({
             dir: pathRecord.dir,
             name: format.formatFilename({
                 theme: '',
@@ -2670,19 +2649,19 @@ function render(baseOutputPath, format) {
     return result;
 }
 function writeOutputFile(content, outputPath) {
-    const dirname = path.dirname(outputPath);
-    if (!fs$3.existsSync(dirname)) {
-        fs$3.mkdirsSync(dirname);
+    const dirname = path$1.dirname(outputPath);
+    if (!fs$1.existsSync(dirname)) {
+        fs$1.mkdirsSync(dirname);
     }
-    fs$3.writeFileSync(outputPath, content);
+    fs$1.writeFileSync(outputPath, content);
     if (gConfig.verbose || gWatching) {
         log(terminal.success() +
             (gWatching ? terminal.time() + ' ' : '') +
             '→ ' +
-            terminal.path(path.relative('', outputPath)));
+            terminal.path(path$1.relative('', outputPath)));
     }
 }
-function build(paths, options) {
+function build$1(paths, options) {
     var _a, _b;
     gWatching = (_a = options === null || options === void 0 ? void 0 : options.watching) !== null && _a !== void 0 ? _a : false;
     gThemes = [];
@@ -2742,8 +2721,7 @@ function build(paths, options) {
                 var _a;
                 if (theme !== '_') {
                     const qualifiedToken = token + '.' + theme;
-                    if ((_a = gTokenValues
-                        .get(token)) === null || _a === void 0 ? void 0 : _a.equals(gTokenValues.get(qualifiedToken))) {
+                    if ((_a = gTokenValues.get(token)) === null || _a === void 0 ? void 0 : _a.equals(gTokenValues.get(qualifiedToken))) {
                         gTokenValues.delete(qualifiedToken);
                     }
                 }
@@ -2761,7 +2739,7 @@ function build(paths, options) {
         });
         const format = getFormat(gConfig.outputFormat);
         format.fileHeader = (_b = options.header) !== null && _b !== void 0 ? _b : format.fileHeader;
-        const outputPath = (options === null || options === void 0 ? void 0 : options.output) && path.resolve(options.output);
+        const outputPath = (options === null || options === void 0 ? void 0 : options.output) && path$1.resolve(options.output);
         const content = render(outputPath, format);
         if (content && !(options === null || options === void 0 ? void 0 : options.dryRun)) {
             if (!outputPath) {
@@ -2776,8 +2754,7 @@ function build(paths, options) {
                         }
                         else {
                             themesMessage =
-                                'for themes ' +
-                                    gThemes.map((x) => '"' + x + '"').join(', ');
+                                'for themes ' + gThemes.map((x) => '"' + x + '"').join(', ');
                         }
                     }
                     log(`    Writing ${terminal.string(gConfig.outputFormat)} format ${themesMessage}`);
@@ -2810,9 +2787,7 @@ function chromatic(paths, options) {
     }
     if (options === null || options === void 0 ? void 0 : options.themes) {
         if (typeof options.themes === 'string') {
-            gConfig.themes = options.themes
-                .split(',')
-                .map((x) => x.trim());
+            gConfig.themes = options.themes.split(',').map((x) => x.trim());
         }
         else if (Array.isArray(options.themes)) {
             gConfig.themes = [...options.themes];
@@ -2841,16 +2816,18 @@ function chromatic(paths, options) {
     }
     if (!gConfig.themes)
         gConfig.themes = [];
-    gConfig.tokenFileExt = (_f = (_e = options === null || options === void 0 ? void 0 : options.tokenFileExt) !== null && _e !== void 0 ? _e : gConfig === null || gConfig === void 0 ? void 0 : gConfig.tokenFileExt) !== null && _f !== void 0 ? _f : 'yaml';
+    gConfig.tokenFileExt =
+        (_f = (_e = options === null || options === void 0 ? void 0 : options.tokenFileExt) !== null && _e !== void 0 ? _e : gConfig === null || gConfig === void 0 ? void 0 : gConfig.tokenFileExt) !== null && _f !== void 0 ? _f : 'yaml';
     gConfig.verbose = (_h = (_g = options === null || options === void 0 ? void 0 : options.verbose) !== null && _g !== void 0 ? _g : gConfig === null || gConfig === void 0 ? void 0 : gConfig.verbose) !== null && _h !== void 0 ? _h : false;
     gConfig.splitOutput = options.splitOutput;
     gConfig.outputFormat = (_k = (_j = options === null || options === void 0 ? void 0 : options.format) !== null && _j !== void 0 ? _j : gConfig === null || gConfig === void 0 ? void 0 : gConfig.outputFormat) !== null && _k !== void 0 ? _k : '';
     if (!gConfig.outputFormat) {
-        const fileExt = (options === null || options === void 0 ? void 0 : options.output) && path.extname(options === null || options === void 0 ? void 0 : options.output);
+        const fileExt = (options === null || options === void 0 ? void 0 : options.output) && path$1.extname(options === null || options === void 0 ? void 0 : options.output);
         if (fileExt) {
             const matchingExtensions = Object.keys(gConfig.formats).filter((x) => {
                 var _a, _b;
-                return gConfig.formats[x].ext === fileExt || ((_b = gConfig.formats[(_a = gConfig.formats[x]) === null || _a === void 0 ? void 0 : _a.extends]) === null || _b === void 0 ? void 0 : _b.ext);
+                return gConfig.formats[x].ext === fileExt ||
+                    ((_b = gConfig.formats[(_a = gConfig.formats[x]) === null || _a === void 0 ? void 0 : _a.extends]) === null || _b === void 0 ? void 0 : _b.ext);
             });
             if (matchingExtensions.length === 1) {
                 gConfig.outputFormat = matchingExtensions[0];
@@ -2883,7 +2860,7 @@ function chromatic(paths, options) {
         }
     }
     mergeObject(gConfig.handlebarsHelpers, options === null || options === void 0 ? void 0 : options.handlebarsHelpers);
-    const result = build(paths, options);
+    const result = build$1(paths, options);
     if (messages.length > 0) {
         result['stderr'] = messages.join('\n');
     }
@@ -2897,8 +2874,8 @@ module.exports = chromatic;
 
 const pkg = require('./package.json');
 require('please-upgrade-node')(pkg);
-const fs$4 = require('fs-extra');
-const path$1 = require('path');
+const fs = require('fs-extra');
+const path = require('path');
 const updateNotifier = require('update-notifier');
 const chokidar = require('chokidar');
 function logResult(result) {
@@ -2910,7 +2887,7 @@ function logResult(result) {
         result[x])
         .join('\n'));
 }
-function build$1(argv) {
+function build(argv) {
     if (typeof process.stdin.isTTY !== 'undefined' && !process.stdin.isTTY) {
         process.stdin.setEncoding('utf-8');
         let input = '';
@@ -2932,9 +2909,7 @@ function build$1(argv) {
             process.exit(1);
         }
         if (argv.watch) {
-            chokidar
-                .watch(argv['paths'])
-                .on('all', (_event, _path) => {
+            chokidar.watch(argv['paths']).on('all', (_event, _path) => {
                 chromatic(argv['paths'], {
                     ...argv,
                     ...{ watching: true },
@@ -3013,25 +2988,19 @@ function buildOptions(yargs) {
 }
 function example(argv) {
     var _a;
-    const target = path$1.resolve((_a = argv['example-directory']) !== null && _a !== void 0 ? _a : 'chromatic-example');
-    console.log('Creating an example in ' + path$1.relative('', target));
+    const target = path.resolve((_a = argv['example-directory']) !== null && _a !== void 0 ? _a : 'chromatic-example');
+    console.log('Creating an example in ' + path.relative('', target));
     try {
-        fs$4.copySync('examples/basic', target, {
+        fs.copySync('examples/basic', target, {
             overwrite: false,
             errorOnExist: true,
         });
         console.log('Now, try the example:\n' +
             '    ' +
-            terminal.keyword(argv.$0 +
-                ' ' +
-                path$1.relative('', target) +
-                ' -o ./build/tokens.scss') +
+            terminal.keyword(argv.$0 + ' ' + path.relative('', target) + ' -o ./build/tokens.scss') +
             '\nor:\n' +
             '    ' +
-            terminal.keyword(argv.$0 +
-                ' ' +
-                path$1.relative('', target) +
-                ' -o ./build/tokens.html'));
+            terminal.keyword(argv.$0 + ' ' + path.relative('', target) + ' -o ./build/tokens.html'));
     }
     catch (err) {
         console.log(err.message);
@@ -3041,7 +3010,7 @@ updateNotifier({ pkg, shouldNotifyInNpmScript: true }).notify();
 require('yargs')
     .usage('Usage: $0 file(s) [options]')
     .example('$0 ./assets/tokens.yaml -o ./build/tokens.scss', 'Generate a Sass file from a design tokens YAML file')
-    .command(['* <paths..>', 'build <paths..>'], 'Build output files', buildOptions, build$1)
+    .command(['* <paths..>', 'build <paths..>'], 'Build output files', buildOptions, build)
     .command('example [example-directory]', 'Create example directory', (yargs) => {
     yargs.positional('example-directory', {
         describe: 'Example output directory',

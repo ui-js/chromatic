@@ -341,9 +341,12 @@ export class ArrayValue extends Value {
   }
 }
 
-export function parseColorName(
-  name: string
-): { r: number; g: number; b: number; a: number } {
+export function parseColorName(name: string): {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+} {
   const color = colorName[name.toLowerCase()];
   if (color) {
     return {
@@ -357,9 +360,12 @@ export function parseColorName(
   return undefined;
 }
 
-export function parseHex(
-  hex: string
-): { r: number; g: number; b: number; a: number } {
+export function parseHex(hex: string): {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+} {
   if (!hex) return undefined;
   if (hex[0] !== '#') return undefined;
   hex = hex.slice(1);

@@ -477,18 +477,12 @@ export const COLOR_ARGUMENTS_FUNCTIONS = [
 ];
 
 export const COLOR_FUNCTION_ARGUMENTS = {
-  rgb:
-    'number|percentage, number|percentage, number|percentage,number|percentage|none',
-  rgba:
-    'number|percentage, number|percentage, number|percentage,number|percentage|none',
-  hsl:
-    'number|angle, number|percentage, number|percentage, number|percentage|none',
-  hsla:
-    'number|angle, number|percentage, number|percentage, number|percentage|none',
-  hsv:
-    'number|angle, number|percentage, number|percentage, number|percentage|none',
-  hwb:
-    'number|angle, number|percentage, number|percentage, number|percentage|none',
+  rgb: 'number|percentage, number|percentage, number|percentage,number|percentage|none',
+  rgba: 'number|percentage, number|percentage, number|percentage,number|percentage|none',
+  hsl: 'number|angle, number|percentage, number|percentage, number|percentage|none',
+  hsla: 'number|angle, number|percentage, number|percentage, number|percentage|none',
+  hsv: 'number|angle, number|percentage, number|percentage, number|percentage|none',
+  hwb: 'number|angle, number|percentage, number|percentage, number|percentage|none',
   lab: 'number|percentage, number, number, number|percentage|none',
   gray: 'number|percentage, number|percentage|none',
   mix: 'color, color, number|percentage|none, string|none',

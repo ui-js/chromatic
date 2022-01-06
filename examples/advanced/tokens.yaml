@@ -1,55 +1,57 @@
 tokens:
-    red: 'scale(hsl(4deg, 90%, 50%))'
-    orange: 'scale(hsl(30deg, 100%, 60%))'
-    yellow: 'scale(hsl(46deg, 100%, 60%))'
-    lime: 'scale(hsl(90deg, 79%, 39%))'
-    green: 'scale(hsl(130deg, 70%, 43%))'
-    teal: 'scale(hsl(180deg, 80%, 45%))'
-    blue: 'scale(hsl(210deg, 90%, 50%))'
-    indigo: 'scale(hsl(260deg, 60%, 50%))'
-    purple: 'scale(hsl(280deg, 80%, 50%))'
-    magenta: 'scale(hsl(330deg, 80%, 60%))'
+  red: 'scale(hsl(4deg, 90%, 50%))' # #F21C0D Red RYB
+  orange: 'scale(hsl(30deg, 100%, 60%))' # #FF9933 Indian Saffron / Deep Saffron
+  yellow: 'scale(hsl(46deg, 100%, 60%))' # #FFCF33 Peach Cobbler / Sunglow
+  lime: 'scale(hsl(90deg, 79%, 39%))' # #63B215 Kelly Green
+  green: 'scale(hsl(130deg, 70%, 43%))' # #17CF36 Vivid Malachite
+  teal: 'scale(hsl(180deg, 80%, 45%))' # #17CFCF Dark Turquoise
+  blue: 'scale(hsl(210deg, 90%, 50%))' # #0D80F2 Tropical Thread / Azure
+  indigo: 'scale(hsl(260deg, 60%, 50%))' # #6633CC Strong Violet / Iris
+  purple: 'scale(hsl(280deg, 80%, 50%))' # #A219E6 Purple X11
+  magenta: 'scale(hsl(330deg, 80%, 60%))' # #EB4799 Raspberry Pink
 
-    border-radius: '4px'
+  border-radius: '4px'
 
-    line-height: '18pt + 4px'
+  line-height: '18pt + 4px'
 
-    # Defining an angle using the 'deg' unit
-    primary-hue:
-        value:
-            _: '210deg'
-            dark: '200deg'
+  # Defining an angle using the 'deg' unit
+  primary-hue:
+    value:
+      _: '210deg'
+      dark: '200deg'
 
-    # A token expression can reference another token by enclosing it in "{}"
-    # Functions can be used to perform more complex calculations
-    # The 'hsl()' function will return a color based on a hue, saturation and lightness
-    # Other color functions include "rgb()", "hsv()", "hwb()" and "lab()"
-    primary: 'hsl({primary-hue}, 100%, 40%)'
-    cta-button-background: '{primary}'
-    cta-button-background-active: 'darken({cta-button-background}, 20%)'
-    cta-button-background-hover: 'darken({cta-button-background}, 10%)'
+  # A token expression can reference another token by enclosing it in "{}"
+  # Functions can be used to perform more complex calculations
+  # The 'hsl()' function will return a color based on a hue, saturation and lightness
+  # Other color functions include "rgb()", "hsv()", "hwb()" and "lab()"
+  primary: 'hsl({primary-hue}, 100%, 40%)'
+  cta-button-background: '{primary}'
+  cta-button-background-active: 'darken({cta-button-background}, 20%)'
+  cta-button-background-hover: 'darken({cta-button-background}, 10%)'
 
-    # Related tokens can be grouped together
-    semantic:
-        # Color scales (darker or lighter variant of a base color) are
-        # created automatically and can be referenced by adding a "-" and three
-        # digits after a token name.
-        error: '{red-600}'
-        warning:
-            value:
-                _: '{orange-400}'
-                dark: '{orange-500}'
-            comment: 'Use for problems that do not prevent the task to complete'
-        success: '{green-600}'
+  # Related tokens can be grouped together
+  semantic:
+    # Color scales (darker or lighter variant of a base color) are
+    # created automatically and can be referenced by adding a "-" and three
+    # digits after a token name.
+    error: '{red-600}'
+    warning:
+      value:
+        _: '{orange-400}'
+        dark: '{orange-500}'
+      comment: 'Use for problems that do not prevent the task to complete'
+    success: '{green-600}'
 
-    color-blind:
-        tritan-1: '#FAFF00'
-        tritan-2: '#FDF4F8'
-        protan-1: '#3B7398'
-        protan-2: '#D81B60'
-        deuteran-1: '#32F3D9'
-        deuteran-2: '#F1CFEC'
+  color-blind:
+    tritan-1: '#FAFF00'
+    tritan-2: '#FDF4F8'
+    protan-1: '#3B7398'
+    protan-2: '#D81B60'
+    deuteran-1: '#32F3D9'
+    deuteran-2: '#F1CFEC'
 groups:
-    semantic:
-        comment: 'These color values are used to convey a meaning'
-        remarks: '**For more information** about the hidden meaning of semantic colors [read this](https://en.wikipedia.org/wiki/Color_symbolism)'
+  semantic:
+    comment: 'These color values are used to convey a meaning'
+    remarks:
+      '**For more information** about the hidden meaning of semantic colors
+      [read this](https://en.wikipedia.org/wiki/Color_symbolism)'

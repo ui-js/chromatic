@@ -1,6 +1,6 @@
 {
   "name": "@ui-js/chromatic",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A build system for managing cross-platform design systems using design tokens.",
   "publishConfig": {
     "access": "public"

@@ -21,7 +21,7 @@ body[data-theme="{{theme}}"] {
     {{/if}}
     {{#each tokens}}
       {{! Output a custom property }}
-      --{{sanitizeCssPropertyName tokenName}}: "{{{cssValue tokenValue}}}";
+      --{{sanitizeCssPropertyName tokenName}}: {{{cssValue tokenValue}}};
     {{/each}}
 };
 
@@ -32,7 +32,7 @@ body[data-theme="{{theme}}"] {
       {{#if tokenDefinition.comment}}
         {{comment tokenDefinition.comment '//'}}
       {{/if}}
-${{sanitizeCssPropertyName tokenName}}: "{{{cssValue tokenValue}}}" !default;
+${{sanitizeCssPropertyName tokenName}}: {{{cssValue tokenValue}}} !default;
     {{/each}}
 
 
@@ -41,5 +41,5 @@ ${{sanitizeCssPropertyName tokenName}}: "{{{cssValue tokenValue}}}" !default;
 
 {{#each colorRamps}}
   {{this}}
-${{sanitizeCssPropertyName name}}: "{{{cssValue value}}}"
+${{sanitizeCssPropertyName name}}: {{{cssValue value}}}
 {{/each}}

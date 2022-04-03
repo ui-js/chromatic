@@ -330,7 +330,7 @@ export class ArrayValue extends Value {
     return 'array';
   }
   css(): string {
-    return '[' + this.value.map((x) => x.css()).join(', ') + ']';
+    return '(' + this.value.map((x) => x.css()).join(', ') + ')';
   }
   equals(v: Value): boolean {
     return (

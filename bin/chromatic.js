@@ -404,7 +404,7 @@ class ArrayValue extends Value {
         return 'array';
     }
     css() {
-        return '[' + this.value.map((x) => x.css()).join(', ') + ']';
+        return '(' + this.value.map((x) => x.css()).join(', ') + ')';
     }
     equals(v) {
         return (isArray(v) &&

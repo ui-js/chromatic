@@ -15,7 +15,7 @@
         "./examples/advanced/tokens.yaml",
         // "test/tokens/basic-example/tokens.yaml",
         "--format",
-        "html", // sass
+        "html", // html, sass
         "--verbose",
         "--ignore-errors",
         "-o",

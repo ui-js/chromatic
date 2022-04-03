@@ -7,6 +7,24 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Style Guide",
+      "skipFiles": ["<node_internals>/**"],
+      "preLaunchTask": "npm: build",
+      "program": "${workspaceFolder}/bin/chromatic",
+      "args": [
+        "./examples/advanced/tokens.yaml",
+        // "test/tokens/basic-example/tokens.yaml",
+        "--format",
+        "html", // sass
+        "--verbose",
+        "--ignore-errors",
+        "-o",
+        "build/style-guide.html"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Basic",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/bin/chromatic",
@@ -18,23 +36,6 @@
         "--header=''",
         "--verbose",
         "--ignore-errors"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Style Guide",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/bin/chromatic",
-      "args": [
-        "./test/tokens/../../examples/advanced/tokens.yaml",
-        // "test/tokens/basic-example/tokens.yaml",
-        "--format",
-        "html",
-        "--verbose",
-        "--ignore-errors",
-        "-o",
-        "build/style-guide.html"
       ]
     },
     {

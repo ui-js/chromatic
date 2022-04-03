@@ -1,10 +1,12 @@
 tokens:
   red: 'scale(hsl(4deg, 90%, 50%))' # #F21C0D Red RYB
   orange: 'scale(hsl(30deg, 100%, 60%))' # #FF9933 Indian Saffron / Deep Saffron
+  brown: 'scale(hsl(34deg, 30%, 40%))'
   yellow: 'scale(hsl(46deg, 100%, 60%))' # #FFCF33 Peach Cobbler / Sunglow
   lime: 'scale(hsl(90deg, 79%, 39%))' # #63B215 Kelly Green
   green: 'scale(hsl(130deg, 70%, 43%))' # #17CF36 Vivid Malachite
   teal: 'scale(hsl(180deg, 80%, 45%))' # #17CFCF Dark Turquoise
+  cyan: 'scale(hsl(199deg, 85%, 50%))'
   blue: 'scale(hsl(210deg, 90%, 50%))' # #0D80F2 Tropical Thread / Azure
   indigo: 'scale(hsl(260deg, 60%, 50%))' # #6633CC Strong Violet / Iris
   purple: 'scale(hsl(280deg, 80%, 50%))' # #A219E6 Purple X11

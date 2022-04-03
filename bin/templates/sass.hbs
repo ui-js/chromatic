@@ -1,37 +1,45 @@
 {{comment fileHeader}}
 {{#each themes}}
-{{#if theme}}
+  {{#if theme}}
 
-{{!-- Output Sass properties pointing to the CSS custom property --}}
-{{#if isDefaultTheme}}
-{{#each tokens}}
-${{sanitizeCssPropertyName tokenName}}: var(--{{sanitizeCssPropertyName tokenName}}) !default;
-{{/each}}
-{{/if}}
+    {{! Output Sass properties pointing to the CSS custom property }}
+    {{#if isDefaultTheme}}
+      {{#each tokens}}
+${{sanitizeCssPropertyName tokenName}}: var(--{{sanitizeCssPropertyName
+          tokenName
+        }}) !default;
+      {{/each}}
+    {{/if}}
 
-{{!-- This is a themed tokens (multiple definitions --}}
-{{#if isDefaultTheme}}
-{{!-- The current theme is the default theme ('_') --}}
+    {{! This is a themed tokens (multiple definitions }}
+    {{#if isDefaultTheme}}
+      {{! The current theme is the default theme ('_') }}
 :root {
-{{else}}
-{{!-- The current theme is a custom --}}
+    {{else}}
+      {{! The current theme is a custom }}
 body[data-theme="{{theme}}"] {
-{{/if}}
-{{#each tokens}}
-{{!-- Output a custom property --}}
-    --{{sanitizeCssPropertyName tokenName}}: "{{{cssValue tokenValue}}}";
-{{/each}}
+    {{/if}}
+    {{#each tokens}}
+      {{! Output a custom property }}
+      --{{sanitizeCssPropertyName tokenName}}: "{{{cssValue tokenValue}}}";
+    {{/each}}
 };
 
-{{else}}
+  {{else}}
 
-{{!-- Output all tokens that have a single definition (no theme) as a Sass variable--}}
-{{#each tokens}}
-{{#if tokenDefinition.comment}}
-{{comment tokenDefinition.comment '//'}}
-{{/if}}
+    {{! Output all tokens that have a single definition (no theme) as a Sass variable}}
+    {{#each tokens}}
+      {{#if tokenDefinition.comment}}
+        {{comment tokenDefinition.comment '//'}}
+      {{/if}}
 ${{sanitizeCssPropertyName tokenName}}: "{{{cssValue tokenValue}}}" !default;
+    {{/each}}
+
+
+  {{/if}}
 {{/each}}
 
-{{/if}}
+{{#each colorRamps}}
+  {{this}}
+${{sanitizeCssPropertyName name}}: "{{{cssValue value}}}"
 {{/each}}

@@ -22,7 +22,7 @@ import {
   DEFAULT_FILE_HEADER,
   RenderContext,
 } from './formats';
-import { Value, StringValue, isString } from './value';
+import { Value, StringValue, isString, isColorArray } from './value';
 import { parseValue, ValueParserOptions } from './value-parser';
 
 import { GenericFormats } from './formats-generic';
@@ -713,12 +713,25 @@ function renderFile(
       const theme = Object.keys(def.value)[0];
       const qualifiedToken = tokenId + (theme === '_' ? '' : '.' + theme);
       if (!tokensByTheme['']) tokensByTheme[''] = [];
+      const value = gTokenValues.get(qualifiedToken);
       tokensByTheme[''].push({
         tokenId: tokenId,
         tokenName: qualifiedToken,
         tokenDefinition: def,
-        tokenValue: gTokenValues.get(qualifiedToken),
+        tokenValue: value,
       });
+      if (isColorArray(value)) {
+        let index = 50;
+        for (const v of value.value) {
+          tokensByTheme[''].push({
+            tokenId: tokenId + '-' + index,
+            tokenName: qualifiedToken + '-' + index,
+            tokenDefinition: def,
+            tokenValue: v,
+          });
+          index += index < 100 ? 50 : 100;
+        }
+      }
     }
   });
 

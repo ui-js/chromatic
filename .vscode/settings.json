@@ -1,4 +1,6 @@
 {
   "cSpell.words": ["cosmiconfig", "luma"],
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "liveServer.settings.port": 5501,
+  "scss.format.enable": false
 }

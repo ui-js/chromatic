@@ -1,0 +1,46 @@
+tokens:
+  brown: 'scale(hsl(34deg, 30%, 40%))'
+  red: 'scale(hsl(4deg, 90%, 50%))' # #F21C0D Red RYB
+  orange: 'scale(oklch(0.99 0.05 35deg), oklch(0.940 0.330 60deg), oklch(0.530
+    0.150 70deg))' # #FF9933 Indian Saffron / Deep Saffron
+  yellow:
+    'scale(oklch(100% 0.1 89deg), oklch(90% 0.6 105deg), oklch(60% 0.18 74deg))'
+  lime: 'scale(hsl(90deg, 79%, 39%))' # #63B215 Kelly Green
+  green: 'scale(hsl(130deg, 70%, 43%))' # #17CF36 Vivid Malachite
+  teal:
+    'scale(oklch(95% 0.05 190deg), oklch(0.610 0.400 190deg), oklch(30% 0.2
+    190deg))'
+  cyan:
+    'scale(oklch(1.000 0.060 215.0deg), oklch(0.820 0.350 228.0deg), oklch(0.460
+    0.180 226.0deg))'
+  # cyan: 'scale(hsl(199deg, 85%, 50%))'
+  blue: 'scale(hsl(210deg, 90%, 50%))' # #0D80F2 Tropical Thread / Azure
+  indigo: 'scale(hsl(260deg 40% 93%), hsl(260deg, 70%, 60%), hsl(260deg, 60%,
+    30%))' # #6633CC Strong Violet / Iris
+  purple: 'scale(hsl(280deg, 80%, 50%))' # #A219E6 Purple X11
+  magenta: 'scale(hsl(330deg, 80%, 60%))' # #EB4799 Raspberry Pink
+
+  # Dark mode variants: lightness + 0.02, chroma + 0.01
+  dark:
+    brown: 'dark-mode(scale(hsl(34deg, 30%, 40%)))'
+    red: 'dark-mode(scale(hsl(4deg, 90%, 50%)))'
+    orange:
+      'dark-mode(scale(oklch(0.99 0.05 35deg), oklch(0.940 0.330 60deg),
+      oklch(0.530 0.150 70deg)))'
+    yellow:
+      'dark-mode(scale(oklch(100% 0.1 89deg), oklch(90% 0.6 105deg), oklch(60%
+      0.18 74deg)))'
+    lime: 'dark-mode(scale(hsl(90deg, 79%, 39%)))'
+    green: 'dark-mode(scale(hsl(130deg, 70%, 43%)))'
+    teal:
+      'dark-mode(scale(oklch(95% 0.05 190deg), oklch(0.610 0.400 190deg),
+      oklch(30% 0.2 190deg)))'
+    cyan:
+      'dark-mode(scale(oklch(1.000 0.060 215.0deg), oklch(0.820 0.350 228.0deg),
+      oklch(0.460 0.180 226.0deg)))'
+    blue: 'dark-mode(scale(hsl(210deg, 90%, 50%)))'
+    indigo:
+      'dark-mode(scale(hsl(260deg 40% 93%), hsl(260deg 70% 60%), hsl(260deg 60%
+      30%)))'
+    purple: 'dark-mode(scale(hsl(280deg, 80%, 50%)))'
+    magenta: 'dark-mode(scale(hsl(330deg, 80%, 60%)))'

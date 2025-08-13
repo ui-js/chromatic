@@ -41,6 +41,7 @@ import {
   COLOR_ARGUMENTS_FUNCTIONS,
   COLOR_FUNCTION_ARGUMENTS,
   COLOR_FUNCTIONS,
+  darkMode,
   scaleColor,
 } from './color-functions';
 
@@ -65,24 +66,22 @@ let FUNCTIONS: {
 } = {};
 FUNCTIONS = {
   /** The calc() function is a no-op, but it's there for compatibility with CSS */
-  calc: (x: Value): Value => x,
-  min: (a: Value, b: Value): Value => {
+  'calc': (x: Value): Value => x,
+  'min': (a: Value, b: Value): Value => {
     return compareValue(a, b) < 0 ? a : b;
   },
-  max: (a: Value, b: Value): Value => {
+  'max': (a: Value, b: Value): Value => {
     return compareValue(a, b) < 0 ? b : a;
   },
-  clamp(a: Value, b: Value, c: Value): Value {
+  'clamp'(a: Value, b: Value, c: Value): Value {
     return compareValue(b, a) < 0 ? a : compareValue(b, c) > 0 ? c : b;
   },
 
-  scale: (arg1: Value, arg2: Value, arg3: Value, arg4: Value): ArrayValue => {
-    if (isColor(arg1)) {
-      return scaleColor(arg1, arg2, arg3, arg4);
-    } else if (isLength(arg1)) {
-      return scaleLength(arg1, arg2);
-    }
+  'scale': (arg1: Value, arg2: Value, arg3: Value, arg4: Value): ArrayValue => {
+    if (isColor(arg1)) return scaleColor(arg1, arg2, arg3, arg4);
+    if (isLength(arg1)) return scaleLength(arg1, arg2);
   },
+  'dark-mode': (value: Value): Value => darkMode(value),
   ...COLOR_FUNCTIONS,
 };
 

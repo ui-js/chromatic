@@ -2,6 +2,8 @@ const colorName = require('color-name');
 
 import { throwError, ErrorCode, SyntaxError } from './errors';
 
+import { srgbToOklch, oklchToRgb } from './ok-color';
+
 export type ValueType =
   | 'string'
   | 'number'
@@ -472,6 +474,9 @@ export interface ColorInterface {
   s?: number;
   l?: number;
   a?: number /* [0..1] or [0..100]% */;
+  okL?: number /* Luminance: [0..1], 0 = black, 1 = white */;
+  okC?: number /* Chroma: [0..0.4], 0 = neutral gray */;
+  okH?: number /* Hue: [0..360] */;
 }
 
 export class Color extends Value implements ColorInterface {
@@ -481,37 +486,58 @@ export class Color extends Value implements ColorInterface {
   h?: number; /* [0..360]deg */
   s?: number;
   l?: number;
+  okL?: number; /* Luminance: [0..1], 0 = black, 1 = white */
+  okC?: number; /* Chroma: [0..0.4], 0 = neutral gray */
+  okH?: number; /* Hue: [0..360] */
   a: number; /* [0..1] or [0..100]% */
   constructor(from: ColorInterface | string) {
     super();
     if (typeof from === 'string') {
       if (from.toLowerCase() === 'transparent') {
-        [this.r, this.g, this.b, this.a] = [0, 0, 0, 0];
+        this.a = 0;
+        [this.r, this.g, this.b] = [0, 0, 0];
         [this.h, this.s, this.l] = [0, 0, 0];
+        [this.okL, this.okC, this.okH] = [0, 0, 0];
       } else {
         const rgb = parseHex(from) || parseColorName(from);
         if (!rgb) throw new Error();
         Object.assign(this, rgb);
         Object.assign(this, rgbToHsl(this.r, this.g, this.b));
+        [this.okL, this.okC, this.okH] = srgbToOklch(this.r, this.g, this.b);
       }
     } else {
       Object.assign(this, from);
       // Normalize the RGB/HSL values so that a color value
-      // always has r, g, b, h, s, l and a.
+      // always has r, g, b, h, s, l, okL, okC, okH and a.
       if (typeof this.r === 'number') {
         // RGB data
         Object.assign(this, rgbToHsl(this.r, this.g, this.b));
-      } else {
+        [this.okL, this.okC, this.okH] = srgbToOklch(this.r, this.g, this.b);
+      } else if (typeof this.h === 'number') {
         // HSL data
         console.assert(typeof this.h === 'number');
         this.h = (this.h + 360) % 360;
         this.s = Math.max(0, Math.min(1.0, this.s));
         this.l = Math.max(0, Math.min(1.0, this.l));
         Object.assign(this, hslToRgb(this.h, this.s, this.l));
+        [this.okL, this.okC, this.okH] = srgbToOklch(this.r, this.g, this.b);
+      } else {
+        // okLCH
+        console.assert(typeof this.okL === 'number');
+        console.assert(typeof this.okC === 'number');
+        console.assert(typeof this.okH === 'number');
+        this.okH = (this.okH + 360) % 360;
+        this.okL = Math.max(0, Math.min(1.0, this.okL));
+        this.okC = Math.max(0, Math.min(1, this.okC)); // Chroma is arbitrary, but we fix it at 1. For sRGB, maxvalue is about 0.4
+        [this.r, this.g, this.b] = oklchToRgb(this.okL, this.okC, this.okH);
+        Object.assign(this, rgbToHsl(this.r, this.g, this.b));
       }
     }
-    if (typeof this.a !== 'number') {
-      this.a = 1.0;
+    // Default alpha is 1
+    if (typeof this.a !== 'number') this.a = 1.0;
+
+    if (isNaN(this.r) || isNaN(this.g) || isNaN(this.b) || isNaN(this.a)) {
+      debugger;
     }
   }
   type(): ValueType {
@@ -572,12 +598,17 @@ export class Color extends Value implements ColorInterface {
       this.a < 1.0 ? ', ' + roundTo(100 * this.a, 2) + '%' : ''
     })`;
   }
+  oklch(): string {
+    return `oklch(${this.okL}, ${this.okC}, ${this.okH}, ${this.a})`;
+  }
   css(): string {
+    if (isNaN(this.r) || isNaN(this.g) || isNaN(this.b) || isNaN(this.a)) {
+      debugger;
+    }
     if (this.r === 0 && this.g === 0 && this.b === 0 && this.a === 0)
       return 'transparent';
-    if (this.a < 1) {
-      return this.rgb();
-    }
+    if (this.a < 1) return this.rgb();
+
     return this.hex();
   }
   canonicalScalar(): number {
@@ -635,6 +666,7 @@ export function isColor(arg: Value): arg is Color {
 
 export function asColor(value: Record<string, unknown> | string): Color {
   if (!value) return undefined;
+  if (value instanceof Color) return value;
   let result: Color;
   try {
     result = new Color(value);

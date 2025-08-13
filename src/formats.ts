@@ -47,6 +47,7 @@ export interface RenderContext {
     groupInfo: TokenGroupInfo;
     /** Array of tokens in this group */
     tokens: {
+      isColor: boolean;
       /** ID, such as "semantic.error" */
       tokenId: string;
       /** Info, such as comments, etc... about the token */

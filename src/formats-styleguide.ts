@@ -2,6 +2,7 @@ const marked = require('marked');
 const highlight = require('highlight.js');
 const handlebars = require('handlebars');
 const fs = require('fs');
+const chroma = require('chroma-js');
 
 import { Color, isColor, isColorArray, roundTo } from './value';
 import { getSimilarColors, getDeltaE, filterColor } from './color-functions';
@@ -142,9 +143,64 @@ function renderColorSection(context: RenderContext): string {
         });
       } else if (isColorArray(token.tokenValue)) {
         let previousColor;
+        
+        // Generate visualization data for color ramps
+        const rampColors = token.tokenValue.value.map((x) => x as Color);
+        const lightnessData = rampColors.map((color, index) => {
+          const oklch = chroma(color.hex()).oklch();
+          const lightness = oklch[0] || 0;
+          const chroma_val = oklch[1] || 0;
+          const hue = oklch[2] || 0;
+          
+          // Calculate positions for lightness curve
+          const x = (index / (rampColors.length - 1)) * 300;
+          const maxLightness = 1.0;
+          const minLightness = 0.0;
+          const y = 150 - ((lightness - minLightness) / (maxLightness - minLightness)) * 120;
+          
+          return {
+            index: index === 0 ? 50 : index * 100,
+            lightness: Math.round(lightness * 1000) / 1000,
+            chroma: Math.round(chroma_val * 1000) / 1000,
+            hue: Math.round(hue),
+            color: color.hex(),
+            x: x,
+            y: y,
+          };
+        });
+        
+        // Generate SVG polyline points for lightness curve
+        const lightnessCurve = lightnessData.map((d) => `${d.x},${d.y}`).join(' ');
+        
+        // Generate hue/chroma chart data with improved scaling
+        // Find max chroma to scale appropriately
+        const maxChroma = Math.max(...lightnessData.map(d => d.chroma || 0));
+        const chromaScale = maxChroma > 0 ? Math.min(300, 90 / maxChroma) : 300;
+        
+        const hueChromaData = lightnessData.map((d) => {
+          const radius = (d.chroma || 0) * chromaScale;
+          const angle = (((d.hue || 0) - 90) * Math.PI) / 180;
+          const x = 110 + Math.cos(angle) * radius;
+          const y = 110 - Math.sin(angle) * radius;
+          
+          return {
+            index: d.index,
+            x: Math.round(x),
+            y: Math.round(y),
+            color: d.color,
+            lightness: d.lightness,
+            chroma: d.chroma,
+            hue: d.hue,
+            maxChroma: maxChroma, // Include for debugging
+          };
+        });
+
         handlebarsContext.colorRamps.push({
           name: token.tokenId,
           source: token.tokenValue.getSource(),
+          lightnessData: lightnessData,
+          lightnessCurve: lightnessCurve,
+          hueChromaData: hueChromaData,
           values: token.tokenValue.value.map((x, i) => {
             const color = x as Color;
             let cls = color.luma() >= 1.0 ? 'frame ' : '';

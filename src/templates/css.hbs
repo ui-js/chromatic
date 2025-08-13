@@ -19,22 +19,38 @@
       {{! The current theme is a custom }}
       body[data-theme="{{theme}}"] {
     {{/if}}
+
     {{#each tokens}}
       {{! Output a custom property }}
-      --{{sanitizeCssPropertyName tokenId}}:
-      {{{cssValue tokenValue}}};
+      {{#if isColor}}
+      --{{sanitizeCssPropertyName tokenId}}: {{{cssValue tokenValue}}};
+      {{/if}}
     {{/each}}
+
     };
 
   {{else}}
 
     {{! Output all tokens that have a single definition (no theme) as a CSS variable}}
+
+    :root {
+      {{#each tokens}}
+        {{! Output a custom property }}
+      {{#if isColor}}
+      --{{sanitizeCssPropertyName tokenId}}: {{{cssValue tokenValue}}};
+      {{/if}}
+      {{/each}}
+    }
+
+
     {{#each tokens}}
+      {{#if isColor}}
       {{#if tokenDefinition.comment}}
         {{comment tokenDefinition.comment '//'}}
       {{/if}}
       .{{sanitizeCssPropertyName tokenName}}
       { color: var(--{{sanitizeCssPropertyName tokenName}}); }
+      {{/if}}
     {{/each}}
 
   {{/if}}

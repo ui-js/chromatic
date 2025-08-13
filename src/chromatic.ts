@@ -22,7 +22,7 @@ import {
   DEFAULT_FILE_HEADER,
   RenderContext,
 } from './formats';
-import { Value, StringValue, isString, isColorArray } from './value';
+import { Value, StringValue, isString, isColorArray, isColor } from './value';
 import { parseValue, ValueParserOptions } from './value-parser';
 
 import { GenericFormats } from './formats-generic';
@@ -704,6 +704,7 @@ function renderFile(
         const qualifiedToken = tokenId + (theme === '_' ? '' : '.' + theme);
         tokensByTheme[theme].push({
           tokenId: tokenId,
+          isColor: isColor(gTokenValues.get(qualifiedToken)),
           tokenName: qualifiedToken,
           tokenDefinition: def,
           tokenValue: gTokenValues.get(qualifiedToken),
@@ -716,6 +717,7 @@ function renderFile(
       const value = gTokenValues.get(qualifiedToken);
       tokensByTheme[''].push({
         tokenId: tokenId,
+        isColor: isColor(value),
         tokenName: qualifiedToken,
         tokenDefinition: def,
         tokenValue: value,
@@ -725,6 +727,7 @@ function renderFile(
         for (const v of value.value) {
           tokensByTheme[''].push({
             tokenId: tokenId + '-' + index,
+            isColor: isColor(v),
             tokenName: qualifiedToken + '-' + index,
             tokenDefinition: def,
             tokenValue: v,

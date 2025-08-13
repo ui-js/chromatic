@@ -264,6 +264,57 @@
       font-weight: bold;
       font-family: var(--monospace-font);
       overflow-wrap: break-word;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    /* Color Scale Visualization Styles */
+    .visualization-container {
+      margin: 16px 0;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .visualization-container h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .lightness-chart, .hue-chroma-chart {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .lightness-chart {
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .hue-chroma-chart {
+      display: block;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .visualization-container {
+        margin: 12px 0;
+        padding: 8px;
+      }
+      
+      .lightness-chart {
+        width: 100%;
+        height: auto;
+      }
+      
+      .hue-chroma-chart {
+        width: 100%;
+        height: auto;
+      }
     }
   </style>
 </head>

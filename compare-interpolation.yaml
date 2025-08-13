@@ -1,0 +1,8 @@
+tokens:
+  # Test yellow scale to verify hue positioning fix
+  yellow: 'scale(hsl(60deg, 100%, 50%))'
+  
+  # Original RGB-based scale function
+  red-rgb: 'scale(hsl(4deg, 90%, 50%))'
+  blue-rgb: 'scale(hsl(210deg, 90%, 50%))'
+  green-rgb: 'scale(hsl(130deg, 70%, 43%))'

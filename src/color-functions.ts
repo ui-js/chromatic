@@ -17,12 +17,48 @@ import {
   asPercent,
   asString,
   hslToRgb,
+  isColor,
 } from './value';
 import { getSuggestion } from './utils';
 import { throwError, ErrorCode } from './errors';
 
 function clampUnit(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
+}
+
+// Interpolate hue in degrees along the shortest arc
+function mixHueShortest(h1: number, h2: number, w: number): number {
+  // Normalize inputs to [0, 360)
+  h1 = ((h1 % 360) + 360) % 360;
+  h2 = ((h2 % 360) + 360) % 360;
+
+  // Minimal signed difference in (-180, 180]
+  const diff = ((((h2 - h1 + 180) % 360) + 360) % 360) - 180;
+
+  // Interpolate and normalize
+  const h = h1 + w * diff;
+  return ((h % 360) + 360) % 360;
+}
+
+// Lightweight Abney & Bezold–Brücke hue correction in OKLCh space
+// kA, kB are small angles in degrees controlling the strength of each term
+function abneyBezoldCorrectApprox(
+  L: number,
+  C: number,
+  Hdeg: number,
+  kA: number = 6,
+  kB: number = 8
+): number {
+  const TAU = Math.PI * 2;
+  const h = (((Hdeg % 360) + 360) % 360) / 360; // 0..1
+  // Approximate relative saturation. For sRGB, in-gamut C rarely exceeds ~0.4
+  const Srel = Math.max(0, Math.min(1, C / 0.4));
+  // Abney-like term grows as purity decreases; Bezold–Brücke bends with lightness
+  const dH =
+    kA * (1 - Srel) * Math.sin(TAU * 2 * h) +
+    kB * (L - 0.5) * Math.sin(TAU * 4 * h);
+  const Hcorr = (((Hdeg + dH) % 360) + 360) % 360;
+  return Hcorr;
 }
 
 function asDecimalByte(value: Value): number {
@@ -158,18 +194,16 @@ function hwbToRgb(
 const whiteColor = new Color('#fff');
 const blackColor = new Color('#000');
 
-function mixColor(c1: Value, c2: Value, weight: Value, model?: Value): Color {
+function mixColor(c1: Color, c2: Color, weight: number, model?: string): Color {
   // @todo: support additional color models. See color-convert npm module.
-  const modelName = asString(model, 'hsl').toLowerCase();
-  const color1 = asColor(c1);
-  if (!color1) return undefined;
-  const color2 = asColor(c2);
-  if (!color2) return color1;
-
-  const w = asDecimalRatio(weight, 0.5);
+  const modelName = (model ?? 'oklch').toLowerCase();
+  const color1 = c1;
+  const color2 = c2;
+  const w = weight;
 
   let alpha = typeof color2.a === 'number' ? color2.a : 1.0;
   alpha = alpha + ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
+
   if (modelName === 'rgb') {
     return new Color({
       r: color1.r + (color2.r - color1.r) * w,
@@ -177,14 +211,26 @@ function mixColor(c1: Value, c2: Value, weight: Value, model?: Value): Color {
       b: color1.b + (color2.b - color1.b) * w,
       a: alpha,
     });
-  } else if (modelName === 'hsl') {
+  }
+
+  if (modelName === 'hsl') {
     return new Color({
-      h: color1.h + (color2.h - color1.h) * w,
+      h: mixHueShortest(color1.h, color2.h, w),
       s: color1.s + (color2.s - color1.s) * w,
       l: color1.l + (color2.l - color1.l) * w,
       a: alpha,
     });
   }
+
+  if (modelName === 'oklch' || modelName === 'okhsl') {
+    return new Color({
+      okL: color1.okL + (color2.okL - color1.okL) * w,
+      okC: color1.okC + (color2.okC - color1.okC) * w,
+      okH: mixHueShortest(color1.okH, color2.okH, w),
+      a: alpha,
+    });
+  }
+  console.log('Unknown color model:', modelName);
 }
 
 function getHPrimeFn(x, y): number {
@@ -378,88 +424,172 @@ export function getSimilarColors(
     : result.sort((a, b) => a.deltaE - b.deltaE);
 }
 
+// export function scaleColor(
+//   arg1: Color,
+//   arg2?: Value,
+//   arg3?: Value,
+//   arg4?: Value
+// ): ArrayValue {
+//   // For an analysis of various ramps, see https://uxplanet.org/designing-systematic-colors-b5d2605b15c
+//   let c1 = new Color('#fff');
+//   let c2: Color;
+//   let c3 = new Color('#000');
+//   let n = 10;
+//   if (arg3?.type() === 'color') {
+//     // If a single color is provided, we'll calculate a color ramp
+//     // with the provided color as the midpoint, and black and white
+//     // as the extremes.
+//     c1 = asColor(arg1);
+//     c2 = asColor(arg2);
+//     c3 = asColor(arg3);
+//     n = asInteger(arg4, 10);
+//   } else if (arg2?.type() === 'color') {
+//     c1 = asColor(arg1);
+//     c2 = asColor(arg2);
+//     c3 = asColor(arg2);
+//     n = asInteger(arg3, 10);
+//   } else if (arg1.type() === 'color') {
+//     c2 = asColor(arg1);
+//     c3 = new Color({
+//       // Correct the hue for the Abney Effect
+//       // See https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.1909.0085
+//       // (the human vision system perceives a hue shift as colors
+//       // change in colorimetric purity (mix with black or mix
+//       // with white))
+//       // and the Bezold-Brücke effect (hue shift as intensity increases)
+//       // See https://www.sciencedirect.com/science/article/pii/S0042698999000851
+
+//       // h: c2.h >= 60 && c2.h <= 240 ? c2.h + 30 : c2.h - 30,
+//       h: c2.h - 20 * Math.sin(4 * Math.PI * (c2.h / 360)),
+//       s: c2.s + 0.2 * Math.sin(2 * Math.PI * (c2.h / 360)),
+//       l:
+//         c2.h >= 180
+//           ? c2.l - 0.35
+//           : c2.l - 0.2 + 0.1 * Math.sin(4 * Math.PI * (c2.h / 360)),
+//     });
+//     n = asInteger(arg2, 10);
+//     const mode = new StringValue('rgb');
+//     return new ArrayValue([
+//       mixColor(c1, c2, new NumberValue(0.12), mode),
+//       mixColor(c1, c2, new NumberValue(0.3), mode),
+//       mixColor(c1, c2, new NumberValue(0.5), mode),
+//       mixColor(c1, c2, new NumberValue(0.7), mode),
+//       mixColor(c1, c2, new NumberValue(0.85), mode),
+//       c2,
+//       mixColor(c3, c2, new NumberValue(0.85), mode),
+//       mixColor(c3, c2, new NumberValue(0.7), mode),
+//       mixColor(c3, c2, new NumberValue(0.5), mode),
+//       mixColor(c3, c2, new NumberValue(0.2), mode),
+//       // FUNCTIONS.darken(c2, new NumberValue(0.06), mode),
+//       // FUNCTIONS.darken(c2, new NumberValue(0.12), mode),
+//       // FUNCTIONS.darken(c2, new NumberValue(0.18), mode),
+//       // FUNCTIONS.darken(c2, new NumberValue(0.24), mode),
+//     ]);
+//   }
+
+//   if (!c1 || !c2 || !c3) return undefined;
+
+//   // If there are three colors provided, we calculate a scale
+//   // in Lab mode, corrected for lightness (so that there is as many
+//   // light and dark colors). As a result, the mid-point may be a
+//   // color than c2.
+//   // This kind of scale is most appropriate for data visualization.
+//   const colors = chroma
+//     .scale(
+//       // chroma.bezier([
+//       //     c1.opaque().hex(),
+//       //     c2.opaque().hex(),
+//       //     c3.opaque().hex(),
+//       // ])
+//       [c1.opaque().hex(), c2.opaque().hex(), c3.opaque().hex()]
+//     )
+//     .mode('lab')
+//     .correctLightness()
+//     .colors(n + 1);
+
+//   return new ArrayValue(colors.map((x) => new Color(x)));
+// }
+
+// For an analysis of various ramps, see https://uxplanet.org/designing-systematic-colors-b5d2605b15c
+// OKHSL-based color scale generation for more perceptually uniform results
+
 export function scaleColor(
   arg1: Color,
   arg2?: Value,
   arg3?: Value,
   arg4?: Value
 ): ArrayValue {
-  // For an analysis of various ramps, see https://uxplanet.org/designing-systematic-colors-b5d2605b15c
+  if (!arg2 && !arg3 && !arg4) {
+    // If a single color is provided, we'll calculate a color ramp
+    // with the provided color as the midpoint, white as the low
+    // and a computed dark as the high
+
+    const c2 = asColor(arg1);
+
+    // Create c3 using OKHSL calculations for better perceptual uniformity
+    let adjustedH = c2.okH; // - 20 * Math.sin(4 * Math.PI * (c2.okH / 360));
+    adjustedH = (adjustedH + 360) % 360;
+    const adjustedC = c2.okC;
+    //  Math.min(
+    //   1,
+    //   c2.okC + 0.2 * Math.sin(2 * Math.PI * ((c2.okH + 90) / 360))
+    // );
+    const adjustedL = Math.max(0.2, c2.okL - 4 * Math.min(0.2, 1 - c2.okL));
+
+    const c1 = new Color({ okL: 0.9999, okC: c2.okC / 4, okH: c2.okH });
+    let c3 = new Color({ okL: adjustedL, okC: adjustedC, okH: c2.okH });
+
+    const raw = [
+      mixColor(c1, c2, 0.12),
+      mixColor(c1, c2, 0.3),
+      mixColor(c1, c2, 0.5),
+      mixColor(c1, c2, 0.7),
+      mixColor(c1, c2, 0.85),
+      c2,
+      mixColor(c3, c2, 0.85),
+      mixColor(c3, c2, 0.7),
+      mixColor(c3, c2, 0.5),
+      mixColor(c3, c2, 0.3),
+    ];
+
+    // Apply small OKLCh hue correction per step (kept subtle)
+    const corrected = raw.map((col) => {
+      const okL = col.okL;
+      const okC = col.okC;
+      const okH = col.okH;
+      const Hcorr = okH; // abneyBezoldCorrectApprox(okL, okC, okH);
+      return new Color({ okL, okC, okH: Hcorr, a: col.a });
+    });
+
+    return new ArrayValue(corrected);
+  }
+
   let c1 = new Color('#fff');
   let c2: Color;
   let c3 = new Color('#000');
   let n = 10;
   if (arg3?.type() === 'color') {
-    // If a single color is provided, we'll calculate a color ramp
-    // with the provided color as the midpoint, and black and white
-    // as the extremes.
+    // 3 colors have been provided: use them as the lo, mid and hi colors.
     c1 = asColor(arg1);
     c2 = asColor(arg2);
     c3 = asColor(arg3);
     n = asInteger(arg4, 10);
   } else if (arg2?.type() === 'color') {
+    // 2 colors have been provided. Use the first one as the lo, the two others
+    // as mid and high.
     c1 = asColor(arg1);
     c2 = asColor(arg2);
     c3 = asColor(arg2);
     n = asInteger(arg3, 10);
-  } else if (arg1.type() === 'color') {
-    c2 = asColor(arg1);
-    c3 = new Color({
-      // Correct the hue for the Abney Effect
-      // See https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.1909.0085
-      // (the human vision system perceives a hue shift as colors
-      // change in colorimetric purity (mix with black or mix
-      // with white))
-      // and the Bezold-Brücke effect (hue shift as intensity increases)
-      // See https://www.sciencedirect.com/science/article/pii/S0042698999000851
-
-      // h: c2.h >= 60 && c2.h <= 240 ? c2.h + 30 : c2.h - 30,
-      h: c2.h - 20 * Math.sin(4 * Math.PI * (c2.h / 360)),
-      s: c2.s + 0.2 * Math.sin(2 * Math.PI * (c2.h / 360)),
-      l:
-        c2.h >= 180
-          ? c2.l - 0.35
-          : c2.l - 0.2 + 0.1 * Math.sin(4 * Math.PI * (c2.h / 360)),
-    });
-    n = asInteger(arg2, 10);
-    const mode = new StringValue('rgb');
-    return new ArrayValue([
-      mixColor(c1, c2, new NumberValue(0.12), mode),
-      mixColor(c1, c2, new NumberValue(0.3), mode),
-      mixColor(c1, c2, new NumberValue(0.5), mode),
-      mixColor(c1, c2, new NumberValue(0.7), mode),
-      mixColor(c1, c2, new NumberValue(0.85), mode),
-      c2,
-      mixColor(c3, c2, new NumberValue(0.85), mode),
-      mixColor(c3, c2, new NumberValue(0.7), mode),
-      mixColor(c3, c2, new NumberValue(0.5), mode),
-      mixColor(c3, c2, new NumberValue(0.2), mode),
-      // FUNCTIONS.darken(c2, new NumberValue(0.06), mode),
-      // FUNCTIONS.darken(c2, new NumberValue(0.12), mode),
-      // FUNCTIONS.darken(c2, new NumberValue(0.18), mode),
-      // FUNCTIONS.darken(c2, new NumberValue(0.24), mode),
-    ]);
   }
 
   if (!c1 || !c2 || !c3) return undefined;
 
-  // If there are three colors provided, we calculate a scale
-  // in Lab mode, corrected for lightness (so that there is as many
-  // light and dark colors). As a result, the mid-point may be a
-  // color than c2.
-  // This kind of scale is most appropriate for data visualization.
+  // Use chroma-js OKLCh mode for 3-color scales
   const colors = chroma
-    .scale(
-      // chroma.bezier([
-      //     c1.opaque().hex(),
-      //     c2.opaque().hex(),
-      //     c3.opaque().hex(),
-      // ])
-      [c1.opaque().hex(), c2.opaque().hex(), c3.opaque().hex()]
-    )
-    .mode('lab')
-    .correctLightness()
-    .colors(n + 1);
+    .scale([c1.opaque().hex(), c2.opaque().hex(), c3.opaque().hex()])
+    .mode('oklch')
+    .colors(n);
 
   return new ArrayValue(colors.map((x) => new Color(x)));
 }
@@ -474,6 +604,7 @@ export const COLOR_ARGUMENTS_FUNCTIONS = [
   'hwb',
   'gray',
   'lab',
+  'oklch',
 ];
 
 export const COLOR_FUNCTION_ARGUMENTS = {
@@ -484,6 +615,7 @@ export const COLOR_FUNCTION_ARGUMENTS = {
   hsv: 'number|angle, number|percentage, number|percentage, number|percentage|none',
   hwb: 'number|angle, number|percentage, number|percentage, number|percentage|none',
   lab: 'number|percentage, number, number, number|percentage|none',
+  oklch: 'number|percentage, number|percentage, number|angle',
   gray: 'number|percentage, number|percentage|none',
   mix: 'color, color, number|percentage|none, string|none',
   saturate: 'color, number|percentage|none',
@@ -737,8 +869,38 @@ export const COLOR_FUNCTIONS = {
       l: asPercent(l),
       a: asDecimalRatio(a, 1.0),
     }),
-  tint: (c: Value, w: Value): Color =>
-    mixColor(whiteColor, c, w ?? new NumberValue(0.1)) as Color,
-  shade: (c: Value, w: Value): Color =>
-    mixColor(blackColor, c, w ?? new NumberValue(0.1)) as Color,
+  tint: (c: Value, w: Value): Color => {
+    const cValue = asColor(c);
+    const wValue = asDecimalRatio(w, 0.5);
+    return mixColor(whiteColor, cValue, wValue) as Color;
+  },
+  shade: (c: Value, w: Value): Color => {
+    const cValue = asColor(c);
+    const wValue = asDecimalRatio(w, 0.5);
+    return mixColor(blackColor, cValue, wValue) as Color;
+  },
+
+  // OKLCh color space functions
+  oklch: (l: Value, c: Value, h: Value, a?: Value): Color =>
+    new Color({
+      okL: asPercent(l),
+      okC: asPercent(c),
+      okH: asDegree(h),
+      a: asDecimalRatio(a, 1.0),
+    }),
 };
+
+export function darkMode(v: Value): Value {
+  if (v instanceof ArrayValue) {
+    return new ArrayValue(v.value.map((item) => darkMode(item)));
+  }
+  if (isColor(v)) {
+    return new Color({
+      okL: v.okL + 0.02,
+      okC: v.okC + 0.01,
+      okH: v.okH + 0.03,
+      a: v.a,
+    });
+  }
+  return v;
+}

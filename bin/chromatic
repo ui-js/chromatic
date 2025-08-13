@@ -176,6 +176,198 @@ Do not edit.
 Generated ${new Date().toISOString()}
 `;
 
+const pi = Math.PI;
+function srgbTransferInv(a) {
+    return a <= 0.04045 ? a / 12.92 : Math.pow((a + 0.055) / 1.055, 2.4);
+}
+function linearSrgbToOklab(c) {
+    const l = 0.4122214708 * c.r + 0.5363325363 * c.g + 0.0514459929 * c.b;
+    const m = 0.2119034982 * c.r + 0.6806995451 * c.g + 0.1073969566 * c.b;
+    const s = 0.0883024619 * c.r + 0.2817188376 * c.g + 0.6299787005 * c.b;
+    const l_ = Math.cbrt(l);
+    const m_ = Math.cbrt(m);
+    const s_ = Math.cbrt(s);
+    return {
+        L: 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_,
+        a: 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_,
+        b: 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_,
+    };
+}
+function oklabToLinearSrgb(c) {
+    const l_ = c.L + 0.3963377774 * c.a + 0.2158037573 * c.b;
+    const m_ = c.L - 0.1055613458 * c.a - 0.0638541728 * c.b;
+    const s_ = c.L - 0.0894841775 * c.a - 1.291485548 * c.b;
+    const l = l_ * l_ * l_;
+    const m = m_ * m_ * m_;
+    const s = s_ * s_ * s_;
+    return {
+        r: +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+        g: -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+        b: -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
+    };
+}
+function toe(x) {
+    const k1 = 0.206;
+    const k2 = 0.03;
+    const k3 = (1 + k1) / (1 + k2);
+    const t = k3 * x - k1;
+    return 0.5 * (t + Math.sqrt(t * t + 4 * k2 * k3 * x));
+}
+function toeInv(x) {
+    const k1 = 0.206;
+    const k2 = 0.03;
+    const k3 = (1 + k1) / (1 + k2);
+    return (x * x + k1 * x) / (k3 * (x + k2));
+}
+function toST(cusp) {
+    const { L, C } = cusp;
+    return { S: C / L, T: C / (1 - L) };
+}
+function computeMaxSaturation(a, b) {
+    let k0, k1, k2, k3, k4;
+    let wl, wm, ws;
+    if (-1.88170328 * a - 0.80936493 * b > 1) {
+        k0 = 1.19086277;
+        k1 = 1.76576728;
+        k2 = 0.59662641;
+        k3 = 0.75515197;
+        k4 = 0.56771245;
+        wl = 4.0767416621;
+        wm = -3.3077115913;
+        ws = 0.2309699292;
+    }
+    else if (1.81444104 * a - 1.19445276 * b > 1) {
+        k0 = 0.73956515;
+        k1 = -0.45954404;
+        k2 = 0.08285427;
+        k3 = 0.1254107;
+        k4 = 0.14503204;
+        wl = -1.2684380046;
+        wm = 2.6097574011;
+        ws = -0.3413193965;
+    }
+    else {
+        k0 = 1.35733652;
+        k1 = -0.00915799;
+        k2 = -1.1513021;
+        k3 = -0.50559606;
+        k4 = 0.00692167;
+        wl = -0.0041960863;
+        wm = -0.7034186147;
+        ws = 1.707614701;
+    }
+    let S = k0 + k1 * a + k2 * b + k3 * a * a + k4 * a * b;
+    const k_l = 0.3963377774 * a + 0.2158037573 * b;
+    const k_m = -0.1055613458 * a - 0.0638541728 * b;
+    const k_s = -0.0894841775 * a - 1.291485548 * b;
+    const l_ = 1 + S * k_l;
+    const m_ = 1 + S * k_m;
+    const s_ = 1 + S * k_s;
+    const l = l_ * l_ * l_;
+    const m = m_ * m_ * m_;
+    const s = s_ * s_ * s_;
+    const l_dS = 3 * k_l * l_ * l_;
+    const m_dS = 3 * k_m * m_ * m_;
+    const s_dS = 3 * k_s * s_ * s_;
+    const l_dS2 = 6 * k_l * k_l * l_;
+    const m_dS2 = 6 * k_m * k_m * m_;
+    const s_dS2 = 6 * k_s * k_s * s_;
+    const f = wl * l + wm * m + ws * s;
+    const f1 = wl * l_dS + wm * m_dS + ws * s_dS;
+    const f2 = wl * l_dS2 + wm * m_dS2 + ws * s_dS2;
+    S = S - (f * f1) / (f1 * f1 - 0.5 * f * f2);
+    return S;
+}
+function findCusp(a_, b_) {
+    const S_cusp = computeMaxSaturation(a_, b_);
+    const rgbAtMax = oklabToLinearSrgb({ L: 1, a: S_cusp * a_, b: S_cusp * b_ });
+    const denom = Math.max(rgbAtMax.r, Math.max(rgbAtMax.g, rgbAtMax.b));
+    const L_cusp = Math.cbrt(1 / denom);
+    const C_cusp = L_cusp * S_cusp;
+    return { L: L_cusp, C: C_cusp };
+}
+function srgbToOkhsv(rgb) {
+    const lin = {
+        r: srgbTransferInv(rgb.r),
+        g: srgbTransferInv(rgb.g),
+        b: srgbTransferInv(rgb.b),
+    };
+    const lab = linearSrgbToOklab(lin);
+    const C = Math.sqrt(lab.a * lab.a + lab.b * lab.b);
+    const a_ = lab.a / C;
+    const b_ = lab.b / C;
+    let L = lab.L;
+    const h = 0.5 + (0.5 * Math.atan2(-lab.b, -lab.a)) / pi;
+    const cusp = findCusp(a_, b_);
+    const { S: S_max, T: T_max } = toST(cusp);
+    const S_0 = 0.5;
+    const k = 1 - S_0 / S_max;
+    const t = T_max / (C + L * T_max);
+    const L_v = t * L;
+    const C_v = t * C;
+    const L_vt = toeInv(L_v);
+    const C_vt = (C_v * L_vt) / L_v;
+    const rgbScale = oklabToLinearSrgb({ L: L_vt, a: a_ * C_vt, b: b_ * C_vt });
+    const scale_L = Math.cbrt(1 / Math.max(0, Math.max(rgbScale.r, Math.max(rgbScale.g, rgbScale.b))));
+    L /= scale_L;
+    L = toe(L);
+    const v = L / L_v;
+    const s = ((S_0 + T_max) * C_v) / (T_max * S_0 + T_max * k * C_v);
+    return { h, s, v };
+}
+const TAU = Math.PI * 2;
+function okhsvToOklch(hsv) {
+    const { h, s, v } = hsv;
+    const a_ = Math.cos(TAU * h);
+    const b_ = Math.sin(TAU * h);
+    const cusp = findCusp(a_, b_);
+    const { S: S_max, T: T_max } = toST(cusp);
+    const S_0 = 0.5;
+    const k = 1 - S_0 / S_max;
+    const denom = S_0 + T_max - T_max * k * s;
+    const L_v = 1 - (s * S_0) / denom;
+    const C_v = (s * T_max * S_0) / denom;
+    let L = v * L_v;
+    let C = v * C_v;
+    const L_vt = toeInv(L_v);
+    const C_vt = (C_v * L_vt) / L_v;
+    const L_new = toeInv(L);
+    C = (C * L_new) / L;
+    L = L_new;
+    const rgbScale = oklabToLinearSrgb({ L: L_vt, a: a_ * C_vt, b: b_ * C_vt });
+    const scale_L = Math.cbrt(1 / Math.max(0, Math.max(rgbScale.r, Math.max(rgbScale.g, rgbScale.b))));
+    L *= scale_L;
+    C *= scale_L;
+    const H = (h * 360 + 360) % 360;
+    return { L, C, H };
+}
+function oklchToRgb(l, c, h) {
+    const hRad = (h * Math.PI) / 180;
+    const a = c * Math.cos(hRad);
+    const b = c * Math.sin(hRad);
+    const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+    const s_ = l - 0.0894841775 * a - 1.291485548 * b;
+    const l3 = l_ * l_ * l_;
+    const m3 = m_ * m_ * m_;
+    const s3 = s_ * s_ * s_;
+    let r = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+    let g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+    let b_ = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+    r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : 12.92 * r;
+    g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : 12.92 * g;
+    b_ = b_ > 0.0031308 ? 1.055 * Math.pow(b_, 1 / 2.4) - 0.055 : 12.92 * b_;
+    r = Math.max(0, Math.min(1, r));
+    g = Math.max(0, Math.min(1, g));
+    b_ = Math.max(0, Math.min(1, b_));
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b_ * 255)];
+}
+function srgbToOklch(red, green, blue) {
+    const hsv = srgbToOkhsv({ r: red / 255, g: green / 255, b: blue / 255 });
+    const lch = okhsvToOklch(hsv);
+    return [lch.L, lch.C, lch.H];
+}
+
 const colorName = require('color-name');
 function clampByte(v) {
     if (v < 0)
@@ -522,8 +714,10 @@ class Color extends Value {
         super();
         if (typeof from === 'string') {
             if (from.toLowerCase() === 'transparent') {
-                [this.r, this.g, this.b, this.a] = [0, 0, 0, 0];
+                this.a = 0;
+                [this.r, this.g, this.b] = [0, 0, 0];
                 [this.h, this.s, this.l] = [0, 0, 0];
+                [this.okL, this.okC, this.okH] = [0, 0, 0];
             }
             else {
                 const rgb = parseHex(from) || parseColorName(from);
@@ -531,23 +725,38 @@ class Color extends Value {
                     throw new Error();
                 Object.assign(this, rgb);
                 Object.assign(this, rgbToHsl(this.r, this.g, this.b));
+                [this.okL, this.okC, this.okH] = srgbToOklch(this.r, this.g, this.b);
             }
         }
         else {
             Object.assign(this, from);
             if (typeof this.r === 'number') {
                 Object.assign(this, rgbToHsl(this.r, this.g, this.b));
+                [this.okL, this.okC, this.okH] = srgbToOklch(this.r, this.g, this.b);
             }
-            else {
+            else if (typeof this.h === 'number') {
                 console.assert(typeof this.h === 'number');
                 this.h = (this.h + 360) % 360;
                 this.s = Math.max(0, Math.min(1.0, this.s));
                 this.l = Math.max(0, Math.min(1.0, this.l));
                 Object.assign(this, hslToRgb(this.h, this.s, this.l));
+                [this.okL, this.okC, this.okH] = srgbToOklch(this.r, this.g, this.b);
+            }
+            else {
+                console.assert(typeof this.okL === 'number');
+                console.assert(typeof this.okC === 'number');
+                console.assert(typeof this.okH === 'number');
+                this.okH = (this.okH + 360) % 360;
+                this.okL = Math.max(0, Math.min(1.0, this.okL));
+                this.okC = Math.max(0, Math.min(1, this.okC));
+                [this.r, this.g, this.b] = oklchToRgb(this.okL, this.okC, this.okH);
+                Object.assign(this, rgbToHsl(this.r, this.g, this.b));
             }
         }
-        if (typeof this.a !== 'number') {
+        if (typeof this.a !== 'number')
             this.a = 1.0;
+        if (isNaN(this.r) || isNaN(this.g) || isNaN(this.b) || isNaN(this.a)) {
+            debugger;
         }
     }
     type() {
@@ -593,12 +802,17 @@ class Color extends Value {
     hsl() {
         return `hsl(${this.h}deg, ${this.s}%, ${this.l}%, ${this.a < 1.0 ? ', ' + roundTo(100 * this.a, 2) + '%' : ''})`;
     }
+    oklch() {
+        return `oklch(${this.okL}, ${this.okC}, ${this.okH}, ${this.a})`;
+    }
     css() {
+        if (isNaN(this.r) || isNaN(this.g) || isNaN(this.b) || isNaN(this.a)) {
+            debugger;
+        }
         if (this.r === 0 && this.g === 0 && this.b === 0 && this.a === 0)
             return 'transparent';
-        if (this.a < 1) {
+        if (this.a < 1)
             return this.rgb();
-        }
         return this.hex();
     }
     canonicalScalar() {
@@ -643,6 +857,8 @@ function isColor(arg) {
 function asColor(value) {
     if (!value)
         return undefined;
+    if (value instanceof Color)
+        return value;
     let result;
     try {
         result = new Color(value);
@@ -889,9 +1105,16 @@ const terminal = {
     },
 };
 
-const chroma = require('chroma-js');
+const chroma$1 = require('chroma-js');
 function clampUnit(x) {
     return x < 0 ? 0 : x > 1 ? 1 : x;
+}
+function mixHueShortest(h1, h2, w) {
+    h1 = ((h1 % 360) + 360) % 360;
+    h2 = ((h2 % 360) + 360) % 360;
+    const diff = ((((h2 - h1 + 180) % 360) + 360) % 360) - 180;
+    const h = h1 + w * diff;
+    return ((h % 360) + 360) % 360;
 }
 function asDecimalByte(value) {
     if (isPercentage(value)) {
@@ -977,14 +1200,10 @@ function hwbToRgb(hue, white, black) {
 const whiteColor = new Color('#fff');
 const blackColor = new Color('#000');
 function mixColor(c1, c2, weight, model) {
-    const modelName = asString(model, 'hsl').toLowerCase();
-    const color1 = asColor(c1);
-    if (!color1)
-        return undefined;
-    const color2 = asColor(c2);
-    if (!color2)
-        return color1;
-    const w = asDecimalRatio(weight, 0.5);
+    const modelName = (model !== null && model !== void 0 ? model : 'oklch').toLowerCase();
+    const color1 = c1;
+    const color2 = c2;
+    const w = weight;
     let alpha = typeof color2.a === 'number' ? color2.a : 1.0;
     alpha = alpha + ((typeof color1.a === 'number' ? color2.a : 1.0) - alpha) * w;
     if (modelName === 'rgb') {
@@ -995,14 +1214,23 @@ function mixColor(c1, c2, weight, model) {
             a: alpha,
         });
     }
-    else if (modelName === 'hsl') {
+    if (modelName === 'hsl') {
         return new Color({
-            h: color1.h + (color2.h - color1.h) * w,
+            h: mixHueShortest(color1.h, color2.h, w),
             s: color1.s + (color2.s - color1.s) * w,
             l: color1.l + (color2.l - color1.l) * w,
             a: alpha,
         });
     }
+    if (modelName === 'oklch' || modelName === 'okhsl') {
+        return new Color({
+            okL: color1.okL + (color2.okL - color1.okL) * w,
+            okC: color1.okC + (color2.okC - color1.okC) * w,
+            okH: mixHueShortest(color1.okH, color2.okH, w),
+            a: alpha,
+        });
+    }
+    console.log('Unknown color model:', modelName);
 }
 function getHPrimeFn(x, y) {
     if (x === 0 && y === 0)
@@ -1138,6 +1366,34 @@ function getSimilarColors(target, colors, filter) {
         : result.sort((a, b) => a.deltaE - b.deltaE);
 }
 function scaleColor(arg1, arg2, arg3, arg4) {
+    if (!arg2 && !arg3 && !arg4) {
+        const c2 = asColor(arg1);
+        c2.okH;
+        const adjustedC = c2.okC;
+        const adjustedL = Math.max(0.2, c2.okL - 4 * Math.min(0.2, 1 - c2.okL));
+        const c1 = new Color({ okL: 0.9999, okC: c2.okC / 4, okH: c2.okH });
+        let c3 = new Color({ okL: adjustedL, okC: adjustedC, okH: c2.okH });
+        const raw = [
+            mixColor(c1, c2, 0.12),
+            mixColor(c1, c2, 0.3),
+            mixColor(c1, c2, 0.5),
+            mixColor(c1, c2, 0.7),
+            mixColor(c1, c2, 0.85),
+            c2,
+            mixColor(c3, c2, 0.85),
+            mixColor(c3, c2, 0.7),
+            mixColor(c3, c2, 0.5),
+            mixColor(c3, c2, 0.3),
+        ];
+        const corrected = raw.map((col) => {
+            const okL = col.okL;
+            const okC = col.okC;
+            const okH = col.okH;
+            const Hcorr = okH;
+            return new Color({ okL, okC, okH: Hcorr, a: col.a });
+        });
+        return new ArrayValue(corrected);
+    }
     let c1 = new Color('#fff');
     let c2;
     let c3 = new Color('#000');
@@ -1154,37 +1410,12 @@ function scaleColor(arg1, arg2, arg3, arg4) {
         c3 = asColor(arg2);
         n = asInteger(arg3, 10);
     }
-    else if (arg1.type() === 'color') {
-        c2 = asColor(arg1);
-        c3 = new Color({
-            h: c2.h - 20 * Math.sin(4 * Math.PI * (c2.h / 360)),
-            s: c2.s + 0.2 * Math.sin(2 * Math.PI * (c2.h / 360)),
-            l: c2.h >= 180
-                ? c2.l - 0.35
-                : c2.l - 0.2 + 0.1 * Math.sin(4 * Math.PI * (c2.h / 360)),
-        });
-        n = asInteger(arg2, 10);
-        const mode = new StringValue('rgb');
-        return new ArrayValue([
-            mixColor(c1, c2, new NumberValue(0.12), mode),
-            mixColor(c1, c2, new NumberValue(0.3), mode),
-            mixColor(c1, c2, new NumberValue(0.5), mode),
-            mixColor(c1, c2, new NumberValue(0.7), mode),
-            mixColor(c1, c2, new NumberValue(0.85), mode),
-            c2,
-            mixColor(c3, c2, new NumberValue(0.85), mode),
-            mixColor(c3, c2, new NumberValue(0.7), mode),
-            mixColor(c3, c2, new NumberValue(0.5), mode),
-            mixColor(c3, c2, new NumberValue(0.2), mode),
-        ]);
-    }
     if (!c1 || !c2 || !c3)
         return undefined;
-    const colors = chroma
+    const colors = chroma$1
         .scale([c1.opaque().hex(), c2.opaque().hex(), c3.opaque().hex()])
-        .mode('lab')
-        .correctLightness()
-        .colors(n + 1);
+        .mode('oklch')
+        .colors(n);
     return new ArrayValue(colors.map((x) => new Color(x)));
 }
 const COLOR_ARGUMENTS_FUNCTIONS = [
@@ -1195,6 +1426,7 @@ const COLOR_ARGUMENTS_FUNCTIONS = [
     'hwb',
     'gray',
     'lab',
+    'oklch',
 ];
 const COLOR_FUNCTION_ARGUMENTS = {
     rgb: 'number|percentage, number|percentage, number|percentage,number|percentage|none',
@@ -1204,6 +1436,7 @@ const COLOR_FUNCTION_ARGUMENTS = {
     hsv: 'number|angle, number|percentage, number|percentage, number|percentage|none',
     hwb: 'number|angle, number|percentage, number|percentage, number|percentage|none',
     lab: 'number|percentage, number, number, number|percentage|none',
+    oklch: 'number|percentage, number|percentage, number|angle',
     gray: 'number|percentage, number|percentage|none',
     mix: 'color, color, number|percentage|none, string|none',
     saturate: 'color, number|percentage|none',
@@ -1431,30 +1664,57 @@ const COLOR_FUNCTIONS = {
         l: asPercent(l),
         a: asDecimalRatio(a, 1.0),
     }),
-    tint: (c, w) => mixColor(whiteColor, c, w !== null && w !== void 0 ? w : new NumberValue(0.1)),
-    shade: (c, w) => mixColor(blackColor, c, w !== null && w !== void 0 ? w : new NumberValue(0.1)),
+    tint: (c, w) => {
+        const cValue = asColor(c);
+        const wValue = asDecimalRatio(w, 0.5);
+        return mixColor(whiteColor, cValue, wValue);
+    },
+    shade: (c, w) => {
+        const cValue = asColor(c);
+        const wValue = asDecimalRatio(w, 0.5);
+        return mixColor(blackColor, cValue, wValue);
+    },
+    oklch: (l, c, h, a) => new Color({
+        okL: asPercent(l),
+        okC: asPercent(c),
+        okH: asDegree(h),
+        a: asDecimalRatio(a, 1.0),
+    }),
 };
+function darkMode(v) {
+    if (v instanceof ArrayValue) {
+        return new ArrayValue(v.value.map((item) => darkMode(item)));
+    }
+    if (isColor(v)) {
+        return new Color({
+            okL: v.okL + 0.02,
+            okC: v.okC + 0.01,
+            okH: v.okH + 0.03,
+            a: v.a,
+        });
+    }
+    return v;
+}
 
 let FUNCTIONS = {};
 FUNCTIONS = {
-    calc: (x) => x,
-    min: (a, b) => {
+    'calc': (x) => x,
+    'min': (a, b) => {
         return compareValue(a, b) < 0 ? a : b;
     },
-    max: (a, b) => {
+    'max': (a, b) => {
         return compareValue(a, b) < 0 ? b : a;
     },
-    clamp(a, b, c) {
+    'clamp'(a, b, c) {
         return compareValue(b, a) < 0 ? a : compareValue(b, c) > 0 ? c : b;
     },
-    scale: (arg1, arg2, arg3, arg4) => {
-        if (isColor(arg1)) {
+    'scale': (arg1, arg2, arg3, arg4) => {
+        if (isColor(arg1))
             return scaleColor(arg1, arg2, arg3, arg4);
-        }
-        else if (isLength(arg1)) {
+        if (isLength(arg1))
             return scaleLength(arg1, arg2);
-        }
     },
+    'dark-mode': (value) => darkMode(value),
     ...COLOR_FUNCTIONS,
 };
 const FUNCTION_ARGUMENTS = {
@@ -2050,6 +2310,7 @@ const marked = require('marked');
 const highlight = require('highlight.js');
 const handlebars$1 = require('handlebars');
 const fs$2 = require('fs');
+const chroma = require('chroma-js');
 function renderColorSection(context) {
     let result = '';
     const handlebarsContext = { colors: [], colorRamps: [], group: '' };
@@ -2165,9 +2426,51 @@ function renderColorSection(context) {
             }
             else if (isColorArray(token.tokenValue)) {
                 let previousColor;
+                const rampColors = token.tokenValue.value.map((x) => x);
+                const lightnessData = rampColors.map((color, index) => {
+                    const oklch = chroma(color.hex()).oklch();
+                    const lightness = oklch[0] || 0;
+                    const chroma_val = oklch[1] || 0;
+                    const hue = oklch[2] || 0;
+                    const x = (index / (rampColors.length - 1)) * 300;
+                    const maxLightness = 1.0;
+                    const minLightness = 0.0;
+                    const y = 150 - ((lightness - minLightness) / (maxLightness - minLightness)) * 120;
+                    return {
+                        index: index === 0 ? 50 : index * 100,
+                        lightness: Math.round(lightness * 1000) / 1000,
+                        chroma: Math.round(chroma_val * 1000) / 1000,
+                        hue: Math.round(hue),
+                        color: color.hex(),
+                        x: x,
+                        y: y,
+                    };
+                });
+                const lightnessCurve = lightnessData.map((d) => `${d.x},${d.y}`).join(' ');
+                const maxChroma = Math.max(...lightnessData.map(d => d.chroma || 0));
+                const chromaScale = maxChroma > 0 ? Math.min(300, 90 / maxChroma) : 300;
+                const hueChromaData = lightnessData.map((d) => {
+                    const radius = (d.chroma || 0) * chromaScale;
+                    const angle = (((d.hue || 0) - 90) * Math.PI) / 180;
+                    const x = 110 + Math.cos(angle) * radius;
+                    const y = 110 - Math.sin(angle) * radius;
+                    return {
+                        index: d.index,
+                        x: Math.round(x),
+                        y: Math.round(y),
+                        color: d.color,
+                        lightness: d.lightness,
+                        chroma: d.chroma,
+                        hue: d.hue,
+                        maxChroma: maxChroma,
+                    };
+                });
                 handlebarsContext.colorRamps.push({
                     name: token.tokenId,
                     source: token.tokenValue.getSource(),
+                    lightnessData: lightnessData,
+                    lightnessCurve: lightnessCurve,
+                    hueChromaData: hueChromaData,
                     values: token.tokenValue.value.map((x, i) => {
                         const color = x;
                         let cls = color.luma() >= 1.0 ? 'frame ' : '';
@@ -2580,6 +2883,7 @@ function renderFile(format, themes, filepath) {
                 const qualifiedToken = tokenId + (theme === '_' ? '' : '.' + theme);
                 tokensByTheme[theme].push({
                     tokenId: tokenId,
+                    isColor: isColor(gTokenValues.get(qualifiedToken)),
                     tokenName: qualifiedToken,
                     tokenDefinition: def,
                     tokenValue: gTokenValues.get(qualifiedToken),
@@ -2594,6 +2898,7 @@ function renderFile(format, themes, filepath) {
             const value = gTokenValues.get(qualifiedToken);
             tokensByTheme[''].push({
                 tokenId: tokenId,
+                isColor: isColor(value),
                 tokenName: qualifiedToken,
                 tokenDefinition: def,
                 tokenValue: value,
@@ -2603,6 +2908,7 @@ function renderFile(format, themes, filepath) {
                 for (const v of value.value) {
                     tokensByTheme[''].push({
                         tokenId: tokenId + '-' + index,
+                        isColor: isColor(v),
                         tokenName: qualifiedToken + '-' + index,
                         tokenDefinition: def,
                         tokenValue: v,

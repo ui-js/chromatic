@@ -1,0 +1,2368 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+
+
+  <meta name="theme-color" content="#fafafa">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --monospace-font: "Source Code", "Plex", "Fira Code", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+    }
+
+    .color-chips {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .color-chip {
+      position: relative;
+      width: 200px;
+      margin: 20px;
+    }
+
+    .color-chip__swatch {
+      border-radius: 8px;
+      padding: 8px;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      color: #fff
+    }
+
+    .color-chip__swatch h3,
+    .color-chip__swatch h4 {
+      padding: 0;
+      margin: 0;
+      margin-left: -8px;
+      margin-right: -8px;
+      padding-left: 16px;
+      padding-bottom: 4px;
+      overflow-wrap: break-word;
+    }
+
+    .color-chip__swatch h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      opacity: .8;
+    }
+
+    .color-chip__swatch h4 {
+      font-size: 1rem;
+      font-weight: normal;
+      margin-bottom: 1.2rem;
+      font-family: var(--monospace-font);
+    }
+
+    .color-chip__swatch.frame {
+      border: 1px solid #ddd
+    }
+
+    .color-chip__swatch.light {
+      color: #333;
+    }
+
+    .color-chip p,
+    .color-ramp p {
+      margin: 0;
+      padding-top: .5rem;
+      font-size: .86rem;
+      line-height: 1.2;
+      color: #777;
+    }
+
+    .color-chip__swatch-container {
+      position: relative;
+      width: 100%;
+      min-height: 100px;
+
+      border-radius: 8px;
+    }
+
+    .color-chip__similar-colors h4 {
+      color: #777;
+      margin: 0;
+      margin-top: 1em;
+      border-top: 1px solid #777;
+      padding-top: .5em;
+    }
+
+    .color-chip__similar-colors ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    .color-chip__similar-colors li {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style-type: none;
+      padding-top: .25em;
+      padding-bottom: .25em;
+      width: 100%;
+    }
+
+    .color-chip__similar-colors li .deltaE {
+      display: none;
+      position: absolute;
+      right: 0;
+      color: #777;
+      padding: .7em;
+      background: white;
+      border-radius: 2em;
+      border: 1px solid #ddd;
+    }
+
+    .color-chip__similar-colors .small-color-chip {
+      display: flex;
+      align-items: center;
+    }
+
+    .color-chip__similar-colors li:hover .deltaE,
+    .color-chip__similar-colors li.isActive .deltaE {
+      display: block;
+    }
+
+    .color-chip__similar-colors .small-color-chip__color {
+      display: inline-block;
+      min-width: 2em;
+      height: 2em;
+      border-radius: 2em;
+      margin-right: .5em;
+    }
+
+
+
+    .color-chip__similar-colors {
+      width: 100%;
+    }
+
+
+    .checkerboard-bg {
+      background-image: linear-gradient(45deg, #777 25%, transparent 25%), linear-gradient(-45deg, #777 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #777 75%), linear-gradient(-45deg, transparent 75%, #777 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    .color-ramps {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .color-ramp {
+      min-width: 226px;
+      margin-left: 20px;
+      margin-right: 20px;
+      margin-bottom: 20px;
+    }
+
+    .color-ramp .checkerboard-bg {
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    .color-ramp__item {
+      position: relative;
+      border: 1px solid rgba(0, 0, 0, .12);
+      border-top-color: transparent;
+      color: #fff;
+      padding: 10px 15px 11px;
+      margin: 0;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-width: 200px;
+    }
+
+    .color-ramp__item:first-of-type {
+      border-top-color: rgba(0, 0, 0, .12);
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+    }
+
+    .color-ramp__item:last-of-type {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    .color-ramp__item.light {
+      color: #333;
+    }
+
+    .color-ramp__item .warning-sign {
+      line-height: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .color-ramp__item h3,
+    .color-ramp__item h4 {
+      margin: 0;
+      padding: 0;
+      overflow-wrap: break-word;
+      padding-left: 8px;
+      padding-right: 8px;
+      border-radius: 2em;
+      padding-top: 2px;
+      margin-top: -2px;
+      padding-bottom: 2px;
+    }
+
+    .color-ramp__item h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-left: -8px;
+      margin-right: 16px;
+    }
+
+    .color-ramp__item h4 {
+      font-family: var(--monospace-font);
+      font-size: .8rem;
+      font-weight: normal;
+      margin-left: 16px;
+      margin-right: -8px;
+    }
+
+    .color-ramp__item:hover .deltaE,
+    .color-ramp__item.isActive .deltaE {
+      display: block;
+    }
+
+    .color-ramp__item .deltaE {
+      display: none;
+      position: absolute;
+      right: 0;
+      padding: .7em;
+
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 2em;
+      border: 1px solid #777;
+
+      background: #333;
+      color: #ddd;
+    }
+
+
+    .value-source {
+      font-weight: bold;
+      font-family: var(--monospace-font);
+      overflow-wrap: break-word;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    /* Color Scale Visualization Styles */
+    .visualization-container {
+      margin: 16px 0;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .visualization-container h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .lightness-chart, .hue-chroma-chart {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .lightness-chart {
+      display: block;
+      margin-bottom: 16px;
+    }
+
+    .hue-chroma-chart {
+      display: block;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+      .visualization-container {
+        margin: 12px 0;
+        padding: 8px;
+      }
+      
+      .lightness-chart {
+        width: 100%;
+        height: auto;
+      }
+      
+      .hue-chroma-chart {
+        width: 100%;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <section id='color'>
+    <h2>Colors</h2>
+    
+
+<div class='color-ramps'>
+    <div class="color-ramp">
+        <h3>yellow</h3>
+        
+        <!-- Lightness Curve Visualization -->
+        <div class="visualization-container">
+            <h4>Lightness Curve (OKLCh)</h4>
+            <svg class="lightness-chart" width="320" height="180" viewBox="0 0 320 180">
+                <!-- Grid lines -->
+                <g class="grid">
+                    <line x1="10" y1="30" x2="10" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="150" x2="310" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="90" x2="310" y2="90" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="5" y="25" font-size="10" fill="#666">1.0</text>
+                <text x="5" y="95" font-size="10" fill="#666">0.5</text>
+                <text x="5" y="155" font-size="10" fill="#666">0.0</text>
+                <text x="15" y="170" font-size="10" fill="#666">50</text>
+                <text x="310" y="170" font-size="10" fill="#666">900</text>
+                <text x="160" y="175" font-size="10" fill="#666" text-anchor="middle">Scale Index</text>
+                <text x="2" y="90" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 2, 90)">Lightness</text>
+                
+                <!-- Lightness curve -->
+                <polyline points="0,31.52329266914768 33.33333333333333,32.085501875507134 66.66666666666666,32.6668008318979 100,33.181947459206725 133.33333333333331,33.52636711861253 166.66666666666669,33.84099468778116 200,36.168064147516915 233.33333333333334,38.35361329614052 266.66666666666663,41.406149192490744 300,44.225649841370625" fill="none" stroke="#333" stroke-width="2" transform="translate(10, 0)"/>
+                
+                <!-- Data points -->
+                <circle cx="0" cy="31.52329266914768" r="4" fill="#ffffcb" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>50: L=0.987</title>
+                </circle>
+                <circle cx="33.33333333333333" cy="32.085501875507134" r="4" fill="#ffffb3" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>100: L=0.983</title>
+                </circle>
+                <circle cx="66.66666666666666" cy="32.6668008318979" r="4" fill="#ffff95" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>200: L=0.978</title>
+                </circle>
+                <circle cx="100" cy="33.181947459206725" r="4" fill="#ffff72" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>300: L=0.973</title>
+                </circle>
+                <circle cx="133.33333333333331" cy="33.52636711861253" r="4" fill="#ffff50" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>400: L=0.971</title>
+                </circle>
+                <circle cx="166.66666666666669" cy="33.84099468778116" r="4" fill="#ff0" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>500: L=0.968</title>
+                </circle>
+                <circle cx="200" cy="36.168064147516915" r="4" fill="#f9f800" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>600: L=0.949</title>
+                </circle>
+                <circle cx="233.33333333333334" cy="38.35361329614052" r="4" fill="#f2f200" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>700: L=0.93</title>
+                </circle>
+                <circle cx="266.66666666666663" cy="41.406149192490744" r="4" fill="#eae900" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>800: L=0.905</title>
+                </circle>
+                <circle cx="300" cy="44.225649841370625" r="4" fill="#e2e100" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>900: L=0.881</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <!-- Hue/Chroma Chart -->
+        <div class="visualization-container">
+            <h4>Hue/Chroma Distribution (OKLCh)</h4>
+            <svg class="hue-chroma-chart" width="220" height="220" viewBox="0 0 220 220">
+                <!-- Chroma circles -->
+                <g class="chroma-circles">
+                    <circle cx="110" cy="110" r="30" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="60" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="90" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+                    <!-- Chroma scale info -->
+                    <text x="5" y="25" font-size="8" fill="#999">Max C: 0.211</text>
+                </g>
+                <!-- Hue lines -->
+                <g class="hue-lines">
+                    <line x1="110" y1="20" x2="110" y2="200" stroke="#f5f5f5" stroke-width="1"/>
+                    <line x1="20" y1="110" x2="200" y2="110" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="115" y="15" font-size="10" fill="#666">0°</text>
+                <text x="205" y="115" font-size="10" fill="#666">90°</text>
+                <text x="110" y="210" font-size="10" fill="#666" text-anchor="middle">180°</text>
+                <text x="10" y="115" font-size="10" fill="#666">270°</text>
+                <text x="110" y="235" font-size="10" fill="#666" text-anchor="middle">Hue</text>
+                <text x="5" y="110" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 5, 110)">Chroma</text>
+                
+                <!-- Color points -->
+                <circle cx="129" cy="104" r="6" fill="#ffffcb" stroke="#333" stroke-width="1">
+                    <title>50: H=108° C=0.067 L=0.987</title>
+                </circle>
+                <circle cx="137" cy="101" r="6" fill="#ffffb3" stroke="#333" stroke-width="1">
+                    <title>100: H=108° C=0.095 L=0.983</title>
+                </circle>
+                <circle cx="147" cy="97" r="6" fill="#ffff95" stroke="#333" stroke-width="1">
+                    <title>200: H=109° C=0.129 L=0.978</title>
+                </circle>
+                <circle cx="156" cy="94" r="6" fill="#ffff72" stroke="#333" stroke-width="1">
+                    <title>300: H=109° C=0.162 L=0.973</title>
+                </circle>
+                <circle cx="163" cy="92" r="6" fill="#ffff50" stroke="#333" stroke-width="1">
+                    <title>400: H=109° C=0.186 L=0.971</title>
+                </circle>
+                <circle cx="169" cy="88" r="6" fill="#ff0" stroke="#333" stroke-width="1">
+                    <title>500: H=110° C=0.211 L=0.968</title>
+                </circle>
+                <circle cx="168" cy="90" r="6" fill="#f9f800" stroke="#333" stroke-width="1">
+                    <title>600: H=109° C=0.206 L=0.949</title>
+                </circle>
+                <circle cx="167" cy="89" r="6" fill="#f2f200" stroke="#333" stroke-width="1">
+                    <title>700: H=110° C=0.203 L=0.93</title>
+                </circle>
+                <circle cx="166" cy="91" r="6" fill="#eae900" stroke="#333" stroke-width="1">
+                    <title>800: H=109° C=0.197 L=0.905</title>
+                </circle>
+                <circle cx="164" cy="91" r="6" fill="#e2e100" stroke="#333" stroke-width="1">
+                    <title>900: H=109° C=0.192 L=0.881</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <div class="checkerboard-bg">
+            <div class="color-ramp__item light" style='background-color:#ffffcb'>
+                <h3 >50</h3>
+                
+                <h4 >#ffffcb</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ffffb3'>
+                <h3 >100</h3>
+                
+                <h4 >#ffffb3</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ffff95'>
+                <h3 >200</h3>
+                
+                <h4 >#ffff95</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ffff72'>
+                <h3 >300</h3>
+                
+                <h4 >#ffff72</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ffff50'>
+                <h3 >400</h3>
+                
+                <h4 >#ffff50</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ff0'>
+                <h3 >500</h3>
+                
+                <h4 >#ff0</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#f9f800'>
+                <h3 >600</h3>
+                <span class='warning-sign'>&#x26A0;</span>
+                <h4 >#f9f800</h4>
+                <span class='deltaE'>&delta;E 1.42</span>
+            </div>
+            <div class="color-ramp__item light" style='background-color:#f2f200'>
+                <h3 >700</h3>
+                <span class='warning-sign'>&#x26A0;</span>
+                <h4 >#f2f200</h4>
+                <span class='deltaE'>&delta;E 1.34</span>
+            </div>
+            <div class="color-ramp__item light" style='background-color:#eae900'>
+                <h3 >800</h3>
+                <span class='warning-sign'>&#x26A0;</span>
+                <h4 >#eae900</h4>
+                <span class='deltaE'>&delta;E 1.93</span>
+            </div>
+            <div class="color-ramp__item light" style='background-color:#e2e100'>
+                <h3 >900</h3>
+                <span class='warning-sign'>&#x26A0;</span>
+                <h4 >#e2e100</h4>
+                <span class='deltaE'>&delta;E 1.81</span>
+            </div>
+        </div>
+        <p class="value-source">scale(hsl(60deg, 100%, 50%))</p>
+    </div>
+    <div class="color-ramp">
+        <h3>red-rgb</h3>
+        
+        <!-- Lightness Curve Visualization -->
+        <div class="visualization-container">
+            <h4>Lightness Curve (OKLCh)</h4>
+            <svg class="lightness-chart" width="320" height="180" viewBox="0 0 320 180">
+                <!-- Grid lines -->
+                <g class="grid">
+                    <line x1="10" y1="30" x2="10" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="150" x2="310" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="90" x2="310" y2="90" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="5" y="25" font-size="10" fill="#666">1.0</text>
+                <text x="5" y="95" font-size="10" fill="#666">0.5</text>
+                <text x="5" y="155" font-size="10" fill="#666">0.0</text>
+                <text x="15" y="170" font-size="10" fill="#666">50</text>
+                <text x="310" y="170" font-size="10" fill="#666">900</text>
+                <text x="160" y="175" font-size="10" fill="#666" text-anchor="middle">Scale Index</text>
+                <text x="2" y="90" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 2, 90)">Lightness</text>
+                
+                <!-- Lightness curve -->
+                <polyline points="0,39.543038508828786 33.33333333333333,47.66900654028029 66.66666666666666,56.291818304178406 100,64.10405730391969 133.33333333333331,69.64409511581427 166.66666666666669,76.67448935210615 200,82.82294479805647 233.33333333333334,88.18188709366325 266.66666666666663,95.35314102202128 300,102.76870459499223" fill="none" stroke="#333" stroke-width="2" transform="translate(10, 0)"/>
+                
+                <!-- Data points -->
+                <circle cx="0" cy="39.543038508828786" r="4" fill="#ffdcd0" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>50: L=0.92</title>
+                </circle>
+                <circle cx="33.33333333333333" cy="47.66900654028029" r="4" fill="#ffbcac" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>100: L=0.853</title>
+                </circle>
+                <circle cx="66.66666666666666" cy="56.291818304178406" r="4" fill="#ff9785" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>200: L=0.781</title>
+                </circle>
+                <circle cx="100" cy="64.10405730391969" r="4" fill="#ff705d" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>300: L=0.716</title>
+                </circle>
+                <circle cx="133.33333333333331" cy="69.64409511581427" r="4" fill="#fd4f3c" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>400: L=0.67</title>
+                </circle>
+                <circle cx="166.66666666666669" cy="76.67448935210615" r="4" fill="#f21c0d" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>500: L=0.611</title>
+                </circle>
+                <circle cx="200" cy="82.82294479805647" r="4" fill="#db0000" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>600: L=0.56</title>
+                </circle>
+                <circle cx="233.33333333333334" cy="88.18188709366325" r="4" fill="#c40000" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>700: L=0.515</title>
+                </circle>
+                <circle cx="266.66666666666663" cy="95.35314102202128" r="4" fill="#a60000" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>800: L=0.455</title>
+                </circle>
+                <circle cx="300" cy="102.76870459499223" r="4" fill="#800" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>900: L=0.394</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <!-- Hue/Chroma Chart -->
+        <div class="visualization-container">
+            <h4>Hue/Chroma Distribution (OKLCh)</h4>
+            <svg class="hue-chroma-chart" width="220" height="220" viewBox="0 0 220 220">
+                <!-- Chroma circles -->
+                <g class="chroma-circles">
+                    <circle cx="110" cy="110" r="30" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="60" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="90" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+                    <!-- Chroma scale info -->
+                    <text x="5" y="25" font-size="8" fill="#999">Max C: 0.24</text>
+                </g>
+                <!-- Hue lines -->
+                <g class="hue-lines">
+                    <line x1="110" y1="20" x2="110" y2="200" stroke="#f5f5f5" stroke-width="1"/>
+                    <line x1="20" y1="110" x2="200" y2="110" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="115" y="15" font-size="10" fill="#666">0°</text>
+                <text x="205" y="115" font-size="10" fill="#666">90°</text>
+                <text x="110" y="210" font-size="10" fill="#666" text-anchor="middle">180°</text>
+                <text x="10" y="115" font-size="10" fill="#666">270°</text>
+                <text x="110" y="235" font-size="10" fill="#666" text-anchor="middle">Hue</text>
+                <text x="5" y="110" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 5, 110)">Chroma</text>
+                
+                <!-- Color points -->
+                <circle cx="118" cy="120" r="6" fill="#ffdcd0" stroke="#333" stroke-width="1">
+                    <title>50: H=40° C=0.042 L=0.92</title>
+                </circle>
+                <circle cx="124" cy="130" r="6" fill="#ffbcac" stroke="#333" stroke-width="1">
+                    <title>100: H=34° C=0.081 L=0.853</title>
+                </circle>
+                <circle cx="130" cy="143" r="6" fill="#ff9785" stroke="#333" stroke-width="1">
+                    <title>200: H=31° C=0.129 L=0.781</title>
+                </circle>
+                <circle cx="137" cy="156" r="6" fill="#ff705d" stroke="#333" stroke-width="1">
+                    <title>300: H=30° C=0.178 L=0.716</title>
+                </circle>
+                <circle cx="142" cy="165" r="6" fill="#fd4f3c" stroke="#333" stroke-width="1">
+                    <title>400: H=30° C=0.213 L=0.67</title>
+                </circle>
+                <circle cx="146" cy="172" r="6" fill="#f21c0d" stroke="#333" stroke-width="1">
+                    <title>500: H=30° C=0.24 L=0.611</title>
+                </circle>
+                <circle cx="143" cy="170" r="6" fill="#db0000" stroke="#333" stroke-width="1">
+                    <title>600: H=29° C=0.23 L=0.56</title>
+                </circle>
+                <circle cx="141" cy="165" r="6" fill="#c40000" stroke="#333" stroke-width="1">
+                    <title>700: H=29° C=0.211 L=0.515</title>
+                </circle>
+                <circle cx="137" cy="159" r="6" fill="#a60000" stroke="#333" stroke-width="1">
+                    <title>800: H=29° C=0.187 L=0.455</title>
+                </circle>
+                <circle cx="134" cy="153" r="6" fill="#800" stroke="#333" stroke-width="1">
+                    <title>900: H=29° C=0.162 L=0.394</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <div class="checkerboard-bg">
+            <div class="color-ramp__item light" style='background-color:#ffdcd0'>
+                <h3 >50</h3>
+                
+                <h4 >#ffdcd0</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ffbcac'>
+                <h3 >100</h3>
+                
+                <h4 >#ffbcac</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#ff9785'>
+                <h3 >200</h3>
+                
+                <h4 >#ff9785</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#ff705d'>
+                <h3 >300</h3>
+                
+                <h4 >#ff705d</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#fd4f3c'>
+                <h3 >400</h3>
+                
+                <h4 >#fd4f3c</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#f21c0d'>
+                <h3 >500</h3>
+                
+                <h4 >#f21c0d</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#db0000'>
+                <h3 >600</h3>
+                
+                <h4 >#db0000</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#c40000'>
+                <h3 >700</h3>
+                
+                <h4 >#c40000</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#a60000'>
+                <h3 >800</h3>
+                
+                <h4 >#a60000</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#800'>
+                <h3 >900</h3>
+                
+                <h4 >#800</h4>
+                
+            </div>
+        </div>
+        <p class="value-source">scale(hsl(4deg, 90%, 50%))</p>
+    </div>
+    <div class="color-ramp">
+        <h3>blue-rgb</h3>
+        
+        <!-- Lightness Curve Visualization -->
+        <div class="visualization-container">
+            <h4>Lightness Curve (OKLCh)</h4>
+            <svg class="lightness-chart" width="320" height="180" viewBox="0 0 320 180">
+                <!-- Grid lines -->
+                <g class="grid">
+                    <line x1="10" y1="30" x2="10" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="150" x2="310" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="90" x2="310" y2="90" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="5" y="25" font-size="10" fill="#666">1.0</text>
+                <text x="5" y="95" font-size="10" fill="#666">0.5</text>
+                <text x="5" y="155" font-size="10" fill="#666">0.0</text>
+                <text x="15" y="170" font-size="10" fill="#666">50</text>
+                <text x="310" y="170" font-size="10" fill="#666">900</text>
+                <text x="160" y="175" font-size="10" fill="#666" text-anchor="middle">Scale Index</text>
+                <text x="2" y="90" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 2, 90)">Lightness</text>
+                
+                <!-- Lightness curve -->
+                <polyline points="0,36.944969187792765 33.33333333333333,45.05835509937313 66.66666666666666,54.300171052733106 100,63.26523949012987 133.33333333333331,70.21112606448187 166.66666666666669,77.18002801058228 200,84.01542397830474 233.33333333333334,91.08328740289491 266.66666666666663,100.31861203393007 300,109.83147313776449" fill="none" stroke="#333" stroke-width="2" transform="translate(10, 0)"/>
+                
+                <!-- Data points -->
+                <circle cx="0" cy="36.944969187792765" r="4" fill="#d2f2ff" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>50: L=0.942</title>
+                </circle>
+                <circle cx="33.33333333333333" cy="45.05835509937313" r="4" fill="#afdcff" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>100: L=0.875</title>
+                </circle>
+                <circle cx="66.66666666666666" cy="54.300171052733106" r="4" fill="#88c2ff" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>200: L=0.797</title>
+                </circle>
+                <circle cx="100" cy="63.26523949012987" r="4" fill="#60a8ff" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>300: L=0.723</title>
+                </circle>
+                <circle cx="133.33333333333331" cy="70.21112606448187" r="4" fill="#3f94fa" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>400: L=0.665</title>
+                </circle>
+                <circle cx="166.66666666666669" cy="77.18002801058228" r="4" fill="#0d80f2" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>500: L=0.607</title>
+                </circle>
+                <circle cx="200" cy="84.01542397830474" r="4" fill="#006ddd" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>600: L=0.55</title>
+                </circle>
+                <circle cx="233.33333333333334" cy="91.08328740289491" r="4" fill="#0059c8" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>700: L=0.491</title>
+                </circle>
+                <circle cx="266.66666666666663" cy="100.31861203393007" r="4" fill="#003fad" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>800: L=0.414</title>
+                </circle>
+                <circle cx="300" cy="109.83147313776449" r="4" fill="#002392" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>900: L=0.335</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <!-- Hue/Chroma Chart -->
+        <div class="visualization-container">
+            <h4>Hue/Chroma Distribution (OKLCh)</h4>
+            <svg class="hue-chroma-chart" width="220" height="220" viewBox="0 0 220 220">
+                <!-- Chroma circles -->
+                <g class="chroma-circles">
+                    <circle cx="110" cy="110" r="30" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="60" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="90" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+                    <!-- Chroma scale info -->
+                    <text x="5" y="25" font-size="8" fill="#999">Max C: 0.194</text>
+                </g>
+                <!-- Hue lines -->
+                <g class="hue-lines">
+                    <line x1="110" y1="20" x2="110" y2="200" stroke="#f5f5f5" stroke-width="1"/>
+                    <line x1="20" y1="110" x2="200" y2="110" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="115" y="15" font-size="10" fill="#666">0°</text>
+                <text x="205" y="115" font-size="10" fill="#666">90°</text>
+                <text x="110" y="210" font-size="10" fill="#666" text-anchor="middle">180°</text>
+                <text x="10" y="115" font-size="10" fill="#666">270°</text>
+                <text x="110" y="235" font-size="10" fill="#666" text-anchor="middle">Hue</text>
+                <text x="5" y="110" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 5, 110)">Chroma</text>
+                
+                <!-- Color points -->
+                <circle cx="102" cy="102" r="6" fill="#d2f2ff" stroke="#333" stroke-width="1">
+                    <title>50: H=224° C=0.038 L=0.942</title>
+                </circle>
+                <circle cx="92" cy="100" r="6" fill="#afdcff" stroke="#333" stroke-width="1">
+                    <title>100: H=242° C=0.068 L=0.875</title>
+                </circle>
+                <circle cx="80" cy="99" r="6" fill="#88c2ff" stroke="#333" stroke-width="1">
+                    <title>200: H=250° C=0.106 L=0.797</title>
+                </circle>
+                <circle cx="68" cy="98" r="6" fill="#60a8ff" stroke="#333" stroke-width="1">
+                    <title>300: H=254° C=0.147 L=0.723</title>
+                </circle>
+                <circle cx="60" cy="97" r="6" fill="#3f94fa" stroke="#333" stroke-width="1">
+                    <title>400: H=255° C=0.172 L=0.665</title>
+                </circle>
+                <circle cx="54" cy="95" r="6" fill="#0d80f2" stroke="#333" stroke-width="1">
+                    <title>500: H=255° C=0.194 L=0.607</title>
+                </circle>
+                <circle cx="55" cy="96" r="6" fill="#006ddd" stroke="#333" stroke-width="1">
+                    <title>600: H=256° C=0.19 L=0.55</title>
+                </circle>
+                <circle cx="55" cy="99" r="6" fill="#0059c8" stroke="#333" stroke-width="1">
+                    <title>700: H=259° C=0.188 L=0.491</title>
+                </circle>
+                <circle cx="55" cy="101" r="6" fill="#003fad" stroke="#333" stroke-width="1">
+                    <title>800: H=261° C=0.184 L=0.414</title>
+                </circle>
+                <circle cx="56" cy="104" r="6" fill="#002392" stroke="#333" stroke-width="1">
+                    <title>900: H=264° C=0.182 L=0.335</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <div class="checkerboard-bg">
+            <div class="color-ramp__item light" style='background-color:#d2f2ff'>
+                <h3 >50</h3>
+                
+                <h4 >#d2f2ff</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#afdcff'>
+                <h3 >100</h3>
+                
+                <h4 >#afdcff</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#88c2ff'>
+                <h3 >200</h3>
+                
+                <h4 >#88c2ff</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#60a8ff'>
+                <h3 >300</h3>
+                
+                <h4 >#60a8ff</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#3f94fa'>
+                <h3 >400</h3>
+                
+                <h4 >#3f94fa</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#0d80f2'>
+                <h3 >500</h3>
+                
+                <h4 >#0d80f2</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#006ddd'>
+                <h3 >600</h3>
+                
+                <h4 >#006ddd</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#0059c8'>
+                <h3 >700</h3>
+                
+                <h4 >#0059c8</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#003fad'>
+                <h3 >800</h3>
+                
+                <h4 >#003fad</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#002392'>
+                <h3 >900</h3>
+                
+                <h4 >#002392</h4>
+                
+            </div>
+        </div>
+        <p class="value-source">scale(hsl(210deg, 90%, 50%))</p>
+    </div>
+    <div class="color-ramp">
+        <h3>green-rgb</h3>
+        
+        <!-- Lightness Curve Visualization -->
+        <div class="visualization-container">
+            <h4>Lightness Curve (OKLCh)</h4>
+            <svg class="lightness-chart" width="320" height="180" viewBox="0 0 320 180">
+                <!-- Grid lines -->
+                <g class="grid">
+                    <line x1="10" y1="30" x2="10" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="150" x2="310" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+                    <line x1="10" y1="90" x2="310" y2="90" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="5" y="25" font-size="10" fill="#666">1.0</text>
+                <text x="5" y="95" font-size="10" fill="#666">0.5</text>
+                <text x="5" y="155" font-size="10" fill="#666">0.0</text>
+                <text x="15" y="170" font-size="10" fill="#666">50</text>
+                <text x="310" y="170" font-size="10" fill="#666">900</text>
+                <text x="160" y="175" font-size="10" fill="#666" text-anchor="middle">Scale Index</text>
+                <text x="2" y="90" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 2, 90)">Lightness</text>
+                
+                <!-- Lightness curve -->
+                <polyline points="0,34.75079422400704 33.33333333333333,41.19213686821091 66.66666666666666,48.76092214248331 100,56.27616459594934 133.33333333333331,61.82235061948366 166.66666666666669,67.31115596624707 200,75.83686306244596 233.33333333333334,83.79481525861522 266.66666666666663,94.3997441288886 300,105.15884763647786" fill="none" stroke="#333" stroke-width="2" transform="translate(10, 0)"/>
+                
+                <!-- Data points -->
+                <circle cx="0" cy="34.75079422400704" r="4" fill="#d6ffd6" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>50: L=0.96</title>
+                </circle>
+                <circle cx="33.33333333333333" cy="41.19213686821091" r="4" fill="#b8f2b8" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>100: L=0.907</title>
+                </circle>
+                <circle cx="66.66666666666666" cy="48.76092214248331" r="4" fill="#95e296" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>200: L=0.844</title>
+                </circle>
+                <circle cx="100" cy="56.27616459594934" r="4" fill="#6fd274" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>300: L=0.781</title>
+                </circle>
+                <circle cx="133.33333333333331" cy="61.82235061948366" r="4" fill="#4fc659" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>400: L=0.735</title>
+                </circle>
+                <circle cx="166.66666666666669" cy="67.31115596624707" r="4" fill="#21ba3a" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>500: L=0.689</title>
+                </circle>
+                <circle cx="200" cy="75.83686306244596" r="4" fill="#00a21c" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>600: L=0.618</title>
+                </circle>
+                <circle cx="233.33333333333334" cy="83.79481525861522" r="4" fill="#008b00" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>700: L=0.552</title>
+                </circle>
+                <circle cx="266.66666666666663" cy="94.3997441288886" r="4" fill="#006d00" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>800: L=0.463</title>
+                </circle>
+                <circle cx="300" cy="105.15884763647786" r="4" fill="#005000" stroke="#333" stroke-width="1" transform="translate(10, 0)">
+                    <title>900: L=0.374</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <!-- Hue/Chroma Chart -->
+        <div class="visualization-container">
+            <h4>Hue/Chroma Distribution (OKLCh)</h4>
+            <svg class="hue-chroma-chart" width="220" height="220" viewBox="0 0 220 220">
+                <!-- Chroma circles -->
+                <g class="chroma-circles">
+                    <circle cx="110" cy="110" r="30" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="60" fill="none" stroke="#e0e0e0" stroke-width="1"/>
+                    <circle cx="110" cy="110" r="90" fill="none" stroke="#d0d0d0" stroke-width="1"/>
+                    <!-- Chroma scale info -->
+                    <text x="5" y="25" font-size="8" fill="#999">Max C: 0.207</text>
+                </g>
+                <!-- Hue lines -->
+                <g class="hue-lines">
+                    <line x1="110" y1="20" x2="110" y2="200" stroke="#f5f5f5" stroke-width="1"/>
+                    <line x1="20" y1="110" x2="200" y2="110" stroke="#f5f5f5" stroke-width="1"/>
+                </g>
+                <!-- Axis labels -->
+                <text x="115" y="15" font-size="10" fill="#666">0°</text>
+                <text x="205" y="115" font-size="10" fill="#666">90°</text>
+                <text x="110" y="210" font-size="10" fill="#666" text-anchor="middle">180°</text>
+                <text x="10" y="115" font-size="10" fill="#666">270°</text>
+                <text x="110" y="235" font-size="10" fill="#666" text-anchor="middle">Hue</text>
+                <text x="5" y="110" font-size="10" fill="#666" text-anchor="middle" transform="rotate(-90, 5, 110)">Chroma</text>
+                
+                <!-- Color points -->
+                <circle cx="122" cy="93" r="6" fill="#d6ffd6" stroke="#333" stroke-width="1">
+                    <title>50: H=145° C=0.069 L=0.96</title>
+                </circle>
+                <circle cx="127" cy="86" r="6" fill="#b8f2b8" stroke="#333" stroke-width="1">
+                    <title>100: H=145° C=0.098 L=0.907</title>
+                </circle>
+                <circle cx="132" cy="78" r="6" fill="#95e296" stroke="#333" stroke-width="1">
+                    <title>200: H=145° C=0.129 L=0.844</title>
+                </circle>
+                <circle cx="138" cy="71" r="6" fill="#6fd274" stroke="#333" stroke-width="1">
+                    <title>300: H=145° C=0.16 L=0.781</title>
+                </circle>
+                <circle cx="142" cy="65" r="6" fill="#4fc659" stroke="#333" stroke-width="1">
+                    <title>400: H=145° C=0.184 L=0.735</title>
+                </circle>
+                <circle cx="146" cy="59" r="6" fill="#21ba3a" stroke="#333" stroke-width="1">
+                    <title>500: H=145° C=0.207 L=0.689</title>
+                </circle>
+                <circle cx="146" cy="61" r="6" fill="#00a21c" stroke="#333" stroke-width="1">
+                    <title>600: H=144° C=0.202 L=0.618</title>
+                </circle>
+                <circle cx="145" cy="66" r="6" fill="#008b00" stroke="#333" stroke-width="1">
+                    <title>700: H=142° C=0.188 L=0.552</title>
+                </circle>
+                <circle cx="139" cy="73" r="6" fill="#006d00" stroke="#333" stroke-width="1">
+                    <title>800: H=142° C=0.158 L=0.463</title>
+                </circle>
+                <circle cx="133" cy="80" r="6" fill="#005000" stroke="#333" stroke-width="1">
+                    <title>900: H=142° C=0.127 L=0.374</title>
+                </circle>
+            </svg>
+        </div>
+        
+        <div class="checkerboard-bg">
+            <div class="color-ramp__item light" style='background-color:#d6ffd6'>
+                <h3 >50</h3>
+                
+                <h4 >#d6ffd6</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#b8f2b8'>
+                <h3 >100</h3>
+                
+                <h4 >#b8f2b8</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#95e296'>
+                <h3 >200</h3>
+                
+                <h4 >#95e296</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#6fd274'>
+                <h3 >300</h3>
+                
+                <h4 >#6fd274</h4>
+                
+            </div>
+            <div class="color-ramp__item light" style='background-color:#4fc659'>
+                <h3 >400</h3>
+                
+                <h4 >#4fc659</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#21ba3a'>
+                <h3 >500</h3>
+                
+                <h4 >#21ba3a</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#00a21c'>
+                <h3 >600</h3>
+                
+                <h4 >#00a21c</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#008b00'>
+                <h3 >700</h3>
+                
+                <h4 >#008b00</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#006d00'>
+                <h3 >800</h3>
+                
+                <h4 >#006d00</h4>
+                
+            </div>
+            <div class="color-ramp__item " style='background-color:#005000'>
+                <h3 >900</h3>
+                
+                <h4 >#005000</h4>
+                
+            </div>
+        </div>
+        <p class="value-source">scale(hsl(130deg, 70%, 43%))</p>
+    </div>
+</div>
+
+<div class='color-chips'>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffffcb'>
+                <h3 >yellow-50</h3>
+                <h4 >#ffffcb</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffffb3'>
+                <h3 >yellow-100</h3>
+                <h4 >#ffffb3</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffcb' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffff95'>
+                <h3 >yellow-200</h3>
+                <h4 >#ffff95</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffcb' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffff72'>
+                <h3 >yellow-300</h3>
+                <h4 >#ffff72</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffcb' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffff50'>
+                <h3 >yellow-400</h3>
+                <h4 >#ffff50</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffcb' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ff0'>
+                <h3 >yellow-500</h3>
+                <h4 >#ff0</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.42</span>
+                </li>
+            </ul>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffcb' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-50</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#f9f800'>
+                <h3 >yellow-600</h3>
+                <h4 >#f9f800</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f2f200' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-700</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.34</span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.42</span>
+                </li>
+            </ul>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#eae900' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#b8f2b8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-100</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#f2f200'>
+                <h3 >yellow-700</h3>
+                <h4 >#f2f200</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.34</span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#eae900' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-800</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.93</span>
+                </li>
+            </ul>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#e2e100' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-900</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#eae900'>
+                <h3 >yellow-800</h3>
+                <h4 >#eae900</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#e2e100' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-900</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.81</span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f2f200' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-700</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.93</span>
+                </li>
+            </ul>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#95e296' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#e2e100'>
+                <h3 >yellow-900</h3>
+                <h4 >#e2e100</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#eae900' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-800</span>
+                    </span>
+                    <span class='deltaE'>&delta;E 1.81</span>
+                </li>
+            </ul>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f2f200' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-700</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffdcd0'>
+                <h3 >red-rgb-50</h3>
+                <h4 >#ffdcd0</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#b8f2b8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#eae900' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#e2e100' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-900</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f2f200' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-700</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ffbcac'>
+                <h3 >red-rgb-100</h3>
+                <h4 >#ffbcac</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#95e296' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#b8f2b8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-100</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#ff9785'>
+                <h3 >red-rgb-200</h3>
+                <h4 >#ff9785</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#6fd274' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#4fc659' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-400</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#ff705d'>
+                <h3 >red-rgb-300</h3>
+                <h4 >#ff705d</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#21ba3a' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#4fc659' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-400</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#fd4f3c'>
+                <h3 >red-rgb-400</h3>
+                <h4 >#fd4f3c</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#00a21c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#21ba3a' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-500</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#f21c0d'>
+                <h3 >red-rgb-500</h3>
+                <h4 >#f21c0d</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#008b00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-700</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#db0000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-600</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#db0000'>
+                <h3 >red-rgb-600</h3>
+                <h4 >#db0000</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#008b00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-700</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#c40000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-700</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f21c0d' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-500</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#c40000'>
+                <h3 >red-rgb-700</h3>
+                <h4 >#c40000</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#006d00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#db0000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#a60000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-800</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#a60000'>
+                <h3 >red-rgb-800</h3>
+                <h4 >#a60000</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#006d00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-900</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#c40000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-700</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#005000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-900</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#800'>
+                <h3 >red-rgb-900</h3>
+                <h4 >#800</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#005000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-900</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#a60000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-800</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#d2f2ff'>
+                <h3 >blue-rgb-50</h3>
+                <h4 >#d2f2ff</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d6ffd6' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#b8f2b8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-100</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#afdcff'>
+                <h3 >blue-rgb-100</h3>
+                <h4 >#afdcff</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#95e296' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#b8f2b8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-100</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#88c2ff'>
+                <h3 >blue-rgb-200</h3>
+                <h4 >#88c2ff</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#6fd274' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#4fc659' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-400</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#60a8ff'>
+                <h3 >blue-rgb-300</h3>
+                <h4 >#60a8ff</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#21ba3a' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#4fc659' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-400</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#3f94fa'>
+                <h3 >blue-rgb-400</h3>
+                <h4 >#3f94fa</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#00a21c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#21ba3a' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-500</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#0d80f2'>
+                <h3 >blue-rgb-500</h3>
+                <h4 >#0d80f2</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#00a21c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#008b00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-700</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#006ddd'>
+                <h3 >blue-rgb-600</h3>
+                <h4 >#006ddd</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#008b00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-700</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#0059c8'>
+                <h3 >blue-rgb-700</h3>
+                <h4 >#0059c8</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#006d00' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-800</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#003fad'>
+                <h3 >blue-rgb-800</h3>
+                <h4 >#003fad</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#005000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-900</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#002392'>
+                <h3 >blue-rgb-900</h3>
+                <h4 >#002392</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#d6ffd6'>
+                <h3 >green-rgb-50</h3>
+                <h4 >#d6ffd6</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff95' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff50' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffff72' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffb3' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffffcb' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d2f2ff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-50</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#b8f2b8'>
+                <h3 >green-rgb-100</h3>
+                <h4 >#b8f2b8</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffdcd0' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffbcac' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#afdcff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#d2f2ff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-50</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f9f800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#95e296' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-200</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#95e296'>
+                <h3 >green-rgb-200</h3>
+                <h4 >#95e296</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ffbcac' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#eae900' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>yellow-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#afdcff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-100</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#6fd274' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#b8f2b8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-100</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#6fd274'>
+                <h3 >green-rgb-300</h3>
+                <h4 >#6fd274</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff9785' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#4fc659' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#88c2ff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#95e296' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-200</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch light' style='background-color:#4fc659'>
+                <h3 >green-rgb-400</h3>
+                <h4 >#4fc659</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#6fd274' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff705d' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#21ba3a' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff9785' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#88c2ff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-200</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#60a8ff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-300</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#21ba3a'>
+                <h3 >green-rgb-500</h3>
+                <h4 >#21ba3a</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#ff705d' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#4fc659' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>green-rgb-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#fd4f3c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#60a8ff' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-300</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#3f94fa' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-400</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#00a21c'>
+                <h3 >green-rgb-600</h3>
+                <h4 >#00a21c</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#fd4f3c' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#3f94fa' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-400</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#0d80f2' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-500</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#008b00'>
+                <h3 >green-rgb-700</h3>
+                <h4 >#008b00</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#f21c0d' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-500</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#db0000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#006ddd' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-600</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#0d80f2' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-500</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#006d00'>
+                <h3 >green-rgb-800</h3>
+                <h4 >#006d00</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#a60000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#c40000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-700</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#0059c8' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-700</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="color-chip">
+        <div class='color-chip__swatch-container checkerboard-bg'>
+            <div class='color-chip__swatch ' style='background-color:#005000'>
+                <h3 >green-rgb-900</h3>
+                <h4 >#005000</h4>
+            </div>
+        </div>
+        <div class='color-chip__similar-colors'>
+            <h4>Similar Colors for People with Color Deficiency</h4>
+            <ul>
+                <li><span class='small-color-chip'>
+                        <span style='background:#800' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-900</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#003fad' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>blue-rgb-800</span>
+                    </span>
+                </li>
+                <li><span class='small-color-chip'>
+                        <span style='background:#a60000' class='small-color-chip__color'></span>
+                        <span class='small-color-chip__label'>red-rgb-800</span>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+  </section>
+
+
+
+  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+  <script>
+    window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;
+    ga('create', 'UA-XXXXX-Y', 'auto'); ga('set', 'transport', 'beacon'); ga('send', 'pageview')
+  </script>
+  <script src="https://www.google-analytics.com/analytics.js" async></script>
+</body>
+
+</html>

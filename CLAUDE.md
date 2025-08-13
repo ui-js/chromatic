@@ -5,6 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 Chromatic is a build system for managing cross-platform design systems using design tokens. It generates platform-specific files (CSS, Sass, iOS, Android) from YAML/JSON token definitions with support for themes, expressions, and references.
 
+### Recent Enhancements
+- **OKLCh Color Space Support**: Added `oklch()` and `okhsl()` functions for perceptually uniform color manipulation
+- **Improved Color Scales**: The `scale()` function now uses OKLCh interpolation for better perceptual uniformity
+- **Interactive Color Scale Explorer**: Created `color-scale-explorer.html` - an interactive tool for exploring OKLCh color scales with real-time visualization
+- **HTML Template Improvements**: Fixed chroma/hue plot positioning in generated HTML color documentation
+
 ## Essential Commands
 
 ### Development

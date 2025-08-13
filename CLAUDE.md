@@ -38,6 +38,8 @@ chromatic example ./test             # Create example
 - **chromatic-cli.ts**: CLI interface using yargs, handles file watching and command parsing
 - **value-parser.ts**: Parses token expressions (arithmetic, units, functions, references)
 - **formats-*.ts**: Output format generators for different platforms
+- **color-functions.ts**: Color manipulation functions including `scale()`, `mix()`, and OKLCh conversions
+- **formats-styleguide.ts**: HTML template generation with color visualization charts
 
 ### Key Patterns
 - Global state variables prefixed with `g` (gConfig, gTokenValues, gThemes)
@@ -66,3 +68,22 @@ chromatic example ./test             # Create example
 - Format with `npm run lint`
 - Tests in `/test` directory using Jest
 - Snapshot testing for output validation
+
+## Color System Features
+
+### Scale Function
+The `scale()` function generates perceptually uniform color ramps:
+- Single color: `scale(oklch(0.6 0.25 260deg))` - generates 11-step ramp from light to dark
+- Two colors: `scale(color1, color2)` - interpolates between colors
+- Three colors: `scale(low, mid, high)` - creates gradient through three anchor points
+
+### Interactive Tools
+- **color-scale-explorer.html**: Interactive OKLCh color scale explorer with:
+  - Real-time slider controls for Lightness, Chroma, and Hue
+  - Dynamic gradient backgrounds showing value ranges
+  - URL persistence for sharing configurations
+  - Copy buttons to generate `scale()` function syntax
+  - Lightness distribution and chroma/hue polar plot visualizations
+
+### Known Issues Fixed
+- Chroma/hue plot in HTML templates now correctly positions hues (0° at top, not right)
